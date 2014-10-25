@@ -1,7 +1,7 @@
 describe("UZEncoder", function() {
-  beforeEach(module('UZEncoder'));
+  beforeEach(module('UZCrypto'));
 
-  describe("_encoder", function() {
+  describe("_decode", function() {
 
     /* String for 'Tokyo' in Japanese */
     var tokyo = "\u6771\u4EAC";
@@ -22,19 +22,13 @@ describe("UZEncoder", function() {
     /* BASIC TESTS                                                            */
     /* ====================================================================== */
 
-    it("should exist", inject(['_encoder', function(_encoder) {
-      expect(_encoder).to.exist;
+    it("should exist", inject(['_decode', function(_decode) {
+      expect(_decode).to.exist;
     }]));
 
-    it("should have three algorithms", inject(['_encoder', function(_encoder) {
-      expect(_encoder.algorithms).to.exist;
-      expect(_encoder.algorithms.length).to.equal(3);
-      expect(_encoder.algorithms).to.include.members([ "UTF8", "HEX", "BASE64" ]);
-    }]));
+    it("should fail encoding with unknown algorithm", inject(['$done', '_encode', function($done, _encode) {
 
-    it("should fail encoding with unknown algorithm", inject(['$done', '_encoder', function($done, _encoder) {
-
-      _encoder.encode('FOO', tokyo )
+      _encode('FOO', tokyo )
         .then(function(success) {
           $done(success);
         }, function(failure) {
@@ -45,9 +39,9 @@ describe("UZEncoder", function() {
 
     }]));
 
-    it("should fail decoding with unknown algorithm", inject(['$done', '_encoder', function($done, _encoder) {
+    it("should fail decoding with unknown algorithm", inject(['$done', '_decode', function($done, _decode) {
 
-      _encoder.decode('FOO', tokyo )
+      _decode('FOO', tokyo )
         .then(function(success) {
           $done(success);
         }, function(failure) {
@@ -58,9 +52,9 @@ describe("UZEncoder", function() {
 
     }]));
 
-    it("should fail encoding garbage", inject(['$done', '_encoder', function($done, _encoder) {
+    it("should fail encoding garbage", inject(['$done', '_encode', function($done, _encode) {
 
-      _encoder.encode('UTF8', { a: 1 })
+      _encode('UTF8', { a: 1 })
         .then(function(success) {
           $done(success);
         }, function(failure) {
@@ -71,9 +65,9 @@ describe("UZEncoder", function() {
 
     }]));
 
-    it("should fail decoding garbage", inject(['$done', '_encoder', function($done, _encoder) {
+    it("should fail decoding garbage", inject(['$done', '_decode', function($done, _decode) {
 
-      _encoder.decode('UTF8', { a: 1 })
+      _decode('UTF8', { a: 1 })
         .then(function(success) {
           $done(success);
         }, function(failure) {
@@ -84,9 +78,9 @@ describe("UZEncoder", function() {
 
     }]));
 
-    it("should fail encoding null data", inject(['$done', '_encoder', function($done, _encoder) {
+    it("should fail encoding null data", inject(['$done', '_encode', function($done, _encode) {
 
-      _encoder.encode('UTF8', null)
+      _encode('UTF8', null)
         .then(function(success) {
           $done(success);
         }, function(failure) {
@@ -97,9 +91,9 @@ describe("UZEncoder", function() {
 
     }]));
 
-    it("should fail decoding null data", inject(['$done', '_encoder', function($done, _encoder) {
+    it("should fail decoding null data", inject(['$done', '_decode', function($done, _decode) {
 
-      _encoder.decode('UTF8', null)
+      _decode('UTF8', null)
         .then(function(success) {
           $done(success);
         }, function(failure) {
@@ -110,9 +104,9 @@ describe("UZEncoder", function() {
 
     }]));
 
-    it("should handle nested promises", inject(['$done', '_encoder', function($done, _encoder) {
+    it("should handle nested promises", inject(['$done', '_encode', '_decode', function($done, _encode, _decode) {
 
-      _encoder.encode('UTF8', _encoder.decode('HEX', _encoder.encode('HEX', _encoder.decode('BASE64', tokyoB64))))
+      _encode('UTF8', _decode('HEX', _encode('HEX', _decode('BASE64', tokyoB64))))
         .then(function(success) {
           expect(success).to.be.a('string');
           expect(success).to.equal(tokyo);
@@ -130,9 +124,9 @@ describe("UZEncoder", function() {
 
     describe("UTF8", function() {
 
-      it("decode", inject(['$done', '_encoder', function($done, _encoder) {
+      it("decode", inject(['$done', '_decode', function($done, _decode) {
 
-        _encoder.decode('UTF8', tokyo)
+        _decode('UTF8', tokyo)
           .then(function(success) {
             expect(success).to.be.an.instanceof(Uint8Array);
             expect(success).to.eql(tokyoArray);
@@ -144,9 +138,9 @@ describe("UZEncoder", function() {
 
       }]));
 
-      it("encode Uint8Array", inject(['$done', '_encoder', function($done, _encoder) {
+      it("encode Uint8Array", inject(['$done', '_encode', function($done, _encode) {
 
-        _encoder.encode('UTF8', tokyoArray)
+        _encode('UTF8', tokyoArray)
           .then(function(success) {
             expect(success).to.be.a('string');
             expect(success).to.equal(tokyo);
@@ -157,9 +151,9 @@ describe("UZEncoder", function() {
 
       }]));
 
-      it("encode plain array", inject(['$done', '_encoder', function($done, _encoder) {
+      it("encode plain array", inject(['$done', '_encode', function($done, _encode) {
 
-        _encoder.encode('UTF8', [230, 157, 177, 228, 186, 172])
+        _encode('UTF8', [230, 157, 177, 228, 186, 172])
           .then(function(success) {
             expect(success).to.be.a('string');
             expect(success).to.equal(tokyo);
@@ -170,9 +164,9 @@ describe("UZEncoder", function() {
 
       }]));
 
-      it("encode string (pass-through)", inject(['$done', '_encoder', function($done, _encoder) {
+      it("encode string (pass-through)", inject(['$done', '_encode', function($done, _encode) {
 
-        _encoder.encode('UTF8', tokyo)
+        _encode('UTF8', tokyo)
           .then(function(success) {
             expect(success).to.be.a('string');
             expect(success).to.equal(tokyo);
@@ -190,9 +184,9 @@ describe("UZEncoder", function() {
 
     describe("HEX", function() {
 
-      it("decode lower case", inject(['$done', '_encoder', function($done, _encoder) {
+      it("decode lower case", inject(['$done', '_decode', function($done, _decode) {
 
-        _encoder.decode('HEX', tokyoHex.toLowerCase())
+        _decode('HEX', tokyoHex.toLowerCase())
           .then(function(success) {
             expect(success).to.be.an.instanceof(Uint8Array);
             expect(success).to.eql(tokyoArray);
@@ -204,9 +198,9 @@ describe("UZEncoder", function() {
 
       }]));
 
-      it("decode upper case", inject(['$done', '_encoder', function($done, _encoder) {
+      it("decode upper case", inject(['$done', '_decode', function($done, _decode) {
 
-        _encoder.decode('HEX', tokyoHex.toUpperCase())
+        _decode('HEX', tokyoHex.toUpperCase())
           .then(function(success) {
             expect(success).to.be.an.instanceof(Uint8Array);
             expect(success).to.eql(tokyoArray);
@@ -218,9 +212,9 @@ describe("UZEncoder", function() {
 
       }]));
 
-      it("encode", inject(['$done', '_encoder', function($done, _encoder) {
+      it("encode", inject(['$done', '_encode', function($done, _encode) {
 
-        _encoder.encode('HEX', tokyoArray)
+        _encode('HEX', tokyoArray)
           .then(function(success) {
             expect(success).to.be.a('string');
             expect(success).to.equal(tokyoHex);
@@ -239,9 +233,9 @@ describe("UZEncoder", function() {
 
     describe("BASE64", function() {
 
-      it("decode", inject(['$done', '_encoder', function($done, _encoder) {
+      it("decode", inject(['$done', '_decode', function($done, _decode) {
 
-        _encoder.decode('BASE64', tokyoB64)
+        _decode('BASE64', tokyoB64)
           .then(function(success) {
             expect(success).to.be.an.instanceof(Uint8Array);
             expect(success).to.eql(tokyoArray);
@@ -253,9 +247,9 @@ describe("UZEncoder", function() {
 
       }]));
 
-      it("encode", inject(['$done', '_encoder', function($done, _encoder) {
+      it("encode", inject(['$done', '_encode', function($done, _encode) {
 
-        _encoder.encode('BASE64', tokyoArray)
+        _encode('BASE64', tokyoArray)
           .then(function(success) {
             expect(success).to.be.a('string');
             expect(success).to.equal(tokyoB64);

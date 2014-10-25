@@ -1,6 +1,13 @@
 'use strict';
 
-define([], function() {
+define(["modules/hash/sha1",
+        "modules/hash/sha-224",
+        "modules/hash/sha-256",
+        "modules/hash/sha-384",
+        "modules/hash/sha-512",
+        "modules/util/uint8"],
+function(sha1, sha224, sha256, sha384, sha512, uint8) {
+
   return function(module) {
 
     /*
@@ -16,73 +23,56 @@ define([], function() {
       'SHA-512': new Uint8Array([0xCF, 0x83, 0xE1, 0x35, 0x7E, 0xEF, 0xB8, 0xBD, 0xF1, 0x54, 0x28, 0x50, 0xD6, 0x6D, 0x80, 0x07, 0xD6, 0x20, 0xE4, 0x05, 0x0B, 0x57, 0x15, 0xDC, 0x83, 0xF4, 0xA9, 0x21, 0xD3, 0x6C, 0xE9, 0xCE, 0x47, 0xD0, 0xD1, 0x3C, 0x5D, 0x85, 0xF2, 0xB0, 0xFF, 0x83, 0x18, 0xD2, 0x87, 0x7E, 0xEC, 0x2F, 0x63, 0xB9, 0x31, 0xBD, 0x47, 0x41, 0x7A, 0x81, 0xA5, 0x38, 0x32, 0x7A, 0xF9, 0x27, 0xDA, 0x3E])
     };
 
-    module.factory('_hash', ['$rootScope', '$q', '_subtle', '_encoder', '_defer', function($rootScope, $q, _subtle, _encoder, _defer) {
+    /* Require our native JS implementations */
+    var hashFunctions = {
+      'SHA-1':   sha1,
+      'SHA-224': sha224,
+      'SHA-256': sha256,
+      'SHA-384': sha384,
+      'SHA-512': sha512
+    };
 
-      /* Defers and promises to load via "require()" */
-      var sha1_defer     = $q.defer();
-      var sha224_defer   = $q.defer();
-      var sha256_defer   = $q.defer();
-      var sha384_defer   = $q.defer();
-      var sha512_defer   = $q.defer();
-
-      var sha1_promise   = sha1_defer.promise;
-      var sha224_promise = sha224_defer.promise;
-      var sha256_promise = sha256_defer.promise;
-      var sha384_promise = sha384_defer.promise;
-      var sha512_promise = sha512_defer.promise;
-
-      /* Load the native JS implementation asynchronously */
-      require(["modules/hash/sha1",
-               "modules/hash/sha-224",
-               "modules/hash/sha-256",
-               "modules/hash/sha-384",
-               "modules/hash/sha-512"],
-        function(sha1, sha224, sha256, sha384, sha512) {
-          sha1_defer.resolve(sha1);
-          sha224_defer.resolve(sha224);
-          sha256_defer.resolve(sha256);
-          sha384_defer.resolve(sha384);
-          sha512_defer.resolve(sha512);
-          $rootScope.$apply();
-        });
+    /* Create our "_hash" service */
+    module.factory('_hash', ['$q', '_subtle', '_defer', function($q, _subtle, _defer) {
 
       /* Main entry point for all hashing functions */
-      function hash(algorithm, promise, message) {
+      function hash(algorithm, message) {
 
-          /* Always return a promise */
-          return $q(function(resolve, reject) {
+        /* Get our fallback function */
+        var fallbackFunction = hashFunctions[algorithm];
+        if (! fallbackFunction) {
+          throw new Error("Unsupported hashing algorithm: " + algorithm);
+        }
 
-            /* Attempt to use the subtle crypto interface */
-            try {
-              _subtle.digest({ name: algorithm }, message)
-                .then(function(success) {
-                  /* Subtle crypto was successful, resolve */
-                  resolve(success);
-                }, function(failure) {
-                  /* Subtle crypto failed, use javascript */
-                  promise.then(function(hash) {
-                    try {
-                      resolve(hash(message));
-                    } catch (error) {
-                      reject(error);
-                    }
-                  });
-                });
+        /* Always return a promise */
+        return $q(function(resolve, reject) {
 
-            } catch (error) {
-              /* Subtle threw an error, use javascript (deferred) */
-              _defer(function() {
-                promise.then(function(hash) {
-                  try {
-                    resolve(hash(message));
-                  } catch (error) {
-                    reject(error);
-                  }
-                });
+          /* Attempt to use the subtle crypto interface */
+          try {
+            _subtle.digest({ name: algorithm }, message)
+              .then(function(success) {
+                /* Subtle crypto was successful, resolve */
+                resolve(success);
+              }, function(failure) {
+                /* Subtle crypto failed, use javascript */
+                try {
+                  resolve(fallbackFunction(message));
+                } catch (error) {
+                  reject(error);
+                }
               });
-            }
 
-          });
+          } catch (error) {
+            /* Subtle threw an error, use javascript (deferred) */
+            _defer(function() {
+              try {
+                resolve(fallbackFunction(message));
+              } catch (error) {
+                reject(error);
+              }
+            });
+          }
+        });
       }
 
       return function(algorithm, data) {
@@ -92,24 +82,16 @@ define([], function() {
               if (!data) throw new Error("No data to hash");
               if (data.buffer) data = data.buffer;
 
+              /* Normalize algorithm */
+              algorithm = algorithm.toUpperCase();
+
               /* Shortcut, plus M$ does not compute those (hangs forever) */
-              if (data.byteLength == 0) switch (algorithm.toUpperCase()) {
-                case "SHA-1":   return emptyHashes['SHA-1'  ];
-                case "SHA-224": return emptyHashes['SHA-224'];
-                case "SHA-256": return emptyHashes['SHA-256'];
-                case "SHA-384": return emptyHashes['SHA-384'];
-                case "SHA-512": return emptyHashes['SHA-512'];
-                default: throw new Error("Unsupported hashing algorithm: " + algorithm);
+              if ((data.byteLength == 0) && (emptyHashes[algorithm])) {
+                return emptyHashes[algorithm];
               }
 
-              switch (algorithm.toUpperCase()) {
-                case "SHA-1":   return hash('SHA-1',   sha1_promise,   _encoder.toUint8Array(data));
-                case "SHA-224": return hash('SHA-224', sha224_promise, _encoder.toUint8Array(data));
-                case "SHA-256": return hash('SHA-256', sha256_promise, _encoder.toUint8Array(data));
-                case "SHA-384": return hash('SHA-384', sha384_promise, _encoder.toUint8Array(data));
-                case "SHA-512": return hash('SHA-512', sha512_promise, _encoder.toUint8Array(data));
-                default: throw new Error("Unsupported hashing algorithm: " + algorithm);
-              }
+              /* Call our hashing function */
+              return  hash(algorithm, uint8.toUint8Array(data));
 
             } catch (error) {
               return $q.reject(error);

@@ -1,221 +1,218 @@
-describe("UZCrypto", function() {
+describe("hash", function() {
   beforeEach(module('UZCrypto'));
 
-  describe("_hash", function() {
 
-    it("should exist", function() {
-      inject(['_hash', function(_hash) {
-        expect(_hash).to.exist;
-      }]);
-    });
+  it("should exist", function() {
+    inject(['_hash', function(_hash) {
+      expect(_hash).to.exist;
+    }]);
+  });
 
-    describe("SHA-1", function() {
+  describe("SHA-1", function() {
 
-      it("should hash empty data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash empty data", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-1', emptyData))
-          .then(function(success) {
-            expect(success).to.equal(emptySHA1);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-1', emptyData))
+        .then(function(success) {
+          expect(success).to.equal(emptySHA1);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash a well-known string", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash a well-known string", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-1', knownString))
-          .then(function(success) {
-            expect(success).to.equal(knownSHA1);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-1', knownString))
+        .then(function(success) {
+          expect(success).to.equal(knownSHA1);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash 10k of binary data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash 10k of binary data", inject(['$done', '_hash', '_encode', '_decode', function($done, _hash, _encode, _decode) {
 
-        _encoder.encode('HEX', _hash('SHA-1', _encoder.decode('BASE64', binaryBase64)))
-          .then(function(success) {
-            expect(success).to.equal(binarySHA1);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-1', _decode('BASE64', binaryBase64)))
+        .then(function(success) {
+          expect(success).to.equal(binarySHA1);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-    });
+  });
 
-    /* ====================================================================== */
+  /* ====================================================================== */
 
-    describe("SHA-224", function() {
+  describe("SHA-224", function() {
 
-      it("should hash empty data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash empty data", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-224', emptyData))
-          .then(function(success) {
-            expect(success).to.equal(emptySHA224);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-224', emptyData))
+        .then(function(success) {
+          expect(success).to.equal(emptySHA224);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash a well-known string", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash a well-known string", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-224', knownString))
-          .then(function(success) {
-            expect(success).to.equal(knownSHA224);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-224', knownString))
+        .then(function(success) {
+          expect(success).to.equal(knownSHA224);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash 10k of binary data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash 10k of binary data", inject(['$done', '_hash', '_encode', '_decode', function($done, _hash, _encode, _decode) {
 
-        _encoder.encode('HEX', _hash('SHA-224', _encoder.decode('BASE64', binaryBase64)))
-          .then(function(success) {
-            expect(success).to.equal(binarySHA224);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-224', _decode('BASE64', binaryBase64)))
+        .then(function(success) {
+          expect(success).to.equal(binarySHA224);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-    });
+  });
 
-    /* ====================================================================== */
+  /* ====================================================================== */
 
-    describe("SHA-256", function() {
+  describe("SHA-256", function() {
 
-      it("should hash empty data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash empty data", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-256', emptyData))
-          .then(function(success) {
-            expect(success).to.equal(emptySHA256);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-256', emptyData))
+        .then(function(success) {
+          expect(success).to.equal(emptySHA256);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash a well-known string", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash a well-known string", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-256', knownString))
-          .then(function(success) {
-            expect(success).to.equal(knownSHA256);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-256', knownString))
+        .then(function(success) {
+          expect(success).to.equal(knownSHA256);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash 10k of binary data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash 10k of binary data", inject(['$done', '_hash', '_encode', '_decode', function($done, _hash, _encode, _decode) {
 
-        _encoder.encode('HEX', _hash('SHA-256', _encoder.decode('BASE64', binaryBase64)))
-          .then(function(success) {
-            expect(success).to.equal(binarySHA256);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-256', _decode('BASE64', binaryBase64)))
+        .then(function(success) {
+          expect(success).to.equal(binarySHA256);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-    });
+  });
 
-    /* ====================================================================== */
+  /* ====================================================================== */
 
-    describe("SHA-384", function() {
+  describe("SHA-384", function() {
 
-      it("should hash empty data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash empty data", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-384', emptyData))
-          .then(function(success) {
-            expect(success).to.equal(emptySHA384);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-384', emptyData))
+        .then(function(success) {
+          expect(success).to.equal(emptySHA384);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash a well-known string", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash a well-known string", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-384', knownString))
-          .then(function(success) {
-            expect(success).to.equal(knownSHA384);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-384', knownString))
+        .then(function(success) {
+          expect(success).to.equal(knownSHA384);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash 10k of binary data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash 10k of binary data", inject(['$done', '_hash', '_encode', '_decode', function($done, _hash, _encode, _decode) {
 
-        _encoder.encode('HEX', _hash('SHA-384', _encoder.decode('BASE64', binaryBase64)))
-          .then(function(success) {
-            expect(success).to.equal(binarySHA384);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-384', _decode('BASE64', binaryBase64)))
+        .then(function(success) {
+          expect(success).to.equal(binarySHA384);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-    });
+  });
 
-    /* ====================================================================== */
+  /* ====================================================================== */
 
-    describe("SHA-512", function() {
+  describe("SHA-512", function() {
 
-      it("should hash empty data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash empty data", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-512', emptyData))
-          .then(function(success) {
-            expect(success).to.equal(emptySHA512);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-512', emptyData))
+        .then(function(success) {
+          expect(success).to.equal(emptySHA512);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash a well-known string", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash a well-known string", inject(['$done', '_hash', '_encode', function($done, _hash, _encode) {
 
-        _encoder.encode('HEX', _hash('SHA-512', knownString))
-          .then(function(success) {
-            expect(success).to.equal(knownSHA512);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-512', knownString))
+        .then(function(success) {
+          expect(success).to.equal(knownSHA512);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
+    }]));
 
-      it("should hash 10k of binary data", inject(['$done', '_hash', '_encoder', function($done, _hash, _encoder) {
+    it("should hash 10k of binary data", inject(['$done', '_hash', '_encode', '_decode', function($done, _hash, _encode, _decode) {
 
-        _encoder.encode('HEX', _hash('SHA-512', _encoder.decode('BASE64', binaryBase64)))
-          .then(function(success) {
-            expect(success).to.equal(binarySHA512);
-            $done();
-          }, function(failure) {
-            $done(failure);
-          });
+      _encode('HEX', _hash('SHA-512', _decode('BASE64', binaryBase64)))
+        .then(function(success) {
+          expect(success).to.equal(binarySHA512);
+          $done();
+        }, function(failure) {
+          $done(failure);
+        });
 
-      }]));
-
-    });
+    }]));
 
   });
 

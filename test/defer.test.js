@@ -1,4 +1,4 @@
-describe("UZDefer", function() {
+describe("defer", function() {
   beforeEach(module('UZCrypto'));
 
   var constant = "A silly constant to be deferred...";

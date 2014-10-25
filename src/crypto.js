@@ -2,9 +2,11 @@
 
 (function() {
 
-  var module = angular.module('UZCrypto', ['UZEncoder'])
+  var module = angular.module('UZCrypto', [])
 
-  require(['modules/defer',
+  require(['modules/decode',
+           'modules/defer',
+           'modules/encode',
            'modules/hash',
            'modules/hmac',
            'modules/subtle'],
