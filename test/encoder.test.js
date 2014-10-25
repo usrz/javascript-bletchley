@@ -18,7 +18,10 @@ describe("UZEncoder", function() {
     /* Base 64 string of 'Tokyo' in UTF8 */
     var tokyoB64 = '5p2x5Lqs';
 
-    /* Basic tests */
+    /* ====================================================================== */
+    /* BASIC TESTS                                                            */
+    /* ====================================================================== */
+
     it("should exist", inject(['_encoder', function(_encoder) {
       expect(_encoder).to.exist;
     }]));
@@ -29,276 +32,240 @@ describe("UZEncoder", function() {
       expect(_encoder.algorithms).to.include.members([ "UTF8", "HEX", "BASE64" ]);
     }]));
 
-    it("should fail encoding with unknown encoding", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
+    it("should fail encoding with unknown algorithm", inject(['$done', '_encoder', function($done, _encoder) {
 
-        _encoder.encode('FOO', tokyo )
-          .then(function(success) {
-            done(success);
-          }, function(failure) {
-            expect(failure).to.be.an.instanceof(Error);
-            expect(failure.message).to.equal('Unsupported encoding algorithm: FOO');
-            done();
-          });
+      _encoder.encode('FOO', tokyo )
+        .then(function(success) {
+          $done(success);
+        }, function(failure) {
+          expect(failure).to.be.an.instanceof(Error);
+          expect(failure.message).to.equal('Unsupported encoding algorithm: FOO');
+          $done();
+        });
 
-        $timeout.flush();
-      }]);
-    });
+    }]));
 
-    it("should fail decoding with unknown encoding", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
+    it("should fail decoding with unknown algorithm", inject(['$done', '_encoder', function($done, _encoder) {
 
-        _encoder.decode('FOO', tokyo )
-          .then(function(success) {
-            done(success);
-          }, function(failure) {
-            expect(failure).to.be.an.instanceof(Error);
-            expect(failure.message).to.equal('Unsupported decoding algorithm: FOO');
-            done();
-          });
+      _encoder.decode('FOO', tokyo )
+        .then(function(success) {
+          $done(success);
+        }, function(failure) {
+          expect(failure).to.be.an.instanceof(Error);
+          expect(failure.message).to.equal('Unsupported decoding algorithm: FOO');
+          $done();
+        });
 
-        $timeout.flush();
-      }]);
-    });
+    }]));
 
-    it("should fail encoding garbage", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
-        _encoder.encode('UTF8', { a: 1 })
-          .then(function(success) {
-            done(success);
-          }, function(failure) {
-            expect(failure).to.be.an.instanceof(Error);
-            expect(failure.message).to.match(/^Supplied data is not a/);
-            done();
-          });
+    it("should fail encoding garbage", inject(['$done', '_encoder', function($done, _encoder) {
 
-        $timeout.flush();
-      }]);
-    });
+      _encoder.encode('UTF8', { a: 1 })
+        .then(function(success) {
+          $done(success);
+        }, function(failure) {
+          expect(failure).to.be.an.instanceof(Error);
+          expect(failure.message).to.match(/^Supplied data is not a/);
+          $done();
+        });
 
-    it("should fail decoding garbage", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
-        _encoder.decode('UTF8', { a: 1 })
-          .then(function(success) {
-            done(success);
-          }, function(failure) {
-            expect(failure).to.be.an.instanceof(Error);
-            expect(failure.message).to.match(/^Supplied data is not a/);
-            done();
-          });
+    }]));
 
-        $timeout.flush();
-      }]);
-    });
+    it("should fail decoding garbage", inject(['$done', '_encoder', function($done, _encoder) {
 
-    it("should fail encoding null data", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
-        _encoder.encode('UTF8', null)
-          .then(function(success) {
-            done(success);
-          }, function(failure) {
-            expect(failure).to.be.an.instanceof(Error);
-            expect(failure.message).to.equal('No data to encode');
-            done();
-          });
+      _encoder.decode('UTF8', { a: 1 })
+        .then(function(success) {
+          $done(success);
+        }, function(failure) {
+          expect(failure).to.be.an.instanceof(Error);
+          expect(failure.message).to.match(/^Supplied data is not a/);
+          $done();
+        });
 
-        $timeout.flush();
-      }]);
-    });
+    }]));
 
-    it("should fail decoding null data", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
-        _encoder.decode('UTF8', null)
-          .then(function(success) {
-            done(success);
-          }, function(failure) {
-            expect(failure).to.be.an.instanceof(Error);
-            expect(failure.message).to.equal('No data to decode');
-            done();
-          });
+    it("should fail encoding null data", inject(['$done', '_encoder', function($done, _encoder) {
 
-        $timeout.flush();
-      }]);
-    });
+      _encoder.encode('UTF8', null)
+        .then(function(success) {
+          $done(success);
+        }, function(failure) {
+          expect(failure).to.be.an.instanceof(Error);
+          expect(failure.message).to.equal('No data to encode');
+          $done();
+        });
 
-    /* UTF8 tests */
+    }]));
+
+    it("should fail decoding null data", inject(['$done', '_encoder', function($done, _encoder) {
+
+      _encoder.decode('UTF8', null)
+        .then(function(success) {
+          $done(success);
+        }, function(failure) {
+          expect(failure).to.be.an.instanceof(Error);
+          expect(failure.message).to.equal('No data to decode');
+          $done();
+        });
+
+    }]));
+
+    it("should handle nested promises", inject(['$done', '_encoder', function($done, _encoder) {
+
+      _encoder.encode('UTF8', _encoder.decode('HEX', _encoder.encode('HEX', _encoder.decode('BASE64', tokyoB64))))
+        .then(function(success) {
+          expect(success).to.be.a('string');
+          expect(success).to.equal(tokyo);
+          $done();
+
+        }, function(failure) {
+          $done(failure);
+        });
+
+    }]));
+
+    /* ====================================================================== */
+    /* UTF-8 TESTS                                                            */
+    /* ====================================================================== */
+
     describe("UTF8", function() {
 
-      it("decode", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
+      it("decode", inject(['$done', '_encoder', function($done, _encoder) {
 
-          _encoder.decode('UTF8', tokyo)
-            .then(function(success) {
-              expect(success).to.be.an.instanceof(Uint8Array);
-              expect(success).to.eql(tokyoArray);
-              done();
+        _encoder.decode('UTF8', tokyo)
+          .then(function(success) {
+            expect(success).to.be.an.instanceof(Uint8Array);
+            expect(success).to.eql(tokyoArray);
+            $done();
 
-            }, function(failure) {
-              done(failure);
-            });
+          }, function(failure) {
+            $done(failure);
+          });
 
-          $timeout.flush();
-        }]);
-      });
+      }]));
 
-      it("encode Uint8Array", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
+      it("encode Uint8Array", inject(['$done', '_encoder', function($done, _encoder) {
 
-          _encoder.encode('UTF8', tokyoArray)
-            .then(function(success) {
-              expect(success).to.be.a('string');
-              expect(success).to.equal(tokyo);
-              done();
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-
-      it("encode plain array", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.encode('UTF8', [230, 157, 177, 228, 186, 172])
-            .then(function(success) {
-              expect(success).to.be.a('string');
-              expect(success).to.equal(tokyo);
-              done();
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-
-      it("encode string (pass-through)", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.encode('UTF8', tokyo)
-            .then(function(success) {
-              expect(success).to.be.a('string');
-              expect(success).to.equal(tokyo);
-              done();
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-    });
-
-    /* HEX tests */
-    describe("HEX", function() {
-
-      it("decode lower case", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.decode('HEX', tokyoHex.toLowerCase())
-            .then(function(success) {
-              expect(success).to.be.an.instanceof(Uint8Array);
-              expect(success).to.eql(tokyoArray);
-              done();
-
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-
-      it("decode upper case", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.decode('HEX', tokyoHex.toUpperCase())
-            .then(function(success) {
-              expect(success).to.be.an.instanceof(Uint8Array);
-              expect(success).to.eql(tokyoArray);
-              done();
-
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-
-      it("encode", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.encode('HEX', tokyoArray)
-            .then(function(success) {
-              expect(success).to.be.a('string');
-              expect(success).to.equal(tokyoHex);
-              done();
-
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-   });
-
-    /* BASE64 tests */
-    describe("BASE64", function() {
-
-      it("decode", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.decode('BASE64', tokyoB64)
-            .then(function(success) {
-              expect(success).to.be.an.instanceof(Uint8Array);
-              expect(success).to.eql(tokyoArray);
-              done();
-
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-
-      it("encode", function(done) {
-        inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-          _encoder.encode('BASE64', tokyoArray)
-            .then(function(success) {
-              expect(success).to.be.a('string');
-              expect(success).to.equal(tokyoB64);
-              done();
-
-            }, function(failure) {
-              done(failure);
-            });
-
-          $timeout.flush();
-        }]);
-      });
-    });
-
-    it("should handle nested promises", function(done) {
-      inject(['$timeout', '_encoder', function($timeout, _encoder) {
-
-        _encoder.encode('UTF8', _encoder.decode('HEX', _encoder.encode('HEX', _encoder.decode('BASE64', tokyoB64))))
+        _encoder.encode('UTF8', tokyoArray)
           .then(function(success) {
             expect(success).to.be.a('string');
             expect(success).to.equal(tokyo);
-            done();
-
+            $done();
           }, function(failure) {
-            done(failure);
+            $done(failure);
           });
 
-        $timeout.flush();
-      }]);
+      }]));
+
+      it("encode plain array", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.encode('UTF8', [230, 157, 177, 228, 186, 172])
+          .then(function(success) {
+            expect(success).to.be.a('string');
+            expect(success).to.equal(tokyo);
+            $done();
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
+
+      it("encode string (pass-through)", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.encode('UTF8', tokyo)
+          .then(function(success) {
+            expect(success).to.be.a('string');
+            expect(success).to.equal(tokyo);
+            $done();
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
     });
 
+    /* ====================================================================== */
+    /* HEX TESTS                                                              */
+    /* ====================================================================== */
+
+    describe("HEX", function() {
+
+      it("decode lower case", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.decode('HEX', tokyoHex.toLowerCase())
+          .then(function(success) {
+            expect(success).to.be.an.instanceof(Uint8Array);
+            expect(success).to.eql(tokyoArray);
+            $done();
+
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
+
+      it("decode upper case", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.decode('HEX', tokyoHex.toUpperCase())
+          .then(function(success) {
+            expect(success).to.be.an.instanceof(Uint8Array);
+            expect(success).to.eql(tokyoArray);
+            $done();
+
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
+
+      it("encode", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.encode('HEX', tokyoArray)
+          .then(function(success) {
+            expect(success).to.be.a('string');
+            expect(success).to.equal(tokyoHex);
+            $done();
+
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
+    });
+
+    /* ====================================================================== */
+    /* BASE_64 TESTS                                                          */
+    /* ====================================================================== */
+
+    describe("BASE64", function() {
+
+      it("decode", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.decode('BASE64', tokyoB64)
+          .then(function(success) {
+            expect(success).to.be.an.instanceof(Uint8Array);
+            expect(success).to.eql(tokyoArray);
+            $done();
+
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
+
+      it("encode", inject(['$done', '_encoder', function($done, _encoder) {
+
+        _encoder.encode('BASE64', tokyoArray)
+          .then(function(success) {
+            expect(success).to.be.a('string');
+            expect(success).to.equal(tokyoB64);
+            $done();
+
+          }, function(failure) {
+            $done(failure);
+          });
+
+      }]));
+    });
   });
 });
