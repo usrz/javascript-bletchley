@@ -1,6 +1,6 @@
 'use strict';
 
-define(['modules/util/uint8'], function(uint8) {
+define(['util/uint8'], function(uint8) {
 
   /* Initialize our tables for HEX encoding */
   var hexToBytes = {};

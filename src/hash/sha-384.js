@@ -2,7 +2,7 @@
 
 /* Code adapted from CryptoJS <https://code.google.com/p/crypto-js/> */
 
-define(['modules/hash/sha-512'], function(sha512) {
+define(['hash/sha-512'], function(sha512) {
 
   /* Initialize hash values for SHA-384 */
   var h = [0xcbbb9d5d, 0xc1059ed8, 0x629a292a, 0x367cd507, 0x9159015a, 0x3070dd17, 0x152fecd8, 0xf70e5939,

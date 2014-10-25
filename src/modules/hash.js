@@ -1,11 +1,11 @@
 'use strict';
 
-define(["modules/hash/sha1",
-        "modules/hash/sha-224",
-        "modules/hash/sha-256",
-        "modules/hash/sha-384",
-        "modules/hash/sha-512",
-        "modules/util/uint8"],
+define(["hash/sha1",
+        "hash/sha-224",
+        "hash/sha-256",
+        "hash/sha-384",
+        "hash/sha-512",
+        "util/uint8"],
 function(sha1, sha224, sha256, sha384, sha512, uint8) {
 
   return function(module) {

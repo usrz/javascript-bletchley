@@ -2,7 +2,7 @@
 
 /* Code adapted from CryptoJS <https://code.google.com/p/crypto-js/> */
 
-define(['modules/hash/sha-256'], function(sha256) {
+define(['hash/sha-256'], function(sha256) {
 
   /* Initialize hash values for SHA-224 */
   var h = [0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
