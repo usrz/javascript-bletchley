@@ -7,11 +7,10 @@ define(function(require) {
                    'wrapKey', 'unwrapKey'];
 
   function getBrowserSubtle($window) {
-    return ($window.msCrypto && $window.msCrypto.subtle) ?
-               $window.msCrypto.subtle :
-           ($window.crypto && $window.crypto.subtle) ?
-               $window.crypto.subtle :
-           Object.freeze({});
+    if (window.msCrypto && window.msCrypto.subtle) return window.msCrypto.subtle;
+    if (window.crypto && window.crypto.webkitSubtle) return window.crypto.webkitSubtle;
+    if (window.crypto && window.crypto.subtle) return window.crypto.subtle;
+    return Object.freeze({});
   }
 
   return function(module) {
