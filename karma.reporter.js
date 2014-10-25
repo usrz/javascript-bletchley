@@ -70,19 +70,20 @@ function DetailedReporter(logger) {
   function report(tests, indent) {
     if (! tests) return;
     indent = indent || '';
-    if (tests.suites) {
-      var suites = Object.keys(tests.suites).sort();
-      for (var i in suites) {
-        print(indent, '-', suites[i].bold, ':');
-        report(tests.suites[suites[i]], '  ' + indent);
-      }
-    }
 
     if (tests.results) {
       var results = Object.keys(tests.results).sort();
       for (var i in results) {
         var result = tests.results[results[i]];
         print(indent, '*', results[i], ':', message(result));
+      }
+    }
+
+    if (tests.suites) {
+      var suites = Object.keys(tests.suites).sort();
+      for (var i in suites) {
+        print(indent, '-', suites[i].bold, ':');
+        report(tests.suites[suites[i]], '  ' + indent);
       }
     }
 
