@@ -1,4 +1,5 @@
-console.log("WOHA, I have been read!");
+require('colors');
+var util = require('util');
 
 function DetailedReporter(logger) {
 
@@ -21,13 +22,50 @@ function DetailedReporter(logger) {
    */
 
   var _log = logger.create('report');
-  var _browserLogs = [];
   var _browsers = null;
   var _tests = null;
 
   /* ======================================================================== */
-  /* RUN START/COMPLETE                                                       */
+  /* INTERNAL FUNCTIONS                                                       */
   /* ======================================================================== */
+
+  function print() {
+    process.stdout.write(util.format.apply(this, arguments));
+    process.stdout.write('\n');
+  }
+
+  function forBrowser(browser) {
+    /* onBrowserLog might arrive before onBrowserStart, sooo */
+    if (_browsers[browser.id]) return _browsers[browser.id];
+    return _browsers[browser.id] = {
+      "name": browser.name,
+      "successes": 0,
+      "failures": 0,
+      "skipped": 0,
+      "total": 0,
+      "log": []
+    };
+  }
+
+  function message(result) {
+    if (result.total > 0) {
+      if (result.total == 1) {
+        var message = [];
+        if (result.successes) message.push("ok".green);
+        if (result.failures)  message.push("failed".red);
+        if (result.skipped)   message.push("skipped".yellow);
+        return message.join(' ');
+      } else {
+        var message = [];
+        if (result.successes) message.push((result.successes + " ok").green);
+        if (result.failures)  message.push((result.failures  + " failed").red);
+        if (result.skipped)   message.push((result.skipped   + " skipped").yellow);
+        return message.join(', ');
+      }
+    } else {
+      return "no tests".magenta;
+    }
+  }
 
   function report(tests, indent) {
     if (! tests) return;
@@ -35,7 +73,7 @@ function DetailedReporter(logger) {
     if (tests.suites) {
       var suites = Object.keys(tests.suites).sort();
       for (var i in suites) {
-        _log.info(indent, '-', suites[i]);
+        print(indent, '-', suites[i].bold, ':');
         report(tests.suites[suites[i]], '  ' + indent);
       }
     }
@@ -44,22 +82,7 @@ function DetailedReporter(logger) {
       var results = Object.keys(tests.results).sort();
       for (var i in results) {
         var result = tests.results[results[i]];
-        var message = results[i] + ":";
-
-        if (result.total > 0) {
-          if (result.total == result.successes) {
-            message += " ok";
-          } else if (result.total == 1) {
-            if (result.failures) message += " failed";
-            if (result.skipped)  message += " skipped";
-          } else {
-            message += " " + result.successes + " ok";
-            if (result.failures != 0) message += (", " + result.failures + " failed");
-            if (result.skipped  != 0) message += (", " + result.skipped  + " skipped");
-          }
-
-          _log.info(indent, '*', message);
-        }
+        print(indent, '*', results[i], ':', message(result));
       }
     }
 
@@ -70,43 +93,29 @@ function DetailedReporter(logger) {
   /* ======================================================================== */
 
   this.onRunStart = function(browsers) {
-    console.log();
-    console.log();
-    _log.info("+ ============================================================= +");
-    _log.info("| STARTING NEW TEST RUN                                         |");
-    _log.info("+ ============================================================= +");
     _browsers = {};
     _tests = {suites: {}};
   };
 
   this.onRunComplete = function(browsers, results) {
 
-    _log.info("+ ============================================================= +");
-    _log.info("| TEST RUN REPORT                                               |");
-    _log.info("+ ============================================================= +");
 
-    _log.info(' ');
-    _log.info("Browser results:")
-    _log.info(' ');
-    for (var i in _browsers) {
-      var browser = _browsers[i];
-
-      _log.info(" - " + browser.name + ": " + browser.total + " tests");
-      _log.info("   - " + browser.successes + " tests succeeded");
-      _log.info("   - " + browser.failures + " tests failed");
-      _log.info("   - " + browser.skipped + " tests skipped");
-    }
-
-    _log.info(' ');
-    _log.info("Suites and tests results:")
-    _log.info(' ');
+    print("\n");
+    print("Suites and tests results:".bold.underline);
+    print();
     report(_tests);
 
-    _log.info(' ');
-    _log.info("+ ============================================================= +");
-    _log.info("| TEST RUN COMPLETE                                             |");
-    _log.info("+ ============================================================= +");
+    print();
+    print("Browser results:".bold.underline)
+    print();
 
+    for (var i in _browsers) {
+      var browser = _browsers[i];
+      print(" - " + browser.name.bold + ": " + browser.total + " tests");
+      print("   - " + message(browser));
+    }
+
+    print();
   };
 
   /* ======================================================================== */
@@ -114,21 +123,12 @@ function DetailedReporter(logger) {
   /* ======================================================================== */
 
   this.onBrowserStart = function(browser) {
-    logger.create(browser.name).info("Starting tests");
-
-    /* Remember this browser */
-    _browsers[browser.id] = {
-      "name": browser.name,
-      "successes": 0,
-      "failures": 0,
-      "skipped": 0,
-      "total": 0
-    };
+    logger.create(browser.name).info("Starting tests", browser.id);
   };
 
   this.onBrowserLog = function(browser, message, level) {
     if (level == 'log') level = 'info';
-    _browserLogs.push({level: level, message: message});
+    forBrowser(browser).log.push({level: level, message: message});
   };
 
   this.onBrowserError = function(browser, error) {
@@ -138,6 +138,7 @@ function DetailedReporter(logger) {
   this.onSpecComplete = function(browser, result) {
     var suite = '';
     var tests = _tests;
+    var b = forBrowser(browser);
 
     for (var i in result.suite) {
       var suiteName = result.suite[i];
@@ -152,10 +153,10 @@ function DetailedReporter(logger) {
 
     var log = logger.create(browser.name + suite + result.description);
 
-    _browserLogs.forEach(function(entry) {
+    b.log.forEach(function(entry) {
       log[entry.level](entry.message);
-    })
-    _browserLogs = [];
+    });
+    b.log = [];
 
     if (! tests.results) tests.results = {};
     if (! tests.results[result.description]) {
@@ -168,19 +169,19 @@ function DetailedReporter(logger) {
     }
     var results = tests.results[result.description];
 
-    _browsers[browser.id].total ++;
+    b.total ++;
     results.total ++;
 
     if (result.skipped) {
-      _browsers[browser.id].skipped ++;
+      b.skipped ++;
       results.skipped ++;
       log.warn('Test skipped');
     } else if (result.success) {
-      _browsers[browser.id].successes ++;
+      b.successes ++;
       results.successes ++;
       log.info('Success: ' + result.time + ' ms');
     } else {
-      _browsers[browser.id].failures ++;
+      b.failures ++;
       results.failures ++;
       for (var i in result.log) {
         log.error(result.log[i]);
