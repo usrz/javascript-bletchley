@@ -2,12 +2,17 @@
 
 (function() {
 
-  var module = angular.module('UZCrypto', ['UZEncoder', 'UZDefer']);
+  var module = angular.module('UZCrypto', ['UZEncoder'])
 
-  require(['modules/crypto_hash', 'modules/crypto_subtle'], function() {
-    for (var i = 0; i < arguments.length; i++) {
-      arguments[i](module);
+  require(['modules/defer',
+           'modules/hash',
+           'modules/hmac',
+           'modules/subtle'],
+    function() {
+      for (var i = 0; i < arguments.length; i++) {
+        arguments[i](module);
+      }
     }
-  });
+  );
 
 })();

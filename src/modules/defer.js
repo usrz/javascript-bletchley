@@ -1,9 +1,9 @@
 'use strict';
 
-(function() {
-  angular
-    .module("UZDefer", [])
-    .factory("_defer", ['$q', '$timeout', function($q, $timeout) {
+define([], function() {
+  return function(module) {
+
+    module.factory("_defer", ['$q', '$timeout', function($q, $timeout) {
       return function(what) {
         return $q(function(resolve, reject) {
           $timeout(function() {
@@ -17,4 +17,7 @@
         });
       };
     }]);
-})();
+
+  }
+});
+

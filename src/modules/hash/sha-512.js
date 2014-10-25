@@ -4,6 +4,7 @@
 
 define([], function() {
   return function(message, h) {
+    console.warn("Using non-native SHA-384/512 implementation");
 
     /* Initialize hash values */
     var h0h = h ? h[ 0] : 0x6a09e667; var h0l = h ? h[ 1] : 0xf3bcc908;

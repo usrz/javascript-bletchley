@@ -30,8 +30,8 @@ module.exports = function(config) {
       'lib/angular-mocks-simple.js',
 
       /* Source files (angular modules) */
-      { pattern: 'src/modules/*.js', included: false },
-      { pattern: 'src/*.js',         included: true  },
+      { pattern: 'src/modules/**/*.js', included: false },
+      { pattern: 'src/*.js',            included: true  },
 
       /* Test files (use require.js) */
       { pattern: 'karma.test.js', included: true  },
@@ -44,6 +44,6 @@ module.exports = function(config) {
     colors: true,
 
     /* Our browsers */
-    browsers: ['PhantomJS', 'Chrome'], // 'Firefox', 'Safari'],
+    browsers: ['PhantomJS'], // 'Chrome'], // 'Firefox', 'Safari'],
   });
 };

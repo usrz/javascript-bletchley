@@ -133,7 +133,7 @@
   /* ======================================================================== */
 
   angular
-    .module('UZEncoder', ['UZDefer'])
+    .module('UZEncoder', ['UZCrypto'])
     .factory('_encoder', ['$q', '_defer', function($q, _defer) {
 
       /* Freeze the returned _encoder */

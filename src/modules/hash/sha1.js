@@ -4,6 +4,7 @@
 
 define([], function() {
   return function(message) {
+    console.warn("Using non-native SHA1 implementation");
 
     /* Initialize our variables */
     var h0 = 0x67452301;
