@@ -6,12 +6,18 @@ describe("UZCrypto", function() {
     /* We can not test subtle crypto with empty arrays, M$ will never return */
     var test = new Uint8Array([0x74, 0x65, 0x73, 0x74]);
     var test_sha256 = new Uint8Array([0x9f, 0x86, 0xd0, 0x81, 0x88, 0x4c, 0x7d, 0x65, 0x9a, 0x2f, 0xea, 0xa0, 0xc5, 0x5a, 0xd0, 0x15, 0xa3, 0xbf, 0x4f, 0x1b, 0x2b, 0x0b, 0x82, 0x2c, 0xd1, 0x5d, 0x6c, 0x15, 0xb0, 0xf0, 0x0a, 0x08]);
+    var digest = window.msCrypto ? window.msCrypto.subtle && window.msCrypto.subtle.digest :
+                 window.crypto ?
+                   window.crypto.webkitSubtle ? window.crypto.webkitSubtle.digest :
+                   window.crypto.subtle ? window.crypto.subtle.digest :
+                 null : null;
+    digest = digest ? true : false;
 
     it("should exist", inject(['_subtle', function(_subtle) {
       expect(_subtle).to.exist;
     }]));
 
-    it("should digest", inject(['$done', '_subtle', function($done, _subtle) {
+    it("should digest", digest && inject(['$done', '_subtle', function($done, _subtle) {
 
       if (! _subtle.digest) {
         console.warn("_subtle.digest(...) unavailable");
