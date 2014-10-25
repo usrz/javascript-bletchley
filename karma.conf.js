@@ -39,7 +39,7 @@ module.exports = function(config) {
     ],
 
     /* Pretty */
-    logLevel: config.LOG_INFO,
+    // logLevel: config.LOG_DEBUG,
     reporters: ['detailed'],
     colors: true,
 
