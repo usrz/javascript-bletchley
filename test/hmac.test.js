@@ -2,8 +2,6 @@ define(['crypto', 'utils/uint8'], function(crypto, uint8) {
   describe("hmac", function() {
     beforeEach(module('UZCrypto'));
 
-    console.log("WE ARE HERE!!!");
-
     it("should exist", inject(['_hmac', function(_hmac) {
       expect(_hmac).to.exist;
       expect(_hmac).to.be.a('function');
@@ -11,8 +9,6 @@ define(['crypto', 'utils/uint8'], function(crypto, uint8) {
 
     /* SHA-1 from WikiPedia */
     describe('SHA-1', function() {
-
-      console.log("WE ARE HERE TOO!!!");
 
       it("should compute a valid HMAC for empty values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
 
@@ -31,6 +27,35 @@ define(['crypto', 'utils/uint8'], function(crypto, uint8) {
         _encode('HEX', _hmac("SHA-1", 'key', 'The quick brown fox jumps over the lazy dog'))
           .then(function(success) {
             expect(success).to.be.equal('de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9');
+            $done();
+          }, function(failure) {
+            $done(failure);
+          })
+
+      }]));
+
+    });
+
+    /* SHA-224 (calculated) */
+    describe('SHA-224', function() {
+
+      it("should compute a valid HMAC for empty values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
+
+        _encode('HEX', _hmac("SHA-224", '', ''))
+          .then(function(success) {
+            expect(success).to.be.equal('5ce14f72894662213e2748d2a6ba234b74263910cedde2f5a9271524');
+            $done();
+          }, function(failure) {
+            $done(failure);
+          })
+
+      }]));
+
+      it("should compute a valid HMAC for known values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
+
+        _encode('HEX', _hmac("SHA-224", 'key', 'The quick brown fox jumps over the lazy dog'))
+          .then(function(success) {
+            expect(success).to.be.equal('88ff8b54675d39b8f72322e65ff945c52d96379988ada25639747e69');
             $done();
           }, function(failure) {
             $done(failure);
@@ -69,7 +94,63 @@ define(['crypto', 'utils/uint8'], function(crypto, uint8) {
 
     });
 
-    console.log("FINALLY WE ARE HERE!!!");
+    /* SHA-384 (calculated) */
+    describe('SHA-384', function() {
+
+      it("should compute a valid HMAC for empty values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
+
+        _encode('HEX', _hmac("SHA-384", '', ''))
+          .then(function(success) {
+            expect(success).to.be.equal('6c1f2ee938fad2e24bd91298474382ca218c75db3d83e114b3d4367776d14d3551289e75e8209cd4b792302840234adc');
+            $done();
+          }, function(failure) {
+            $done(failure);
+          })
+
+      }]));
+
+      it("should compute a valid HMAC for known values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
+
+        _encode('HEX', _hmac("SHA-384", 'key', 'The quick brown fox jumps over the lazy dog'))
+          .then(function(success) {
+            expect(success).to.be.equal('d7f4727e2c0b39ae0f1e40cc96f60242d5b7801841cea6fc592c5d3e1ae50700582a96cf35e1e554995fe4e03381c237');
+            $done();
+          }, function(failure) {
+            $done(failure);
+          })
+
+      }]));
+
+    });
+
+    /* SHA-512 (calculated) */
+    describe('SHA-512', function() {
+
+      it("should compute a valid HMAC for empty values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
+
+        _encode('HEX', _hmac("SHA-512", '', ''))
+          .then(function(success) {
+            expect(success).to.be.equal('b936cee86c9f87aa5d3c6f2e84cb5a4239a5fe50480a6ec66b70ab5b1f4ac6730c6c515421b327ec1d69402e53dfb49ad7381eb067b338fd7b0cb22247225d47');
+            $done();
+          }, function(failure) {
+            $done(failure);
+          })
+
+      }]));
+
+      it("should compute a valid HMAC for known values", inject(['$done', '_hmac', '_encode', function($done, _hmac, _encode) {
+
+        _encode('HEX', _hmac("SHA-512", 'key', 'The quick brown fox jumps over the lazy dog'))
+          .then(function(success) {
+            expect(success).to.be.equal('b42af09057bac1e2d41708e48a902e09b5ff7f12ab428a4fe86653c73dd248fb82f948a549f7b791a5b41915ee4d1ec3935357e4e2317250d0372afa2ebeeb3a');
+            $done();
+          }, function(failure) {
+            $done(failure);
+          })
+
+      }]));
+
+    });
 
     /* Tests from RFC-4231 */
     describe('RFC-4231', function() {
@@ -116,6 +197,9 @@ define(['crypto', 'utils/uint8'], function(crypto, uint8) {
             "SHA-512": "b0ba465637458c6990e5a8c5f61d4af7e576d97ff94b872de76f8050361ee3dba91ca5c11aa25eb4d679275cc5788063a5f19741120c4f2de2adebeb10a298dd",
           }
         },
+
+        /* test 5 uses truncated hashes, forget it */
+
         "test 6": {
           salt:      uint8.createUint8Array(131, 0xaa),
           data:      uint8.toUint8Array("Test Using Larger Than Block-Size Key - Hash Key First"),
