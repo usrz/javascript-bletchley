@@ -4,8 +4,6 @@ for (var file in window.__karma__.files) {
   if (window.__karma__.files.hasOwnProperty(file)) {
     if (/^\/base\/test\/.+\.js$/.test(file)) {
       dependencies.push(file);
-    // } else  if (/^\/base\/src\/modules\/.+\.js$/.test(file)) {
-      // dependencies.push(file.substring(10, file.length - 3));
     }
   }
 }
