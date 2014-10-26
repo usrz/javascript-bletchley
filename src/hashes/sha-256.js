@@ -5,8 +5,8 @@
 define([], function() {
   var warn = true;
   return function(message, h) {
-    if (warn) {
-      console.warn("Using non-native SHA-224/256 implementation");
+    if ((h == null) && warn) {
+      console.warn("Using non-native SHA-256 implementation");
       warn = false;
     }
 

@@ -3,8 +3,12 @@
 /* Code adapted from CryptoJS <https://code.google.com/p/crypto-js/> */
 
 define([], function() {
+  var warn = true;
   return function(message) {
-    console.warn("Using non-native SHA1 implementation");
+    if (warn) {
+      console.warn("Using non-native SHA1 implementation");
+      warn = false;
+    }
 
     /* Initialize our variables */
     var h0 = 0x67452301;
