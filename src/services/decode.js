@@ -1,6 +1,6 @@
 'use strict';
 
-define(['util/uint8'], function(uint8) {
+define(['crypto_module', 'utils/uint8'], function(module, uint8) {
 
   /* Initialize our tables for HEX encoding */
   var hexToBytes = {};
@@ -45,35 +45,36 @@ define(['util/uint8'], function(uint8) {
     return uint8.fromUint8String(atob(data));
   }
 
-  /* AngularJS '_decode' service */
-  return function(module) {
+  /* ======================================================================== */
+  /* UZCrypto's "_decode" service                                             */
+  /* ======================================================================== */
 
-    module.factory('_decode', ['$q', '_defer', function($q, _defer) {
+  module.factory('_decode', ['$q', '_defer', function($q, _defer) {
 
-      return function(algorithm, data) {
-        return _defer(function() {
-          return $q.when(data)
-            .then(function(data) {
-              try {
-                if (!data) throw new Error("No data to decode");
-                if (typeof(data) != 'string') throw new Error("Supplied data is not a string: " + typeof(data));
+    return function(algorithm, data) {
+      return _defer(function() {
+        return $q.when(data)
+          .then(function(data) {
+            try {
+              if (!data) throw new Error("No data to decode");
+              if (typeof(data) != 'string') throw new Error("Supplied data is not a string: " + typeof(data));
 
 
-                switch (algorithm.toUpperCase()) {
-                  case "UTF8":   return decodeUTF8(data);
-                  case "HEX":    return decodeHEX(data);
-                  case "BASE64": return decodeBASE64(data);
-                  default: throw new Error("Unsupported decoding algorithm: " + algorithm);
-                }
-
-              } catch(error) {
-                return $q.reject(error);
+              switch (algorithm.toUpperCase()) {
+                case "UTF8":   return decodeUTF8(data);
+                case "HEX":    return decodeHEX(data);
+                case "BASE64": return decodeBASE64(data);
+                default: throw new Error("Unsupported decoding algorithm: " + algorithm);
               }
-            });
-        });
-      }
 
-    }]);
-  }
+            } catch(error) {
+              return $q.reject(error);
+            }
+          });
+      });
+    }
+
+  }]);
+
 });
 

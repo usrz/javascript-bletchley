@@ -1,12 +1,18 @@
 'use strict';
 
-define([], function() {
-  return function(module) {
+define(['crypto_module'], function(module) {
 
-    module.factory('_hmac', ['$q', '_subtle', '_encoder', '_defer', function($rootScope, $q, _subtle, _encoder, _defer) {
-      return function() {
+  /* ======================================================================== */
+  /* UZCrypto's "_hmac" service                                               */
+  /* ======================================================================== */
 
-      };
+  module.factory('_hmac', ['$q', '_subtle', '_encoder', '_defer', function($rootScope, $q, _subtle, _encoder, _defer) {
+    return function() {
+
+    };
+  }]);
+
+});
 
 // subtle.importKey("raw",
 //                  new Uint8Array(),
@@ -49,7 +55,4 @@ define([], function() {
 
 
 
-    }]);
-  }
-});
 

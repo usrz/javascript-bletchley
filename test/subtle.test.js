@@ -1,5 +1,4 @@
-define(['util/has'], function(has) {
-
+define(['crypto', 'utils/has'], function(crypto, has) {
   describe("subtle", function() {
     beforeEach(module('UZCrypto'));
 
