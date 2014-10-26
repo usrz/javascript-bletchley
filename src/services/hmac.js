@@ -21,6 +21,9 @@ define(['crypto_module', 'utils/uint8'], function(module, uint8) {
     "SHA-512": { outerPadding: opad_1024, innerPadding: ipad_1024 },
   };
 
+  /* Constants for our algorithms */
+  var warnings = {};
+
   /* XOR two Uint8Arrays */
   function xor(array1, array2) {
     var array = new Uint8Array(array1.length);
@@ -30,15 +33,16 @@ define(['crypto_module', 'utils/uint8'], function(module, uint8) {
     return array;
   }
 
-  /* Warn about usage of non-native? */
-  var warn = true;
-
   module.factory('_hmac', ['$q', '_subtle', '_hash', function($q, _subtle, _hash) {
     var importKey = _subtle.importKey;
     var sign = _subtle.sign;
 
-    function fallback(deferred, algorithm, salt, secret, error) {
-      if (error) console.warn("HMAC using Javascript fallback method:", error);
+    function fallback(deferred, algorithm, salt, secret, failure) {
+      if (failure && (! warnings[algorithm])) {
+        console.warn(failure);
+        console.warn("Using non-native HMAC-" + algorithm + " operation");
+        warnings[algorithm] = true;
+      }
 
       /* Check our constants */
       var c = constants[algorithm.toUpperCase()];
@@ -60,6 +64,8 @@ define(['crypto_module', 'utils/uint8'], function(module, uint8) {
       } else if (salt.length > c.outerPadding.length) {
         /* Need to hash a long salt with the algorithm */
         keyPromise = _hash(algorithm, salt);
+      } else {
+        throw new Error("WTF?? " + salt + " / " + c.outerPadding);
       }
 
       /* After expanding/compressing the key we XOR it with the paddings */
@@ -89,35 +95,43 @@ define(['crypto_module', 'utils/uint8'], function(module, uint8) {
 
 
     function hmac(deferred, algorithm, salt, secret) {
-      if (importKey && sign) {
+      if (! importKey) {
+        fallback(deferred, algorithm, salt, secret, new Error('Subtle crypto does not support "importKey(...)"'));
+      } else if (! sign) {
+        fallback(deferred, algorithm, salt, secret, new Error('Subtle crypto does not support "sign(...)"'));
+      } else {
+
+        /* Parameters, HMAC with our algorithm */
+        var importParameters = { name: "HMAC", hash: { name: algorithm } };
+
         /* Need to use two promises: the first is for importing the salt */
-        var importParameters = { name: "HMAC", hash: { name: algorithm }};
         importKey("raw", salt, importParameters, false, [ "sign" ])
 
-          .then(function(salt) {
+          .then(function(saltKey) {
+
+            /* Parameters for signing */
+            var signParameters = { name: "HMAC", hash: { name: algorithm } };
 
             /* The salt was imported correctly, now sign */
-            sign({ name: "HMAC", }, salt, secret)
+            sign(signParameters, saltKey, secret)
               .then(function(hash) {
 
                 /* Signature was successful */
                 deferred.resolve(uint8.toUint8Array(hash));
 
               }, function(failure) {
+
                 /* Failed signing, use fallback */
                 fallback(deferred, algorithm, salt, secret, failure);
+
               });
 
           }, function(failure) {
+
             /* Failed importing salt, use fallback */
             fallback(deferred, algorithm, salt, secret, failure);
+
           });
-
-      } else {
-
-        /* Subtle can't offer us enough functionality, fallback */
-        fallback(deferred, algorithm, salt, secret, warn ? 'No native implementation' : null);
-        warn = false;
       }
     };
 
