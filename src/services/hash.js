@@ -31,6 +31,9 @@ function(module, sha1, sha224, sha256, sha384, sha512, uint8) {
     'SHA-512': sha512
   };
 
+  /* Log subtle crypto errors only once */
+  var warnings = {}
+
   /* ======================================================================== */
   /* UZCrypto's "_hash" service                                               */
   /* ======================================================================== */
@@ -53,10 +56,18 @@ function(module, sha1, sha224, sha256, sha384, sha512, uint8) {
         try {
           _subtle.digest({ name: algorithm }, message)
             .then(function(success) {
+
               /* Subtle crypto was successful, resolve */
-              resolve(success);
+              resolve(uint8.toUint8Array(success));
+
             }, function(failure) {
+
               /* Subtle crypto failed, use javascript */
+              if (!warnings[algorithm]) {
+                console.warn("Subtle crypto error hashing " + algorithm, failure);
+                warnings[algorithm] = true;
+              }
+
               try {
                 resolve(fallbackFunction(message));
               } catch (error) {
@@ -81,8 +92,8 @@ function(module, sha1, sha224, sha256, sha384, sha512, uint8) {
       return $q.when(data)
         .then(function(data) {
           try {
-            if (!data) throw new Error("No data to hash");
-            if (data.buffer) data = data.buffer;
+            /* Normalize data */
+            data = uint8.toUint8Array(data);
 
             /* Normalize algorithm */
             algorithm = algorithm.toUpperCase();
@@ -93,7 +104,7 @@ function(module, sha1, sha224, sha256, sha384, sha512, uint8) {
             }
 
             /* Call our hashing function */
-            return  hash(algorithm, uint8.toUint8Array(data));
+            return  hash(algorithm, data);
 
           } catch (error) {
             return $q.reject(error);
