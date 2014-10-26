@@ -11,6 +11,7 @@ define([], function() {
    * will be validated to be a number between 0 and 256.
    */
   function toUint8Array(data) {
+    if (data == null) throw new Error("No data supplied");
 
     /* Basic array bufffers / array buffer views / plain arrays */
     if (data instanceof Uint8Array) return data;
@@ -59,11 +60,71 @@ define([], function() {
     return view;
   }
 
+  /**
+   * Fill the specified Uint8Array with the specified byte
+   */
+  function concatUint8Arrays() {
+    var length = 0;
+    var arrays = [];
+    for (var i = 0; i < arguments.length; i ++) {
+      var current = toUint8Array(arguments[i]);
+      length += current.length;
+      arrays.push(current);
+    }
+
+    var offset = 0;
+    var result = new Uint8Array(length);
+    for (var i = 0; i < arrays.length; i ++) {
+      result.set(arrays[i], offset);
+      offset += arrays[i].length;
+    }
+
+    return result;
+  }
+
+  /**
+   * Create a new Uint8Array of the specified size, optionally filling it
+   * with the specified byte (repeated for the length of the array)
+   */
+  function createUint8Array(size, byte) {
+    var array = new Uint8Array(size);
+    if (byte) return fillUint8Array(array, byte);
+    return array;
+  }
+
+  /**
+   * Fill the specified Uint8Array with the specified byte
+   */
+  function fillUint8Array(array, byte) {
+    array = toUint8Array(array);
+    for (var i = 0; i < array.length; i ++) {
+      array[i] = byte;
+    }
+    return array;
+  }
+
+  /**
+   * A utility method to print an array as HEX values.
+   */
+  function debugUint8Array(array) {
+    array = toUint8Array(array);
+    var string = '{ length: ' + array.length + ', data: "';
+    for (var i = 0; i < array.length; i ++) {
+      if (array[i] < 16) string += '0';
+      string += Number(array[i]).toString(16);
+    }
+    return string + '" }';
+  }
+
   /* Export our three functions */
   return {
     toUint8Array: toUint8Array,
     toUint8String: toUint8String,
-    fromUint8String: fromUint8String
+    fromUint8String: fromUint8String,
+    concatUint8Arrays: concatUint8Arrays,
+    createUint8Array: createUint8Array,
+    fillUint8Array: fillUint8Array,
+    debugUint8Array: debugUint8Array
   };
 
 });
