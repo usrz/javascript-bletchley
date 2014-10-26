@@ -11,17 +11,6 @@ module.exports = function(config) {
     autoWatch: true,
     singleRun: false,
 
-    plugins: [
-      "karma-chai",
-      "karma-mocha",
-      "karma-requirejs",
-      "karma-chrome-launcher",
-      "karma-firefox-launcher",
-      "karma-phantomjs-launcher",
-      "karma-safari-launcher",
-      require('./karma.reporter')
-    ],
-
     /* These need to be in order */
     files: [
 
@@ -29,21 +18,18 @@ module.exports = function(config) {
       'lib/angular-1.3.0.js',
       'lib/angular-mocks-simple.js',
 
-      /* Source files (angular modules) */
-      { pattern: 'src/modules/**/*.js', included: false },
-      { pattern: 'src/*.js',            included: true  },
-
-      /* Test files (use require.js) */
+      /* Source and test files loaded by "require" */
+      { pattern: 'src/**/*.js',   included: false },
+      { pattern: 'test/**/*.js',  included: false },
       { pattern: 'karma.test.js', included: true  },
-      { pattern: 'test/*.js',     included: false },
     ],
 
     /* Pretty */
     // logLevel: config.LOG_DEBUG,
-    reporters: ['detailed'],
+    reporters: ['verbose'],
     colors: true,
 
     /* Our browsers */
-    browsers: ['PhantomJS'], // 'Chrome'], // 'Firefox', 'Safari'],
+    browsers: ['PhantomJS'], // 'Chrome', 'Firefox', 'Safari'],
   });
 };

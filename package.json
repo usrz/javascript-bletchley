@@ -11,6 +11,7 @@
     "karma-mocha": "^0.1.9",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-requirejs": "^0.2.2",
-    "karma-safari-launcher": "^0.1.1"
+    "karma-safari-launcher": "^0.1.1",
+    "karma-verbose-reporter": "https://github.com/usrz/javascript-karma-verbose-reporter/tarball/master"
   }
 }
