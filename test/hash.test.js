@@ -3,11 +3,10 @@ define(['crypto'], function(crypto) {
     beforeEach(module('UZCrypto'));
 
 
-    it("should exist", function() {
-      inject(['_hash', function(_hash) {
-        expect(_hash).to.exist;
-      }]);
-    });
+    it("should exist", inject(['_hash', function(_hash) {
+      expect(_hash).to.exist;
+      expect(_hash).to.be.a('function');
+    }]));
 
     describe("SHA-1", function() {
 
