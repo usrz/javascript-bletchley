@@ -1,6 +1,6 @@
 'use strict';
 
-define([], function() {
+define(['util/has'], function(has) {
   return function(module) {
 
     /* A list of known subtle crypto functions that can/should be wrapped */
@@ -8,18 +8,13 @@ define([], function() {
                      'generateKey', 'deriveKey', 'importKey', 'exportKey',
                      'wrapKey', 'unwrapKey'];
 
-    /* A utility function to discover/return the subtle crypto instance */
-    function getBrowserSubtle($window) {
-      if (window.msCrypto && window.msCrypto.subtle) return window.msCrypto.subtle;
-      if (window.crypto && window.crypto.webkitSubtle) return window.crypto.webkitSubtle;
-      if (window.crypto && window.crypto.subtle) return window.crypto.subtle;
-      return Object.freeze({});
-    }
-
     /* Create the "_subtle" factory */
     module.factory("_subtle", ['$q', '$window', '$rootScope', '$exceptionHandler', function($q, $window, $rootScope, $exceptionHandler) {
 
-      var browserSubtle = getBrowserSubtle($window);
+      var browserSubtle = has(window, 'window.msCrypto.subtle',
+                                      'window.crypto.webkitSubtle',
+                                      'window.crypto.subtle') || {};
+
       var subtle = {};
 
       for (var i in functions) {
