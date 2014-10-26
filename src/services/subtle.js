@@ -13,11 +13,15 @@ define(['crypto_module', 'utils/has'], function(module, has) {
 
   module.factory("_subtle", ['$q', '$window', '$rootScope', '$exceptionHandler', function($q, $window, $rootScope, $exceptionHandler) {
 
+    var type = "none";
     var browserSubtle = has(window, 'window.msCrypto.subtle',
                                     'window.crypto.webkitSubtle',
                                     'window.crypto.subtle') || {};
+    has(window, "window.msCrypto.subtle") && (type = "ms");
+    has(window, "window.crypto.webkitSubtle") && (type = "webkit");
+    has(window, "window.crypto.subtle") && (type = "standard");
 
-    var subtle = {};
+    var subtle = { "$type": type };
 
     for (var i in functions) {
       if (browserSubtle[functions[i]]) {
