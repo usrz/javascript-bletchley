@@ -2,7 +2,7 @@ Esquire.define('bletchley/codecs/Codec', ['bletchley/utils/helpers',
                                           'bletchley/utils/arrays'],
   function(helpers, arrays) {
 
-    return function Codec(name, encode, decode) {
+    function Codec(name, encode, decode) {
 
       this.encode = function(array) {
         array = arrays.toUint8Array(array);
@@ -18,7 +18,11 @@ Esquire.define('bletchley/codecs/Codec', ['bletchley/utils/helpers',
         }
       }
 
-      helpers.makeHelper(this, name, true);
-    };
+      helpers.Helper.call(this, name);
+    }
+
+    Codec.prototype = new helpers.Helper();
+    return Codec;
+
   }
 );

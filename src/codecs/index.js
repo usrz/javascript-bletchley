@@ -4,14 +4,22 @@ Esquire.define('bletchley/codecs', [ 'bletchley/utils/helpers',
                                      'bletchley/codecs/utf8' ],
   function(helpers, base64, hex, utf8) {
 
-    return helpers.makeFactory({
-      encode: function(algorithm, array) {
-        return this.get(algorithm).encode(array);
-      },
-      decode: function(algorithm, string) {
-        return this.get(algorithm).decode(string);
-      }
-    }, [base64, hex, utf8], true);
+    function Codecs() {
+      var codecs = this;
+
+      this.encode = function(algorithm, array) {
+        return codecs.get(algorithm).encode(array);
+      };
+
+      this.decode = function(algorithm, string) {
+        return codecs.get(algorithm).decode(string);
+      };
+
+      helpers.Factory.call(this, [base64, hex, utf8]);
+    }
+
+    Codecs.prototype = new helpers.Factory();
+    return new Codecs();
 
   }
 );

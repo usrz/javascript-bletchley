@@ -5,13 +5,14 @@ Esquire.define('bletchley/utils/helpers', [], function() {
     return name.replace(/[- ]/g,'').toLowerCase();
   }
 
-  function makeHelper(helper, algorithm, freeze) {
-    helper.algorithm = algorithm;
-    if (freeze) Object.freeze(helper);
-    return helper;
+  function Helper(algorithm) {
+    if (!algorithm) return;
+    this.algorithm = algorithm;
+    Object.freeze(this);
   };
 
-  function makeFactory(factory, helpers, freeze) {
+  function Factory(helpers) {
+    if (!helpers) return;
 
     var algorithms = [];
     var instances = {};
@@ -23,20 +24,19 @@ Esquire.define('bletchley/utils/helpers', [], function() {
       instances[normalize(algorithm)] = helper;
     }
 
-    factory.algorithms = Object.freeze(algorithms);
-    factory.get = function(algorithm) {
+    this.algorithms = Object.freeze(algorithms);
+    this.get = function(algorithm) {
       var helper = instances[normalize(algorithm)];
       if (! helper) throw new Error("Unrecognized algorithm " + algorithm);
       return helper;
     }
 
-    if (freeze) Object.freeze(factory);
-    return factory;
+     Object.freeze(this);
   }
 
   return Object.freeze({
-    makeHelper:  makeHelper,
-    makeFactory: makeFactory
+    Helper:  Helper,
+    Factory: Factory,
   });
 
 });

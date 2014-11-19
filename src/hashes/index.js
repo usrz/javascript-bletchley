@@ -6,11 +6,18 @@ Esquire.define('bletchley/hashes', [ 'bletchley/hashes/sha1',
                                      'bletchley/utils/helpers' ],
   function(sha1, sha224, sha256, sha384, sha512, helpers) {
 
-    return helpers.makeFactory({
-      compute: function(algorithm, message) {
-        return this.get(algorithm).hash(message);
+    function Hashes() {
+      var hashes = this;
+
+      this.hash = function(algorithm, message) {
+        return hashes.get(algorithm).hash(message);
       }
-    }, [sha1, sha224, sha256, sha384, sha512], true);
+
+      helpers.Factory.call(this, [sha1, sha224, sha256, sha384, sha512]);
+    }
+
+    Hashes.prototype = new helpers.Factory();
+    return new Hashes();
 
   }
 );

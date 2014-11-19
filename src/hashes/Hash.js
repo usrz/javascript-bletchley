@@ -2,11 +2,17 @@ Esquire.define('bletchley/hashes/Hash', ['bletchley/utils/helpers',
                                          'bletchley/utils/arrays'],
   function(helpers, arrays) {
 
-    return function Hash(name, compute) {
-      this.compute = function(compute) {
-        return compute(arrays.toUint8Array(array));
+    function Hash(name, hash) {
+
+      this.hash = function(array) {
+        return hash(arrays.toUint8Array(array));
       }
-      helpers.makeHelper(this, name, true);
-    };
+
+      helpers.Helper.call(this, name);
+    }
+
+    Hash.prototype = new helpers.Helper();
+    return Hash;
+
   }
 );
