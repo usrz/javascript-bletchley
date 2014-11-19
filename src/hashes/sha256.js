@@ -2,13 +2,9 @@
 
 /* Code adapted from CryptoJS <https://code.google.com/p/crypto-js/> */
 
-define([], function() {
-  var warn = true;
-  return function(message, h) {
-    if ((h == null) && warn) {
-      console.warn("Using non-native SHA-256 implementation");
-      warn = false;
-    }
+Esquire.define('bletchley/hashes/sha256', ['bletchley/hashes/Hash'], function(Hash) {
+
+  function compute(message, h) {
 
     /* Initialize hash values */
     var h0 = h ? h[0] : 0x6a09e667;
@@ -128,6 +124,9 @@ define([], function() {
 
     /* Wrap the result in a Uint8Array */
     return new Uint8Array(hash);
-  }
+
+  };
+
+  return new Hash("SHA-256", compute);
 
 });

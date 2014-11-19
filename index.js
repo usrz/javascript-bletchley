@@ -1,10 +1,18 @@
 'use strict';
 
 var esquire = require('esquire');
+var path = require('path');
+var fs = require('fs');
 
-var path = require('path').join(__dirname, "src");
-require("fs").readdirSync(path).forEach(function(file) {
-  require("./src/" + file);
-});
+function requireAll(base) {
+  if (fs.lstatSync(base).isDirectory()) {
+    fs.readdirSync(base).forEach(function(file) {
+      requireAll(path.join(base, file));
+    });
+  } else if (fs.lstatSync(base).isFile()) {
+    require(base);
+  }
+}
+requireAll(path.join(__dirname, "src"));
 
-module.exports = esquire('bletchley');
+module.exports = esquire('bletchley/codecs');

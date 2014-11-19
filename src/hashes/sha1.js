@@ -2,13 +2,9 @@
 
 /* Code adapted from CryptoJS <https://code.google.com/p/crypto-js/> */
 
-define([], function() {
-  var warn = true;
-  return function(message) {
-    if (warn) {
-      console.warn("Using non-native SHA1 implementation");
-      warn = false;
-    }
+Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash) {
+
+  function compute(message) {
 
     /* Initialize our variables */
     var h0 = 0x67452301;
@@ -97,6 +93,8 @@ define([], function() {
     /* Wrap the result in a Uint8Array */
     return new Uint8Array(hash);
 
-  }
+  };
+
+  return new Hash("SHA1", compute);
 
 });

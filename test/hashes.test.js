@@ -1,4 +1,6 @@
+(function() {
 define(['crypto'], function(crypto) {
+
   describe("hash", function() {
     beforeEach(module('UZCrypto'));
 
@@ -918,4 +920,5 @@ define(['crypto'], function(crypto) {
       0xec ,0x69 ,0x43 ,0xf8 ,0x27 ,0x8e ,0x96 ,0x3c ,0x25 ,0xad ,0x5c ,0xa6 ,0xbd ,0xe3 ,0xdd ,0x23,
     ]);
   });
+});
 });
