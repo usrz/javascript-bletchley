@@ -6,7 +6,6 @@ Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Code
 
   for (var i = 0; i < 256; i ++) {
     var s = ("0" + new Number(i).toString(16)).slice(-2);
-    console.log("S is ", s);
     hexToBytes[s.toUpperCase()] = i;
     hexToBytes[s.toLowerCase()] = i;
     hexTable[i] = s;
