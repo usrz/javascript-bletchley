@@ -4,7 +4,7 @@
 
 Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash) {
 
-  function compute(message) {
+  return new Hash("SHA1", function(message) {
 
     /* Initialize our variables */
     var h0 = 0x67452301;
@@ -93,8 +93,6 @@ Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash
     /* Wrap the result in a Uint8Array */
     return new Uint8Array(hash);
 
-  };
-
-  return new Hash("SHA1", compute);
+  });
 
 });

@@ -10,7 +10,7 @@ Esquire.define('bletchley/hashes/sha224', ['bletchley/hashes/sha256', 'bletchley
 
   return new Hash("SHA-224", function(message) {
 
-    var hash = sha256.compute(message, h);
+    var hash = sha256.hash(message, h);
     var result = new Uint8Array(28);
     result.set(hash.subarray(0, 28));
     return result;

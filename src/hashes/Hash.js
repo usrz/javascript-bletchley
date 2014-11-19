@@ -4,8 +4,8 @@ Esquire.define('bletchley/hashes/Hash', ['bletchley/utils/helpers',
 
     function Hash(name, hash) {
 
-      this.hash = function(array) {
-        return hash(arrays.toUint8Array(array));
+      this.hash = function(array, h) {
+        return hash(arrays.toUint8Array(array), h);
       }
 
       helpers.Helper.call(this, name);
