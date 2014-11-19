@@ -30,6 +30,6 @@ module.exports = function(config) {
     colors: true,
 
     /* Our browsers */
-    browsers: ['PhantomJS'], // 'Chrome', 'Firefox', 'Safari'],
+    browsers: ['Chrome'], // 'Chrome', 'Firefox', 'Safari'],
   });
 };
