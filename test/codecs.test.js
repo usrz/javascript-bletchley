@@ -1,4 +1,4 @@
-esquire(['bletchley/codecs'], function(codecs) {
+esquire(['bletchley/codecs', 'bletchley/test/binary'], function(codecs, binary) {
 
   describe("Codecs", function() {
 
@@ -56,6 +56,18 @@ esquire(['bletchley/codecs'], function(codecs) {
       expect(decoded).to.deep.equal(tokyoUint8Array);
     });
 
+    it("should encode a large binary in HEX", function() {
+      var encoded = codecs.encode('HEX', binary.uint8Array);
+      expect(encoded).to.be.a('string');
+      expect(encoded).to.equal(binary.hex);
+    });
+
+    it("should decode a large binary from HEX", function() {
+      var decoded = codecs.decode('HEX', binary.hex);
+      expect(decoded).to.be.instanceof(Uint8Array);
+      expect(decoded).to.deep.equal(binary.uint8Array);
+    });
+
     /* ====================================================================== */
     /* BASE_64 TESTS                                                          */
     /* ====================================================================== */
@@ -71,6 +83,19 @@ esquire(['bletchley/codecs'], function(codecs) {
       expect(decoded).to.be.instanceof(Uint8Array);
       expect(decoded).to.deep.equal(tokyoUint8Array);
     });
+
+    it("should encode a large binary in BASE64", function() {
+      var encoded = codecs.encode('BASE-64', binary.uint8Array);
+      expect(encoded).to.be.a('string');
+      expect(encoded).to.equal(binary.base64);
+    });
+
+    it("should decode a large binary from BASE64", function() {
+      var decoded = codecs.decode('BASE-64', binary.base64);
+      expect(decoded).to.be.instanceof(Uint8Array);
+      expect(decoded).to.deep.equal(binary.uint8Array);
+    });
+
   });
 });
 
