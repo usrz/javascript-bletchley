@@ -6,6 +6,7 @@ Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Code
 
   for (var i = 0; i < 256; i ++) {
     var s = ("0" + new Number(i).toString(16)).slice(-2);
+    console.log("S is ", s);
     hexToBytes[s.toUpperCase()] = i;
     hexToBytes[s.toLowerCase()] = i;
     hexTable[i] = s;
@@ -28,9 +29,8 @@ Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Code
     var view = new Uint8Array(array);
     for (var i = 0; i < view.length; i++) {
       var hex = string.substr(0, 2);
-      var number = hexToBytes[hex];
-      if (number) {
-        view[i] = number;
+      if (hex in hexToBytes) {
+        view[i] = hexToBytes[hex];
       } else {
         throw new Error("Invalid hex sequence '" + hex + "' at offset " + (i * 2));
       }
