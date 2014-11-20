@@ -1,8 +1,12 @@
+'use strict';
+
 Esquire.define('bletchley/hashes/Hash', ['bletchley/utils/helpers',
                                          'bletchley/utils/arrays'],
   function(helpers, arrays) {
 
-    function Hash(name, hash) {
+    function Hash(name, blockSize, hash) {
+
+      this.blockSize = blockSize;
 
       this.hash = function(array, h) {
         return hash(arrays.toUint8Array(array), h);

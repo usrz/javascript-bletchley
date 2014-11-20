@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/hashes', [ 'bletchley/hashes/sha1',
                                      'bletchley/hashes/sha224',
                                      'bletchley/hashes/sha256',

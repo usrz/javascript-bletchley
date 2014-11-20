@@ -4,7 +4,7 @@
 
 Esquire.define('bletchley/hashes/sha512', ['bletchley/hashes/Hash'], function(Hash) {
 
-  return new Hash("SHA-512", function(message, h) {
+  return new Hash("SHA-512", 128, function(message, h) {
 
     /* Initialize hash values */
     var h0h = h ? h[ 0] : 0x6a09e667; var h0l = h ? h[ 1] : 0xf3bcc908;
