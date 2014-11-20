@@ -13,7 +13,7 @@ Esquire.define('bletchley/utils/arrays', ['$esquire'], function($esquire) {
       return utf8.decode(array);
     }
 
-    if (! array) throw new Error("No array to convert to Uint8Array: " + array + "<");
+    if (! array) throw new Error("No array to convert to Uint8Array");
 
     /* Basic arrays / array bufffers / array buffer views */
     if (array instanceof Uint8Array) return array;
