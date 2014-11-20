@@ -47,24 +47,26 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
     for (var algorithm in tests) {
       var results = tests[algorithm];
 
-      describe(algorithm + " hashing", function() {
+      (function(algorithm, results) {
+        describe(algorithm + " hashing", function() {
 
-        it("should hash empty data", function() {
-          expect(encode('HEX', hash(algorithm, '')))
-            .to.equal(results.empty);
+          it("should hash empty data", function() {
+            expect(encode('HEX', hash(algorithm, '')))
+              .to.equal(results.empty);
+          });
+
+          it("should hash a well-known string", function() {
+            expect(encode('HEX', hash(algorithm, knownString)))
+              .to.equal(results.known);
+          });
+
+          it("should hash 10k of binary data", function() {
+            expect(encode('HEX', hash(algorithm, decode('BASE64', binary.base64))))
+              .to.equal(results.large);
+          });
+
         });
-
-        it("should hash a well-known string", function() {
-          expect(encode('HEX', hash(algorithm, knownString)))
-            .to.equal(results.known);
-        });
-
-        it("should hash 10k of binary data", function() {
-          expect(encode('HEX', hash(algorithm, decode('BASE64', binary.base64))))
-            .to.equal(results.large);
-        });
-
-      });
+      })(algorithm, results);
     }
 
   });
