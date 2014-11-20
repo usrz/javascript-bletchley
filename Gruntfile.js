@@ -24,6 +24,8 @@ module.exports = function(grunt) {
       'options': { slow: 250 },
       'default': {
         src: [ 'index.js',
+               'test/binary.test.js',
+               'test/mocha-promises.js',
                'test/*.js' ]
       }
     },
