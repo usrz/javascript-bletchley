@@ -19,14 +19,14 @@ Esquire.define('bletchley/codecs/utf8', ["bletchley/codecs/Codec",
       encode = function(array) {
         return new TextDecoder("UTF8").decode(array)
       }
+    } else if (Buffer) {
+      encode = function(array) {
+        return new Buffer(array).toString('utf8');
+      }
     } else if (decodeURIComponent && escape) {
       encode = function(array) {
         var raw = arrays.toUint8String(array);
         return decodeURIComponent(escape(raw));
-      }
-    } else if (Buffer) {
-      encode = function(array) {
-        return new Buffer(array).toString('utf8');
       }
     }
 
@@ -34,15 +34,15 @@ Esquire.define('bletchley/codecs/utf8', ["bletchley/codecs/Codec",
       decode = function(string) {
         return new TextEncoder("UTF8").encode(string);
       }
-    } else if (unescape && decodeURIComponent) {
-      decode = function(string) {
-        var raw = unescape(encodeURIComponent(string));
-        return arrays.fromUint8String(raw);
-      }
     } else if (Buffer) {
       decode = function(string) {
         var buffer = new Buffer(string, 'utf8');
         return new Uint8Array(buffer);
+      }
+    } else if (unescape && decodeURIComponent) {
+      decode = function(string) {
+        var raw = unescape(encodeURIComponent(string));
+        return arrays.fromUint8String(raw);
       }
     }
 
