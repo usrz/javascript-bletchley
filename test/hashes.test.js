@@ -23,14 +23,14 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
 
       it("should hash empty data", function() {
 
-        expect(encode('HEX', hash('SHA1', emptyData)))
+        expect(encode('HEX', hash('SHA1', '')))
           .to.equal(emptySHA1);
 
       });
 
       it("should hash a well-known string", function() {
 
-        expect(encode('HEX', hash('SHA1', decode("UTF-8", knownString))))
+        expect(encode('HEX', hash('SHA1', knownString)))
           .to.equal(knownSHA1);
 
       });
@@ -50,14 +50,14 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
 
       it("should hash empty data", function() {
 
-        expect(encode('HEX', hash('SHA-224', emptyData)))
+        expect(encode('HEX', hash('SHA-224', '')))
           .to.equal(emptySHA224);
 
       });
 
       it("should hash a well-known string", function() {
 
-        expect(encode('HEX', hash('SHA-224', decode("UTF-8", knownString))))
+        expect(encode('HEX', hash('SHA-224', knownString)))
           .to.equal(knownSHA224);
 
       });
@@ -77,14 +77,14 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
 
       it("should hash empty data", function() {
 
-        expect(encode('HEX', hash('SHA-256', emptyData)))
+        expect(encode('HEX', hash('SHA-256', '')))
           .to.equal(emptySHA256);
 
       });
 
       it("should hash a well-known string", function() {
 
-        expect(encode('HEX', hash('SHA-256', decode("UTF-8", knownString))))
+        expect(encode('HEX', hash('SHA-256', knownString)))
           .to.equal(knownSHA256);
 
       });
@@ -104,14 +104,14 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
 
       it("should hash empty data", function() {
 
-        expect(encode('HEX', hash('SHA-384', emptyData)))
+        expect(encode('HEX', hash('SHA-384', '')))
           .to.equal(emptySHA384);
 
       });
 
       it("should hash a well-known string", function() {
 
-        expect(encode('HEX', hash('SHA-384', decode("UTF-8", knownString))))
+        expect(encode('HEX', hash('SHA-384', knownString)))
           .to.equal(knownSHA384);
 
       });
@@ -131,14 +131,14 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
 
       it("should hash empty data", function() {
 
-        expect(encode('HEX', hash('SHA-512', emptyData)))
+        expect(encode('HEX', hash('SHA-512', '')))
           .to.equal(emptySHA512);
 
       });
 
       it("should hash a well-known string", function() {
 
-        expect(encode('HEX', hash('SHA-512', decode("UTF-8", knownString))))
+        expect(encode('HEX', hash('SHA-512', knownString)))
           .to.equal(knownSHA512);
 
       });
@@ -154,7 +154,6 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
 
     /* ======================================================================== */
 
-    var emptyData = new Uint8Array();
     var emptySHA1   = 'da39a3ee5e6b4b0d3255bfef95601890afd80709';
     var emptySHA224 = 'd14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f';
     var emptySHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
