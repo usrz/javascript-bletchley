@@ -1,10 +1,16 @@
-esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promize'], function(hashes, codecs, binary) {
+'use strict';
 
-  var hash = hashes.hash;
-  var encode = codecs.encode;
-  var decode = codecs.decode;
+it("should run", function() {
+  "";
+});
 
-  describe("Hashes", function() {
+describe("Hashes", function() {
+
+  esquire(['mocha/promises', 'bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promize'], function(promises, hashes, codecs, binary) {
+
+    var hash = hashes.hash;
+    var encode = codecs.encode;
+    var decode = codecs.decode;
 
     it("should exist", function() {
       expect(hashes).to.exist;
@@ -50,19 +56,26 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promi
       (function(algorithm, results) {
         describe(algorithm + " hashing", function() {
 
-          it("should hash empty data", function() {
-            expect(encode('HEX', hash(algorithm, '')))
-              .to.equal(results.empty);
+          promises("should hash empty data", function(resolve) {
+            return resolve(encode('HEX', hash(algorithm, '')))
+              .then(function(result) {
+                expect(result).to.equal(results.empty);
+                expect(result).to.equal(results.empty);
+              })
           });
 
-          it("should hash a well-known string", function() {
-            expect(encode('HEX', hash(algorithm, knownString)))
-              .to.equal(results.known);
+          promises("should hash a well-known string", function(resolve) {
+            return resolve(encode('HEX', hash(algorithm, knownString)))
+              .then(function(result) {
+                expect(result).to.equal(results.known);
+              });
           });
 
-          it("should hash 10k of binary data", function() {
-            expect(encode('HEX', hash(algorithm, decode('BASE64', binary.base64))))
-              .to.equal(results.large);
+          promises("should hash 10k of binary data", function(resolve) {
+            return resolve(encode('HEX', hash(algorithm, decode('BASE64', binary.base64))))
+              .then(function(result) {
+                expect(result).to.equal(results.large);
+              });
           });
 
         });

@@ -1,6 +1,7 @@
-esquire(['bletchley/codecs', 'bletchley/test/binary'], function(codecs, binary) {
+'use strict';
 
-  describe("Codecs", function() {
+describe("Codecs", function() {
+  esquire(['mocha/promises', 'bletchley/codecs', 'bletchley/test/binary'], function(promises, codecs, binary) {
 
     /* String for 'Tokyo' in Japanese */
     var tokyo = "\u6771\u4EAC";
@@ -31,72 +32,92 @@ esquire(['bletchley/codecs', 'bletchley/test/binary'], function(codecs, binary) 
     /* UTF-8 TESTS                                                            */
     /* ====================================================================== */
 
-    it("should encode in UTF8", function() {
-      var encoded = codecs.encode('UTF-8', tokyoArray);
-      expect(encoded).to.be.a('string');
-      expect(encoded).to.equal(tokyo);
+    promises("should encode in UTF8", function(resolve) {
+      return resolve(codecs.encode('UTF-8', tokyoArray))
+        .then(function(encoded) {
+          expect(encoded).to.be.a('string');
+          expect(encoded).to.equal(tokyo);
+        });
     });
 
-    it("should decode from UTF8", function() {
-      var decoded = codecs.decode('UTF-8', tokyo);
-      expect(decoded).to.be.instanceof(Uint8Array);
-      expect(decoded).to.deep.equal(tokyoUint8Array);
+    promises("should decode from UTF8", function(resolve) {
+      return resolve(codecs.decode('UTF-8', tokyo))
+        .then(function(decoded) {
+          expect(decoded).to.be.instanceof(Uint8Array);
+          expect(decoded).to.deep.equal(tokyoUint8Array);
+        });
     });
 
     /* ====================================================================== */
     /* HEX TESTS                                                              */
     /* ====================================================================== */
 
-    it("should encode in HEX", function() {
-      var encoded = codecs.encode('HEX', tokyoArray);
-      expect(encoded).to.be.a('string');
-      expect(encoded).to.equal(tokyoHex);
+    promises("should encode in HEX", function(resolve) {
+      return resolve(codecs.encode('HEX', tokyoArray))
+        .then(function(encoded) {
+          expect(encoded).to.be.a('string');
+          expect(encoded).to.equal(tokyoHex);
+        });
     });
 
-    it("should decode from HEX", function() {
-      var decoded = codecs.decode('HEX', tokyoHex);
-      expect(decoded).to.be.instanceof(Uint8Array);
-      expect(decoded).to.deep.equal(tokyoUint8Array);
+    promises("should decode from HEX", function(resolve) {
+      return resolve(codecs.decode('HEX', tokyoHex))
+        .then(function(decoded) {
+          expect(decoded).to.be.instanceof(Uint8Array);
+          expect(decoded).to.deep.equal(tokyoUint8Array);
+        });
     });
 
-    it("should encode a large binary in HEX", function() {
-      var encoded = codecs.encode('HEX', binary.uint8Array);
-      expect(encoded).to.be.a('string');
-      expect(encoded).to.equal(binary.hex);
+    promises("should encode a large binary in HEX", function(resolve) {
+      return resolve(codecs.encode('HEX', binary.uint8Array))
+        .then(function(encoded) {
+          expect(encoded).to.be.a('string');
+          expect(encoded).to.equal(binary.hex);
+        });
     });
 
-    it("should decode a large binary from HEX", function() {
-      var decoded = codecs.decode('HEX', binary.hex);
-      expect(decoded).to.be.instanceof(Uint8Array);
-      expect(decoded).to.deep.equal(binary.uint8Array);
+    promises("should decode a large binary from HEX", function(resolve) {
+      return resolve(codecs.decode('HEX', binary.hex))
+        .then(function(decoded) {
+          expect(decoded).to.be.instanceof(Uint8Array);
+          expect(decoded).to.deep.equal(binary.uint8Array);
+        });
     });
 
     /* ====================================================================== */
     /* BASE_64 TESTS                                                          */
     /* ====================================================================== */
 
-    it("should encode in BASE64", function() {
-      var encoded = codecs.encode('BASE-64', tokyoArray);
-      expect(encoded).to.be.a('string');
-      expect(encoded).to.equal(tokyoB64);
+    promises("should encode in BASE64", function(resolve) {
+      return resolve(codecs.encode('BASE-64', tokyoArray))
+        .then(function(encoded) {
+          expect(encoded).to.be.a('string');
+          expect(encoded).to.equal(tokyoB64);
+        });
     });
 
-    it("should decode from BASE64", function() {
-      var decoded = codecs.decode('BASE-64', tokyoB64);
-      expect(decoded).to.be.instanceof(Uint8Array);
-      expect(decoded).to.deep.equal(tokyoUint8Array);
+    promises("should decode from BASE64", function(resolve) {
+      return resolve(codecs.decode('BASE-64', tokyoB64))
+        .then(function(decoded) {
+          expect(decoded).to.be.instanceof(Uint8Array);
+          expect(decoded).to.deep.equal(tokyoUint8Array);
+        });
     });
 
-    it("should encode a large binary in BASE64", function() {
-      var encoded = codecs.encode('BASE-64', binary.uint8Array);
-      expect(encoded).to.be.a('string');
-      expect(encoded).to.equal(binary.base64);
+    promises("should encode a large binary in BASE64", function(resolve) {
+      return resolve(codecs.encode('BASE-64', binary.uint8Array))
+        .then(function(encoded) {
+          expect(encoded).to.be.a('string');
+          expect(encoded).to.equal(binary.base64);
+        });
     });
 
-    it("should decode a large binary from BASE64", function() {
-      var decoded = codecs.decode('BASE-64', binary.base64);
-      expect(decoded).to.be.instanceof(Uint8Array);
-      expect(decoded).to.deep.equal(binary.uint8Array);
+    promises("should decode a large binary from BASE64", function(resolve) {
+      return resolve(codecs.decode('BASE-64', binary.base64))
+        .then(function(decoded) {
+          expect(decoded).to.be.instanceof(Uint8Array);
+          expect(decoded).to.deep.equal(binary.uint8Array);
+        });
     });
 
   });
