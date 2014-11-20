@@ -19,6 +19,9 @@ esquire(['bletchley/codecs', 'bletchley/test/binary'], function(codecs, binary) 
 
     it("should exist", function() {
       expect(codecs).to.exist;
+      expect(codecs).to.be.a('object');
+      expect(codecs.encode).to.be.a('function');
+      expect(codecs.decode).to.be.a('function');
       expect(codecs.algorithms).to.contain("BASE-64");
       expect(codecs.algorithms).to.contain("HEX");
       expect(codecs.algorithms).to.contain("UTF-8");

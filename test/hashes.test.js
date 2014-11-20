@@ -1,4 +1,4 @@
-esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary'], function(hashes, codecs, binary) {
+esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary', 'promize'], function(hashes, codecs, binary) {
 
   var hash = hashes.hash;
   var encode = codecs.encode;
@@ -9,6 +9,7 @@ esquire(['bletchley/hashes', 'bletchley/codecs', 'bletchley/test/binary'], funct
     it("should exist", function() {
       expect(hashes).to.exist;
       expect(hashes).to.be.a('object');
+      expect(hashes.hash).to.be.a('function');
       expect(hashes.algorithms).to.include("SHA1");
       expect(hashes.algorithms).to.include("SHA-224");
       expect(hashes.algorithms).to.include("SHA-256");
