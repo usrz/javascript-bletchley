@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Codec) {
 
   /* Initialize our tables for HEX encoding/decoding */

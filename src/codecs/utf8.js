@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/codecs/utf8', ["bletchley/codecs/Codec",
                                          "bletchley/utils/arrays",
                                          "$global/TextEncoder",

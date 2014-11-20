@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
                                            "bletchley/utils/arrays",
                                            "$global/Buffer",

@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/codecs/Codec', ['bletchley/utils/helpers',
                                           'bletchley/utils/arrays'],
   function(helpers, arrays) {

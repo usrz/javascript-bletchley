@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/codecs', [ 'bletchley/utils/helpers',
                                      'bletchley/codecs/base64',
                                      'bletchley/codecs/hex',
