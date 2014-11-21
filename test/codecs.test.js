@@ -3,6 +3,9 @@
 describe("Codecs", function() {
   esquire(['mocha/promises', 'bletchley/codecs', 'bletchley/test/binary'], function(promises, codecs, binary) {
 
+    var encode = codecs.encode;
+    var decode = codecs.decode;
+
     /* String for 'Tokyo' in Japanese */
     var tokyo = "\u6771\u4EAC";
     /* Uint8Array of 'Tokyo' in UTF8 */
@@ -21,8 +24,8 @@ describe("Codecs", function() {
     it("should exist", function() {
       expect(codecs).to.exist;
       expect(codecs).to.be.a('object');
-      expect(codecs.encode).to.be.a('function');
-      expect(codecs.decode).to.be.a('function');
+      expect(encode).to.be.a('function');
+      expect(decode).to.be.a('function');
       expect(codecs.algorithms).to.contain("BASE-64");
       expect(codecs.algorithms).to.contain("HEX");
       expect(codecs.algorithms).to.contain("UTF-8");
@@ -33,7 +36,7 @@ describe("Codecs", function() {
     /* ====================================================================== */
 
     promises("should encode in UTF8", function(resolve) {
-      return resolve(codecs.encode('UTF-8', tokyoArray))
+      return resolve(encode('UTF-8', tokyoArray))
         .then(function(encoded) {
           expect(encoded).to.be.a('string');
           expect(encoded).to.equal(tokyo);
@@ -41,7 +44,7 @@ describe("Codecs", function() {
     });
 
     promises("should decode from UTF8", function(resolve) {
-      return resolve(codecs.decode('UTF-8', tokyo))
+      return resolve(decode('UTF-8', tokyo))
         .then(function(decoded) {
           expect(decoded).to.be.instanceof(Uint8Array);
           expect(decoded).to.deep.equal(tokyoUint8Array);
@@ -53,7 +56,7 @@ describe("Codecs", function() {
     /* ====================================================================== */
 
     promises("should encode in HEX", function(resolve) {
-      return resolve(codecs.encode('HEX', tokyoArray))
+      return resolve(encode('HEX', tokyoArray))
         .then(function(encoded) {
           expect(encoded).to.be.a('string');
           expect(encoded).to.equal(tokyoHex);
@@ -61,7 +64,7 @@ describe("Codecs", function() {
     });
 
     promises("should decode from HEX", function(resolve) {
-      return resolve(codecs.decode('HEX', tokyoHex))
+      return resolve(decode('HEX', tokyoHex))
         .then(function(decoded) {
           expect(decoded).to.be.instanceof(Uint8Array);
           expect(decoded).to.deep.equal(tokyoUint8Array);
@@ -69,7 +72,7 @@ describe("Codecs", function() {
     });
 
     promises("should encode a large binary in HEX", function(resolve) {
-      return resolve(codecs.encode('HEX', binary.uint8Array))
+      return resolve(encode('HEX', binary.uint8Array))
         .then(function(encoded) {
           expect(encoded).to.be.a('string');
           expect(encoded).to.equal(binary.hex);
@@ -77,7 +80,7 @@ describe("Codecs", function() {
     });
 
     promises("should decode a large binary from HEX", function(resolve) {
-      return resolve(codecs.decode('HEX', binary.hex))
+      return resolve(decode('HEX', binary.hex))
         .then(function(decoded) {
           expect(decoded).to.be.instanceof(Uint8Array);
           expect(decoded).to.deep.equal(binary.uint8Array);
@@ -89,7 +92,7 @@ describe("Codecs", function() {
     /* ====================================================================== */
 
     promises("should encode in BASE64", function(resolve) {
-      return resolve(codecs.encode('BASE-64', tokyoArray))
+      return resolve(encode('BASE-64', tokyoArray))
         .then(function(encoded) {
           expect(encoded).to.be.a('string');
           expect(encoded).to.equal(tokyoB64);
@@ -97,7 +100,7 @@ describe("Codecs", function() {
     });
 
     promises("should decode from BASE64", function(resolve) {
-      return resolve(codecs.decode('BASE-64', tokyoB64))
+      return resolve(decode('BASE-64', tokyoB64))
         .then(function(decoded) {
           expect(decoded).to.be.instanceof(Uint8Array);
           expect(decoded).to.deep.equal(tokyoUint8Array);
@@ -105,7 +108,7 @@ describe("Codecs", function() {
     });
 
     promises("should encode a large binary in BASE64", function(resolve) {
-      return resolve(codecs.encode('BASE-64', binary.uint8Array))
+      return resolve(encode('BASE-64', binary.uint8Array))
         .then(function(encoded) {
           expect(encoded).to.be.a('string');
           expect(encoded).to.equal(binary.base64);
@@ -113,7 +116,7 @@ describe("Codecs", function() {
     });
 
     promises("should decode a large binary from BASE64", function(resolve) {
-      return resolve(codecs.decode('BASE-64', binary.base64))
+      return resolve(decode('BASE-64', binary.base64))
         .then(function(decoded) {
           expect(decoded).to.be.instanceof(Uint8Array);
           expect(decoded).to.deep.equal(binary.uint8Array);

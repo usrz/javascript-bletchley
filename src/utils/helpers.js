@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/utils/helpers', [], function() {
+Esquire.define('bletchley/utils/helpers', ['promize'], function(promize) {
 
   function normalize(name) {
     if (typeof('name') !== 'string') throw new Error("Invalid name " + name);
@@ -14,8 +14,6 @@ Esquire.define('bletchley/utils/helpers', [], function() {
   };
 
   function Factory(helpers) {
-    if (!helpers) return;
-
     var algorithms = [];
     var instances = {};
 

@@ -1,26 +1,25 @@
 'use strict';
 
 Esquire.define('bletchley/codecs', [ 'bletchley/utils/helpers',
+                                     'bletchley/utils/extend',
                                      'bletchley/codecs/base64',
                                      'bletchley/codecs/hex',
                                      'bletchley/codecs/utf8' ],
-  function(helpers, base64, hex, utf8) {
+  function(helpers, extend, base64, hex, utf8) {
 
-    function Codecs() {
-      var codecs = this;
-
-      this.encode = function(algorithm, array) {
-        return codecs.get(algorithm).encode(array);
-      };
-
-      this.decode = function(algorithm, string) {
-        return codecs.get(algorithm).decode(string);
-      };
-
+    var Codecs = extend(function() {
+      extend.solidify(this);
       helpers.Factory.call(this, [base64, hex, utf8]);
+    }, helpers.Factory, "Codecs");
+
+    Codecs.prototype.encode = function(algorithm, array) {
+      return this.get(algorithm).encode(array);
     }
 
-    Codecs.prototype = new helpers.Factory();
+    Codecs.prototype.decode = function(algorithm, string) {
+      return this.get(algorithm).decode(string);
+    };
+
     return new Codecs();
 
   }
