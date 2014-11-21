@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/utils/extend', ['promize'], function(promize) {
+Esquire.define('bletchley/utils/extend', ['defers/Promise'], function(Promise) {
 
   function extend(extendedClass, baseClass, prototypeName) {
     if (typeof(extendedClass) !== 'function') throw new Error("Extended class nota function");
@@ -22,9 +22,9 @@ Esquire.define('bletchley/utils/extend', ['promize'], function(promize) {
           return function() {
             var args = [];
             for (var i = 0; i < arguments.length; i++) {
-              args.push(promize.Promise.resolve(arguments[i]));
+              args.push(Promise.resolve(arguments[i]));
             };
-            return promize.Promise.all(args).then(function(args) {
+            return Promise.all(args).then(function(args) {
               return fn.apply(what, args);
             });
           }

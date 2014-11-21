@@ -1,10 +1,6 @@
 'use strict';
 
-console.log("LOADED PROMISES");
-
-Esquire.define('mocha/promises', ['$esquire', 'promize'], function($esquire, promize) {
-
-  var Promise = promize.Promise;
+Esquire.define('mocha/promises', ['$esquire', 'defers/Promise'], function($esquire, Promise) {
 
   function resolve() {
     return Promise.resolve.apply(Promise, arguments);

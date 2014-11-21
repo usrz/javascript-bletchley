@@ -12,8 +12,8 @@ module.exports = function(config) {
 
     /* These need to be in order */
     files: [
-      'node_modules/promize/src/*',
-      'node_modules/slaves/src/*',
+      'node_modules/defers/src/*',
+      'node_modules/rodosha/src/*',
       'src/**/*.js',
       'test/**/*.js',
     ],

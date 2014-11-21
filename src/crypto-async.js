@@ -1,11 +1,11 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/async', ['bletchley/crypto/sync', 'slaves', 'bletchley/utils/helpers', 'bletchley/utils/extend'], function(sync, slaves, helpers, extend) {
+Esquire.define('bletchley/crypto/async', ['bletchley/crypto/sync', 'rodosha', 'bletchley/utils/helpers', 'bletchley/utils/extend'], function(sync, rodosha, helpers, extend) {
 
-  var proxy = slaves.create(false)
-    .then(function(slave) {
-      console.log("SLAVE IS", slave);
-      return slave.proxy('bletchley/crypto/sync');
+  var proxy = rodosha.create(false)
+    .then(function(rodosha) {
+      console.log("SLAVE IS", rodosha);
+      return rodosha.proxy('bletchley/crypto/sync');
     }).then(function(proxy) {
       console.log("PROXY IS", proxy);
       return proxy;

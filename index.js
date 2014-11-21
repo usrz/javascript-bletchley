@@ -1,7 +1,7 @@
 'use strict';
 
 var esquire = require('esquire');
-var promize = require('promize');
+var defers = require('defers');
 var path = require('path');
 var fs = require('fs');
 

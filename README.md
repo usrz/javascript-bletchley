@@ -1,7 +1,7 @@
 USRZ Bletchley API
 ==================
 
-A silly crypto library...
+A silly crypto library... **THIS IS WORK IN PROGRESS, DO NOT USE**
 
 Bletchley Park
 --------------
