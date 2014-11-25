@@ -1,15 +1,15 @@
 'use strict';
 
-Esquire.define('bletchley/hashes', [ 'bletchley/hashes/sha1',
+Esquire.define('bletchley/hashes', [ 'bletchley/utils/helpers',
+                                     'bletchley/utils/extend',
+                                     'bletchley/hashes/sha1',
                                      'bletchley/hashes/sha224',
                                      'bletchley/hashes/sha256',
                                      'bletchley/hashes/sha384',
-                                     'bletchley/hashes/sha512',
-                                     'bletchley/utils/helpers',
-                                     'bletchley/utils/extend' ],
-  function(sha1, sha224, sha256, sha384, sha512, helpers, extend) {
+                                     'bletchley/hashes/sha512' ],
+  function(helpers, extend, sha1, sha224, sha256, sha384, sha512) {
 
-    var Hashes = extend(function () {
+    var Hashes = extend(function Hashes() {
       extend.solidify(this);
       helpers.Factory.call(this, [sha1, sha224, sha256, sha384, sha512]);
     }, helpers.Factory, "Hashes");

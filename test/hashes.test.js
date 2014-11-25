@@ -1,7 +1,10 @@
 'use strict';
 
-describe("Hashes", function() {
-  esquire(['mocha/promises', 'bletchley/crypto/async', 'bletchley/test/binary'], function(promises, crypto, binary) {
+Esquire.define('bletchley/test/hashes', ['mocha/promises', 'bletchley/test/binary'], function(promises, binary) {
+
+  return function(crypto) {
+
+  describe("Hashes", function() {
 
     var hash = crypto.hash;
     var encode = crypto.encode;
@@ -81,5 +84,5 @@ describe("Hashes", function() {
     }
 
   });
-//});
+  }
 });

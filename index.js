@@ -1,7 +1,7 @@
 'use strict';
 
 var esquire = require('esquire');
-var defers = require('defers');
+var rodosha = require('rodosha');
 var path = require('path');
 var fs = require('fs');
 

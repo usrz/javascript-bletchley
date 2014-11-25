@@ -8,7 +8,7 @@ Esquire.define('bletchley/codecs', [ 'bletchley/utils/helpers',
   function(helpers, extend, base64, hex, utf8) {
 
     var Codecs = extend(function() {
-      extend.solidify(this);
+     extend.solidify(this);
       helpers.Factory.call(this, [base64, hex, utf8]);
     }, helpers.Factory, "Codecs");
 

@@ -1,10 +1,11 @@
 'use strict';
 
-Esquire.define('bletchley/hmacs', ['bletchley/hmacs/HMAC',
-                                   'bletchley/hashes',
-                                   'bletchley/utils/arrays',
-                                   'bletchley/utils/helpers'],
-  function(HMAC, hashes, arrays, helpers) {
+Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
+                                    'bletchley/hashes',
+                                    'bletchley/utils/arrays',
+                                    'bletchley/utils/helpers',
+                                    'bletchley/utils/extend' ],
+  function(HMAC, hashes, arrays, helpers, extend) {
 
     function create(hashes) {
       var hmacs = [];
@@ -36,19 +37,18 @@ Esquire.define('bletchley/hmacs', ['bletchley/hmacs/HMAC',
       return hmacs;
     }
 
-    function HMACs() {
-      var hmacs = this;
+    /* ====================================================================== */
 
-      this.hmac = function(algorithm, salt, secret) {
-        return hmacs.get(algorithm).hmac(salt, secret);
-      }
-
+    var HMACs = extend(function HMACs() {
+      extend.solidify(this);
       helpers.Factory.call(this, create(hashes));
+    }, helpers.Factory, "HMACs");
+
+    HMACs.prototype.hmac = function(algorithm, salt, secret) {
+      return this.get(algorithm).hmac(salt, secret);
     }
 
-    HMACs.prototype = new helpers.Factory();
     return new HMACs();
-
 
   }
 );

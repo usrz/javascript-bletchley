@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('mocha/promises', ['$esquire', 'defers/Promise'], function($esquire, Promise) {
+Esquire.define('bletchley/test/promises', ['$esquire', 'defers/Promise'], function($esquire, Promise) {
 
   function resolve() {
     return Promise.resolve.apply(Promise, arguments);
@@ -50,32 +50,6 @@ Esquire.define('mocha/promises', ['$esquire', 'defers/Promise'], function($esqui
   }
 
   return promises;
-
-  // function instrument(it) {
-  //   //console.log("Instrumenting", it);
-  //   it['promises'] = promises(it);
-  //   for (var i in it) {
-  //     var fn = promises(it[i]);
-  //     it[i].promises = fn;
-  //     it.promises[i] = fn;
-  //   }
-  //   return it;
-  // }
-
-  // instrument(it);
-
-  // try {
-  //   console.log('HERE');
-  //   var ref = { it: global.it };
-  //   Object.defineProperty(global, 'it', {
-  //     set: function(it) { ref.it = instrument(it) },
-  //     get: function() { return ref.it },
-  //     configurable: false,
-  //     enumerable: true,
-  //   });
-  // } catch (error) {
-  //   console.warn("Error: " + error);
-  // }
 
 });
 
