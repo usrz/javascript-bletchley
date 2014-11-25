@@ -27,3 +27,29 @@ esquire(['bletchley/crypto/sync',
     });
   }
 );
+
+esquire(['bletchley/crypto/async',
+         'test/codecs',
+         'test/hashes',
+         'test/hmacs'],
+  function(crypto, testCodecs, testHashes, testHMACs) {
+    describe("Local asynchronous crypto implementation", function() {
+      testCodecs(crypto);
+      testHashes(crypto);
+      testHMACs(crypto);
+    });
+  }
+);
+
+esquire(['bletchley/crypto/worker',
+         'test/codecs',
+         'test/hashes',
+         'test/hmacs'],
+  function(crypto, testCodecs, testHashes, testHMACs) {
+    describe("Worker-based asynchronous crypto implementation", function() {
+      testCodecs(crypto);
+      testHashes(crypto);
+      testHMACs(crypto);
+    });
+  }
+);
