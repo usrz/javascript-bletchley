@@ -1,10 +1,11 @@
 'use strict';
 
 Esquire.define('bletchley/codecs/Codec', ['bletchley/utils/helpers',
+                                          'bletchley/utils/extend',
                                           'bletchley/utils/arrays'],
-  function(helpers, arrays) {
+  function(helpers, extend, arrays) {
 
-    function Codec(name, encode, decode) {
+    return extend(function(name, encode, decode) {
 
       this.encode = function(array) {
         array = arrays.toUint8Array(array);
@@ -21,10 +22,7 @@ Esquire.define('bletchley/codecs/Codec', ['bletchley/utils/helpers',
       }
 
       helpers.Helper.call(this, name);
-    }
-
-    Codec.prototype = new helpers.Helper();
-    return Codec;
+    }, helpers.Helper, "Codec");
 
   }
 );

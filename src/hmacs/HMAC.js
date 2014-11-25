@@ -1,8 +1,9 @@
 'use strict';
 
-Esquire.define('bletchley/hmacs/HMAC', ['bletchley/utils/helpers',
-                                        'bletchley/utils/arrays'],
-  function(helpers, arrays) {
+Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
+                                         'bletchley/utils/extend',
+                                         'bletchley/utils/arrays' ],
+  function(helpers, extend, arrays) {
 
     /* XOR two Uint8Arrays */
     function xor(array1, array2) {
@@ -13,7 +14,7 @@ Esquire.define('bletchley/hmacs/HMAC', ['bletchley/utils/helpers',
       return array;
     }
 
-    function HMAC(hash, innerPadding, outerPadding) {
+    return extend(function(hash, innerPadding, outerPadding) {
 
       this.hmac = function(salt, secret) {
         salt = arrays.toUint8Array(salt);
@@ -41,10 +42,7 @@ Esquire.define('bletchley/hmacs/HMAC', ['bletchley/utils/helpers',
       }
 
       helpers.Helper.call(this, hash.algorithm);
-    }
-
-    HMAC.prototype = new helpers.Helper();
-    return HMAC;
+    }, helpers.Helper, "HMAC");
 
   }
 );

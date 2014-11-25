@@ -7,20 +7,20 @@ Esquire.define('bletchley/codecs', [ 'bletchley/utils/helpers',
                                      'bletchley/codecs/utf8' ],
   function(helpers, extend, base64, hex, utf8) {
 
-    var Codecs = extend(function() {
-     extend.solidify(this);
-      helpers.Factory.call(this, [base64, hex, utf8]);
-    }, helpers.Factory, "Codecs");
+    return new (extend(function() {
 
-    Codecs.prototype.encode = function(algorithm, array) {
-      return this.get(algorithm).encode(array);
-    }
+      this.encode = function(algorithm, array) {
+        return this.$helper(algorithm).encode(array);
+      }.bind(this);
 
-    Codecs.prototype.decode = function(algorithm, string) {
-      return this.get(algorithm).decode(string);
-    };
+      this.decode = function(algorithm, string) {
+        return this.$helper(algorithm).decode(string);
+      }.bind(this);
 
-    return new Codecs();
+      helpers.Factory.call(this, [base64, hex, utf8], 'codecs');
+
+    }, helpers.Factory, "Codecs"))();
+
 
   }
 );

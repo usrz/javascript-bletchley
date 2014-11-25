@@ -11,9 +11,9 @@ Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
       var hmacs = [];
       var outerPaddings = {};
       var innerPaddings = {};
-      for (var i in hashes.algorithms) {
-        var algorithm = hashes.algorithms[i];
-        var hash = hashes.get(algorithm);
+      for (var i in hashes.hashes) {
+        var algorithm = hashes.hashes[i];
+        var hash = hashes.$helper(algorithm);
         var blockSize = hash.blockSize;
 
         var innerPadding;
@@ -39,16 +39,14 @@ Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
 
     /* ====================================================================== */
 
-    var HMACs = extend(function HMACs() {
-      extend.solidify(this);
-      helpers.Factory.call(this, create(hashes));
-    }, helpers.Factory, "HMACs");
+    return new (extend(function() {
 
-    HMACs.prototype.hmac = function(algorithm, salt, secret) {
-      return this.get(algorithm).hmac(salt, secret);
-    }
+      this.hmac = function(algorithm, salt, secret) {
+        return this.$helper(algorithm).hmac(salt, secret);
+      }.bind(this);
 
-    return new HMACs();
+      helpers.Factory.call(this, create(hashes), 'hmacs');
+    }, helpers.Factory, "HMACs"))();
 
   }
 );

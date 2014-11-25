@@ -3,13 +3,15 @@
 Esquire.define('bletchley/utils/arrays', ['$esquire'], function($esquire) {
 
   var utf8;
+  $esquire.require('bletchley/codecs/utf8')
+    .then(function(u) { utf8 = u });
 
   /**
    * Convert an Array, ArrayBuffer or ArrayBufferView into a valid Uint8Array.
    */
   function toUint8Array(array) {
     if (typeof(array) === 'string') {
-      if (! utf8) utf8 = $esquire.require('bletchley/codecs/utf8');
+      if (!utf8) throw new Error("UTF8 decoder unavailable");
       return utf8.decode(array);
     }
 

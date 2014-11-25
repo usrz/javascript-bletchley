@@ -1,13 +1,11 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/sync', ['bletchley/codecs', 'bletchley/hashes', 'bletchley/hmacs'], function(codecs, hashes, hmacs) {
-
-  return {
-    codecs: codecs.algorithms,
-    encode: codecs.encode,
-    decode: codecs.decode,
-    hash: hashes.hash
-  };
-
-});
+Esquire.define('bletchley/crypto/sync', [ 'bletchley/crypto/Crypto',
+                                          'bletchley/codecs',
+                                          'bletchley/hashes',
+                                          'bletchley/hmacs'],
+  function(Crypto, codecs, hashes, hmacs) {
+    return new Crypto(codecs, hashes, hmacs);
+  }
+);
 

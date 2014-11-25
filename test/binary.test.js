@@ -1,4 +1,4 @@
-Esquire.define("bletchley/test/binary", [], function() {
+Esquire.define("test/binary", [], function() {
 
   var base64 =
     "cFkVR75sxaq6VRGxrpBddRNbTzs7VaDToesOxDE+u8cMSNk9D443FKWPLDPFhU423myiFmsPm4dmhZ4NebwFHqCLVZ0vHvRTQYCJKSUYJaYytMOBfvZI+4y7DJevRHlrtWsQ0fxP5VO4kS3CRxWTBfy59FuYw9UDPSY+XhJtjAn8yoc4HLPcrQT8QTEDugP9d++15Q/H5E6Fof98w5lVwHU4giUZTpqEZdXSiBDlRbTp9j6/OA6Ra+lCKZZ/DDH1n95toY1TfNq4jM6A915BoWiHn4iXfNNVWCFoZCmyV5Ya/j5dNwEhD0AFtkd8HfznaOLYRyAtQ3GoHyylyuqDYJ4OPfrPpXGTf6WDOrk/x0Curf432QddJoecp7jW8eYe+6ppRELTcJf00JpQ" +

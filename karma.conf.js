@@ -12,10 +12,10 @@ module.exports = function(config) {
 
     /* These need to be in order */
     files: [
-      'node_modules/defers/src/*',
       'node_modules/rodosha/src/*',
       'src/**/*.js',
-      'test/**/*.js',
+      'test/**/*.test.js',
+      'test/browser.js'
     ],
 
     /* Pretty */

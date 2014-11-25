@@ -8,15 +8,16 @@ Esquire.define('bletchley/utils/helpers', [], function() {
   }
 
   function Helper(algorithm) {
-    if (!algorithm) return;
+    if (!algorithm) throw new Error("Algorithm not specified in " + this);
     this.algorithm = algorithm;
     Object.freeze(this);
   };
 
-  function Factory(helpers) {
+  function Factory(helpers, algorithmsProperty) {
     var algorithms = [];
     var instances = {};
 
+    /* Process helpers */
     for (var i in helpers) {
       var helper = helpers[i];
       if (! (helper instanceof Helper)) throw new Error("Invalid helper " + helper);
@@ -28,14 +29,29 @@ Esquire.define('bletchley/utils/helpers', [], function() {
       instances[normalize(algorithm)] = helper;
     }
 
-    this.helpers = Object.freeze(instances);
-    this.algorithms = Object.freeze(algorithms);
-    this.get = function(algorithm) {
-      var helper = instances[normalize(algorithm)];
-      if (! helper) throw new Error("Unrecognized algorithm " + algorithm);
-      return helper;
+    /* Our helper getter */
+    Object.defineProperty(this, "$helper", {
+      configurable: false,
+      enumerable: false,
+      value: function(algorithm) {
+        var helper = instances[normalize(algorithm)];
+        if (! helper) throw new Error("Unrecognized algorithm " + algorithm + ", available " + algorithms);
+        return helper;
+      }
+    });
+
+    /* If exposed, our algorithms */
+    if (algorithmsProperty) {
+      Object.defineProperty(this, algorithmsProperty, {
+        configurable: false,
+        enumerable: false,
+        get: function() {
+          return algorithms;
+        }
+      });
     }
 
+    /* Freeze! */
     Object.freeze(this);
   }
 

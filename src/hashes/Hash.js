@@ -1,11 +1,11 @@
 'use strict';
 
 Esquire.define('bletchley/hashes/Hash', ['bletchley/utils/helpers',
+                                         'bletchley/utils/extend',
                                          'bletchley/utils/arrays'],
-  function(helpers, arrays) {
+  function(helpers, extend, arrays) {
 
-    function Hash(name, blockSize, hash) {
-
+    return extend(function(name, blockSize, hash) {
       this.blockSize = blockSize;
 
       this.hash = function(array, h) {
@@ -13,10 +13,7 @@ Esquire.define('bletchley/hashes/Hash', ['bletchley/utils/helpers',
       }
 
       helpers.Helper.call(this, name);
-    }
-
-    Hash.prototype = new helpers.Helper();
-    return Hash;
+    }, helpers.Helper, "Hash");
 
   }
 );
