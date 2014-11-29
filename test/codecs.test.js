@@ -81,234 +81,244 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
       /* HEX TESTS                                                              */
       /* ====================================================================== */
 
-      promises("should encode string in HEX", function() {
-        return maybeAsync(encode('HEX', tokyoString))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoHex);
-          }).done();
-      });
+      describe("HEX", function() {
+        promises("should encode string", function() {
+          return maybeAsync(encode('HEX', tokyoString))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoHex);
+            }).done();
+        });
 
-      promises("should encode array in HEX", function() {
-        return maybeAsync(encode('HEX', tokyoArray))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoHex);
-          }).done();
-      });
+        promises("should encode array", function() {
+          return maybeAsync(encode('HEX', tokyoArray))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoHex);
+            }).done();
+        });
 
-      promises("should encode array buffer in HEX", function() {
-        return maybeAsync(encode('HEX', tokyoArrayBuffer))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoHex);
-          }).done();
-      });
+        promises("should encode array buffer", function() {
+          return maybeAsync(encode('HEX', tokyoArrayBuffer))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoHex);
+            }).done();
+        });
 
-      promises("should encode typed array in HEX", function() {
-        return maybeAsync(encode('HEX', tokyoUint8Array))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoHex);
-          }).done();
-      });
+        promises("should encode typed array", function() {
+          return maybeAsync(encode('HEX', tokyoUint8Array))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoHex);
+            }).done();
+        });
 
-      promises("should encode empty string in HEX", function() {
-        return maybeAsync(encode('HEX', ''))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal('');
-          }).done();
-      });
+        promises("should encode empty string", function() {
+          return maybeAsync(encode('HEX', ''))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal('');
+            }).done();
+        });
 
-      promises("should encode empty array in HEX", function() {
-        return maybeAsync(encode('HEX', []))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal('');
-          }).done();
-      });
+        promises("should encode empty array", function() {
+          return maybeAsync(encode('HEX', []))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal('');
+            }).done();
+        });
 
 
-      /* ====================================================================== */
+        /* ====================================================================== */
 
-      promises("should decode from HEX", function() {
-        return maybeAsync(decode('HEX', tokyoHex))
-          .then(function(decoded) {
-            expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
-          }).done();
-      });
+        promises("should decode", function() {
+          return maybeAsync(decode('HEX', tokyoHex))
+            .then(function(decoded) {
+              expect(decoded).to.be.instanceof(ArrayBuffer);
+              expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
+            }).done();
+        });
 
-      /* ====================================================================== */
+        /* ====================================================================== */
 
-      promises("should encode a large binary in HEX", function() {
-        return maybeAsync(encode('HEX', binary.uint8Array))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(binary.hex);
-          }).done();
-      });
+        promises("should encode a large binary", function() {
+          return maybeAsync(encode('HEX', binary.uint8Array))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(binary.hex);
+            }).done();
+        });
 
-      promises("should decode a large binary from HEX", function() {
-        return maybeAsync(decode('HEX', binary.hex))
-          .then(function(decoded) {
-            expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
-          }).done();
+        promises("should decode a large binary", function() {
+          return maybeAsync(decode('HEX', binary.hex))
+            .then(function(decoded) {
+              expect(decoded).to.be.instanceof(ArrayBuffer);
+              expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
+            }).done();
+        });
       });
 
       /* ====================================================================== */
       /* BASE_64 TESTS                                                          */
       /* ====================================================================== */
 
-      promises("should encode string in BASE64", function() {
-        return maybeAsync(encode('BASE-64', tokyoString))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoB64);
-          }).done();
+      describe("BASE-64", function() {
+        promises("should encode string", function() {
+          return maybeAsync(encode('BASE-64', tokyoString))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoB64);
+            }).done();
+        });
+
+        promises("should encode array", function() {
+          return maybeAsync(encode('BASE-64', tokyoArray))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoB64);
+            }).done();
+        });
+
+        promises("should encode array buffer", function() {
+          return maybeAsync(encode('BASE-64', tokyoArrayBuffer))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoB64);
+            }).done();
+        });
+
+        promises("should encode typed arrray", function() {
+          return maybeAsync(encode('BASE-64', tokyoUint8Array))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(tokyoB64);
+            }).done();
+        });
+
+        promises("should encode empty string", function() {
+          return maybeAsync(encode('BASE-64', ''))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal('');
+            }).done();
+        });
+
+        promises("should encode empty array", function() {
+          return maybeAsync(encode('BASE-64', []))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal('');
+            }).done();
+        });
+
+        /* ====================================================================== */
+
+        promises("should decode", function() {
+          return maybeAsync(decode('BASE-64', tokyoB64))
+            .then(function(decoded) {
+              expect(decoded).to.be.instanceof(ArrayBuffer);
+              expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
+            }).done();
+        });
+
+        /* ====================================================================== */
+
+        promises("should encode a large binary", function() {
+          return maybeAsync(encode('BASE-64', binary.uint8Array))
+            .then(function(encoded) {
+              expect(encoded).to.be.a('string');
+              expect(encoded).to.equal(binary.base64);
+            }).done();
+        });
+
+        promises("should decode a large binary", function() {
+          return maybeAsync(decode('BASE-64', binary.base64))
+            .then(function(decoded) {
+              expect(decoded).to.be.instanceof(ArrayBuffer);
+              expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
+            }).done();
+        });
+
+        /* ====================================================================== */
+
+        var padded = {
+          "a":           "YQ==",
+          "ab":          "YWI=",
+          "abc":         "YWJj",
+          "abcd":        "YWJjZA==",
+          "abcde":       "YWJjZGU=",
+          "abcdef":      "YWJjZGVm",
+          "abcdefg":     "YWJjZGVmZw==",
+          "abcdefgh":    "YWJjZGVmZ2g=",
+          "abcdefghi":   "YWJjZGVmZ2hp",
+          "abcdefghij":  "YWJjZGVmZ2hpag==",
+          "abcdefghijk": "YWJjZGVmZ2hpams=",
+        };
+
+        var unpadded = {
+          "a":           "YQ",
+          "ab":          "YWI",
+          "abcd":        "YWJjZA",
+          "abcde":       "YWJjZGU",
+          "abcdefg":     "YWJjZGVmZw",
+          "abcdefgh":    "YWJjZGVmZ2g",
+          "abcdefghij":  "YWJjZGVmZ2hpag",
+          "abcdefghijk": "YWJjZGVmZ2hpams",
+        };
+
+        describe("padded encoding", function() {
+          var i = 0;
+          for (var decoded in padded) {
+            (function(index, decoded, encoded) {
+              promises("test " + index, function() {
+                return maybeAsync(encode('BASE-64', decoded))
+                  .then(function(encoded) {
+                    expect(encoded).to.be.a('string');
+                    expect(encoded).to.equal(encoded);
+                  }).done();
+              });
+
+            })(++i, decoded, padded[decoded]);
+          };
+        });
+
+        describe("padded decoding", function() {
+          var i = 0;
+          for (var decoded in padded) {
+            (function(index, decoded, encoded) {
+              promises("test " + index, function() {
+                return maybeAsync(decode('BASE-64', encoded))
+                  .then(function(decoded) {
+                    expect(decoded).to.be.instanceof(ArrayBuffer);
+                    return(stringify(decoded))
+                  }).then(function(string) {
+                    expect(string).to.be.equal(decoded);
+                  }).done();
+              });
+
+            })(++i, decoded, padded[decoded]);
+          };
+        });
+
+        describe("unpadded decoding", function() {
+          var i = 0;
+          for (var decoded in unpadded) {
+            (function(index, decoded, encoded) {
+              promises("test " + index, function() {
+                return maybeAsync(decode('BASE-64', encoded))
+                  .then(function(decoded) {
+                    expect(decoded).to.be.instanceof(ArrayBuffer);
+                    return(stringify(decoded))
+                  }).then(function(string) {
+                    expect(string).to.be.equal(decoded);
+                  }).done();
+              });
+            })(++i, decoded, unpadded[decoded]);
+          };
+        });
       });
-
-      promises("should encode array in BASE64", function() {
-        return maybeAsync(encode('BASE-64', tokyoArray))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoB64);
-          }).done();
-      });
-
-      promises("should encode array buffer in BASE64", function() {
-        return maybeAsync(encode('BASE-64', tokyoArrayBuffer))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoB64);
-          }).done();
-      });
-
-      promises("should encode typed arrray in BASE64", function() {
-        return maybeAsync(encode('BASE-64', tokyoUint8Array))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoB64);
-          }).done();
-      });
-
-      promises("should encode empty string in BASE64", function() {
-        return maybeAsync(encode('BASE-64', ''))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal('');
-          }).done();
-      });
-
-      promises("should encode empty array in BASE64", function() {
-        return maybeAsync(encode('BASE-64', []))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal('');
-          }).done();
-      });
-
-      /* ====================================================================== */
-
-      promises("should decode from BASE64", function() {
-        return maybeAsync(decode('BASE-64', tokyoB64))
-          .then(function(decoded) {
-            expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
-          }).done();
-      });
-
-      /* ====================================================================== */
-
-      promises("should encode a large binary in BASE64", function() {
-        return maybeAsync(encode('BASE-64', binary.uint8Array))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(binary.base64);
-          }).done();
-      });
-
-      promises("should decode a large binary from BASE64", function() {
-        return maybeAsync(decode('BASE-64', binary.base64))
-          .then(function(decoded) {
-            expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
-          }).done();
-      });
-
-      /* ====================================================================== */
-
-      var padded = {
-        "a":           "YQ==",
-        "ab":          "YWI=",
-        "abc":         "YWJj",
-        "abcd":        "YWJjZA==",
-        "abcde":       "YWJjZGU=",
-        "abcdef":      "YWJjZGVm",
-        "abcdefg":     "YWJjZGVmZw==",
-        "abcdefgh":    "YWJjZGVmZ2g=",
-        "abcdefghi":   "YWJjZGVmZ2hp",
-        "abcdefghij":  "YWJjZGVmZ2hpag==",
-        "abcdefghijk": "YWJjZGVmZ2hpams=",
-      };
-
-      var i = 0;
-      for (var decoded in padded) {
-        (function(index, decoded, encoded) {
-
-          promises("should encode BASE-64 padded test " + index, function() {
-            return maybeAsync(encode('BASE-64', decoded))
-              .then(function(encoded) {
-                expect(encoded).to.be.a('string');
-                expect(encoded).to.equal(encoded);
-              }).done();
-          });
-
-          promises("should decode BASE-64 padded test " + index, function() {
-            return maybeAsync(decode('BASE-64', encoded))
-              .then(function(decoded) {
-                expect(decoded).to.be.instanceof(ArrayBuffer);
-                return(stringify(decoded))
-              }).then(function(string) {
-                expect(string).to.be.equal(decoded);
-              }).done();
-          });
-
-        })(++i, decoded, padded[decoded]);
-      };
-
-      /* ====================================================================== */
-
-      var unpadded = {
-        "a":           "YQ",
-        "ab":          "YWI",
-        "abcd":        "YWJjZA",
-        "abcde":       "YWJjZGU",
-        "abcdefg":     "YWJjZGVmZw",
-        "abcdefgh":    "YWJjZGVmZ2g",
-        "abcdefghij":  "YWJjZGVmZ2hpag",
-        "abcdefghijk": "YWJjZGVmZ2hpams",
-      };
-
-      var i = 0;
-      for (var decoded in unpadded) {
-        (function(index, decoded, encoded) {
-
-          promises("should decode BASE-64 unpadded test " + index, function() {
-            return maybeAsync(decode('BASE-64', encoded))
-              .then(function(decoded) {
-                expect(decoded).to.be.instanceof(ArrayBuffer);
-                return(stringify(decoded))
-              }).then(function(string) {
-                expect(string).to.be.equal(decoded);
-              }).done();
-          });
-
-        })(++i, decoded, unpadded[decoded]);
-      };
-
     });
   }
 });
