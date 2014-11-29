@@ -1,19 +1,22 @@
 'use strict';
 
 Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
-                                    'bletchley/hashes',
+                                    'bletchley/hashes/sha1',
+                                    'bletchley/hashes/sha224',
+                                    'bletchley/hashes/sha256',
+                                    'bletchley/hashes/sha384',
+                                    'bletchley/hashes/sha512',
                                     'bletchley/utils/arrays',
                                     'bletchley/utils/helpers',
                                     'bletchley/utils/extend' ],
-  function(HMAC, hashes, arrays, helpers, extend) {
+  function(HMAC, sha1, sha224, sha256, sha384, sha512, arrays, helpers, extend) {
 
     function create(hashes) {
       var hmacs = [];
       var outerPaddings = {};
       var innerPaddings = {};
-      for (var i in hashes.hashes) {
-        var algorithm = hashes.hashes[i];
-        var hash = hashes.$helper(algorithm);
+      for (var i in hashes) {
+        var hash = hashes[i];
         var blockSize = hash.blockSize;
 
         var innerPadding;
@@ -37,7 +40,7 @@ Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
       return hmacs;
     }
 
-    /* ====================================================================== */
+    var hmacs = create([sha1, sha224, sha256, sha384, sha512]);
 
     return new (extend(function() {
 
@@ -46,7 +49,7 @@ Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
         return this.$helper(algorithm).hmac(salt, secret);
       };
 
-      helpers.Factory.call(this, create(hashes), 'hmacs');
+      helpers.Factory.call(this, hmacs, 'hmacs');
     }, helpers.Factory, "HMACs"))();
 
   }

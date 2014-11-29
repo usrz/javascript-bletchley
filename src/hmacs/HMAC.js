@@ -31,7 +31,7 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
           key = expanded;
         } else if (salt.length > outerPadding.length) {
           /* Need to hash a long salt with the algorithm */
-          key = hash.hash(salt);
+          key = new Uint8Array(hash.hash(salt));
         }
 
         var innerKeyPadding = xor(innerPadding, key);

@@ -16,27 +16,27 @@ esquire(['bletchley/codecs',
            testCodecs, testHashes, testHMACs) {
 
     describe("Helpers implementation", function() {
-      // testCodecs(codecs, false);
-      testHashes(hashes);
-      // testHMACs(hmacs);
+      testCodecs(codecs, false);
+      testHashes(hashes, false);
+      testHMACs(hmacs, false);
     });
 
     describe("Synchronous crypto implementation", function() {
-      // testCodecs(syncCrypto, false);
+      testCodecs(syncCrypto, false);
       testHashes(hashes);
-      // testHMACs(hmacs);
+      testHMACs(hmacs, false);
     });
 
     describe("Asynchronous crypto implementation", function() {
-      // testCodecs(asyncCrypto, true);
+      testCodecs(asyncCrypto, true);
       testHashes(asyncCrypto, true);
-      // testHMACs(asyncCrypto);
+      testHMACs(asyncCrypto, true);
     });
 
     describe("Worker crypto implementation", function() {
-      // testCodecs(workerCrypto, true);
+      testCodecs(workerCrypto, true);
       testHashes(workerCrypto, true);
-      // testHMACs(workerCrypto, true);
+      testHMACs(workerCrypto, true);
     });
   }
 );

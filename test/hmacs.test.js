@@ -1,8 +1,9 @@
 'use strict';
 
-Esquire.define('test/hmacs', ['$promise', 'bletchley/codecs', 'bletchley/utils/arrays'], function(Promise, codecs, arrays) {
+Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', 'bletchley/utils/arrays'], function(async, binary, codecs, arrays) {
 
-  return function(crypto) {
+  return function(crypto, isAsync) {
+    var maybeAsync = async(isAsync);
 
     describe("HMACs", function() {
 
@@ -16,11 +17,6 @@ Esquire.define('test/hmacs', ['$promise', 'bletchley/codecs', 'bletchley/utils/a
         expect(crypto).to.be.a('object');
         expect(crypto).to.be.a('object');
         expect(crypto.hmac).to.be.a('function');
-        expect(crypto.hmacs).to.include("SHA1");
-        expect(crypto.hmacs).to.include("SHA-224");
-        expect(crypto.hmacs).to.include("SHA-256");
-        expect(crypto.hmacs).to.include("SHA-384");
-        expect(crypto.hmacs).to.include("SHA-512");
       });
 
       /* ====================================================================== */
@@ -122,17 +118,17 @@ Esquire.define('test/hmacs', ['$promise', 'bletchley/codecs', 'bletchley/utils/a
           describe(algorithm, function() {
 
             promises("should compute a valid HMAC for empty data", function() {
-              return Promise.resolve(encode('HEX', hmac(algorithm, '', '')))
+              return maybeAsync(encode('HEX', hmac(algorithm, '', '')))
                 .then(function(result) {
                   expect(result).to.equal(results.empty);
-                });
+                }).done();
             });
 
             promises("should compute a valid HMAC for a well-known string", function() {
-              return Promise.resolve(encode('HEX', hmac(algorithm, knownSalt, knownSecret)))
+              return maybeAsync(encode('HEX', hmac(algorithm, knownSalt, knownSecret)))
                 .then(function(result) {
                   expect(result).to.equal(results.known);
-                });
+                }).done();
             });
 
             var rfcTests = rfc4231;
@@ -146,10 +142,10 @@ Esquire.define('test/hmacs', ['$promise', 'bletchley/codecs', 'bletchley/utils/a
               for (var rfcTest = 0; rfcTest < rfcTests.length; rfcTest ++) {
                 (function(rfcTest, rfcData, rfcResult) {
                   promises("test " + (rfcTest + 1), function(resolve) {
-                    return Promise.resolve(encode('HEX', hmac(algorithm, rfcData.salt, rfcData.secret)))
+                    return maybeAsync(encode('HEX', hmac(algorithm, rfcData.salt, rfcData.secret)))
                       .then(function(result) {
                         expect(result).to.equal(rfcResult);
-                      });
+                      }).done();
                   });
                 })(rfcTest, rfcTests[rfcTest], results.rfc[rfcTest]);
               };
