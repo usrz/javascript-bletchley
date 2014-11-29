@@ -1,24 +1,25 @@
 'use strict';
 
-Esquire.define('test/hashes', ['$promise', 'test/binary', 'bletchley/codecs'], function(Promise, binary, codecs) {
+Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'], function(async, binary, codecs) {
 
-  return function(crypto) {
+  return function(crypto, isAsync) {
+    var maybeAsync = async(isAsync);
+
     describe("Hashes", function() {
 
       /* Functions must be bound */
-      var hash = crypto.hash;
+      var hash   = crypto.hash;
+
+      /* Need encode and decode when testing the hash helper */
       var encode = crypto.encode || codecs.encode;
-      var decode = crypto.decode || codecs.decode;
+      var decode = crypto.decode || codecs.encode;
 
       it("should exist", function() {
+        console.log("CRYPTO IS", crypto);
+
         expect(crypto).to.exist;
         expect(crypto).to.be.a('object');
         expect(crypto.hash).to.be.a('function');
-        expect(crypto.hashes).to.include("SHA1");
-        expect(crypto.hashes).to.include("SHA-224");
-        expect(crypto.hashes).to.include("SHA-256");
-        expect(crypto.hashes).to.include("SHA-384");
-        expect(crypto.hashes).to.include("SHA-512");
       });
 
       /* ====================================================================== */
@@ -55,39 +56,38 @@ Esquire.define('test/hashes', ['$promise', 'test/binary', 'bletchley/codecs'], f
           describe(algorithm + " hashing", function() {
 
             promises("should hash empty data", function() {
-              return Promise.resolve(hash(algorithm, ''))
+              return maybeAsync(hash(algorithm, ''))
                 .then(function(result) {
                   expect(result).to.be.instanceof(ArrayBuffer);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.empty);
-                })
+                }).done();
             });
 
             promises("should hash a well-known string", function() {
-              return Promise.resolve(hash(algorithm, knownString))
+              return maybeAsync(hash(algorithm, knownString))
                 .then(function(result) {
                   expect(result).to.be.instanceof(ArrayBuffer);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.known);
-                });
+                }).done();
             });
 
             promises("should hash 10k of binary data", function() {
-              return Promise.resolve(hash(algorithm, decode('BASE64', binary.base64)))
+              return maybeAsync(hash(algorithm, binary.uint8Array))
                 .then(function(result) {
                   expect(result).to.be.instanceof(ArrayBuffer);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.large);
-                });
+                }).done();
             });
 
           });
         })(algorithm, results);
       }
-
     });
   }
 });
