@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       'options': { slow: 250 },
       'default': {
         src: [ 'index.js',
-               'test/*.test.js',
+               'test/**/*.test.js',
                'test/index.js' ]
       }
     },
