@@ -4,6 +4,7 @@ esquire(['bletchley/codecs',
          'bletchley/hashes',
          'bletchley/hmacs',
 
+         'bletchley/crypto/sync',
          'bletchley/crypto/async',
          'bletchley/crypto/worker',
 
@@ -11,7 +12,7 @@ esquire(['bletchley/codecs',
          'test/hashes',
          'test/hmacs'],
   function(codecs, hashes, hmacs,
-           asyncCrypto, workerCrypto,
+           syncCrypto, asyncCrypto, workerCrypto,
            testCodecs, testHashes, testHMACs) {
 
     describe("Helpers implementation", function() {
@@ -20,7 +21,13 @@ esquire(['bletchley/codecs',
       // testHMACs(hmacs);
     });
 
-    describe("Local asynchronous crypto implementation", function() {
+    describe("Synchronous crypto implementation", function() {
+      testCodecs(syncCrypto, false);
+      // testHashes(hashes);
+      // testHMACs(hmacs);
+    });
+
+    describe("Asynchronous crypto implementation", function() {
       testCodecs(asyncCrypto, true);
       // testHashes(crypto);
       // testHMACs(crypto);
