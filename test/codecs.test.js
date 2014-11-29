@@ -8,6 +8,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
     describe("Codecs", function() {
 
       /* Functions must be bound */
+      var stringify = crypto.stringify;
       var encode = crypto.encode;
       var decode = crypto.decode;
 
@@ -33,6 +34,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         expect(crypto).to.be.a('object');
         expect(crypto.encode).to.be.a('function');
         expect(crypto.decode).to.be.a('function');
+        expect(crypto.stringify).to.be.a('function');
       });
 
       promises("should fail encoding with unknown algorithm", function() {
@@ -63,6 +65,16 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
           })
 
         .done();
+      });
+
+      promises("should stringify a known array", function() {
+
+        return maybeAsync(stringify(tokyoArrayBuffer))
+          .then(function(encoded) {
+            expect(encoded).to.be.a('string');
+            expect(encoded).to.equal(tokyoString);
+          }).done();
+
       });
 
       /* ====================================================================== */
@@ -124,7 +136,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         return maybeAsync(decode('HEX', tokyoHex))
           .then(function(decoded) {
             expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(decoded).to.deep.equal(tokyoArrayBuffer);
+            expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
           }).done();
       });
 
@@ -142,7 +154,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         return maybeAsync(decode('HEX', binary.hex))
           .then(function(decoded) {
             expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(decoded).to.deep.equal(binary.uint8Array.buffer);
+            expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
           }).done();
       });
 
@@ -204,7 +216,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         return maybeAsync(decode('BASE-64', tokyoB64))
           .then(function(decoded) {
             expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(decoded).to.deep.equal(tokyoArrayBuffer);
+            expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
           }).done();
       });
 
@@ -222,9 +234,80 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         return maybeAsync(decode('BASE-64', binary.base64))
           .then(function(decoded) {
             expect(decoded).to.be.instanceof(ArrayBuffer);
-            expect(decoded).to.deep.equal(binary.uint8Array.buffer);
+            expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
           }).done();
       });
+
+      /* ====================================================================== */
+
+      var padded = {
+        "a":           "YQ==",
+        "ab":          "YWI=",
+        "abc":         "YWJj",
+        "abcd":        "YWJjZA==",
+        "abcde":       "YWJjZGU=",
+        "abcdef":      "YWJjZGVm",
+        "abcdefg":     "YWJjZGVmZw==",
+        "abcdefgh":    "YWJjZGVmZ2g=",
+        "abcdefghi":   "YWJjZGVmZ2hp",
+        "abcdefghij":  "YWJjZGVmZ2hpag==",
+        "abcdefghijk": "YWJjZGVmZ2hpams=",
+      };
+
+      var i = 0;
+      for (var decoded in padded) {
+        (function(index, decoded, encoded) {
+
+          promises("should encode BASE-64 padded test " + index, function() {
+            return maybeAsync(encode('BASE-64', decoded))
+              .then(function(encoded) {
+                expect(encoded).to.be.a('string');
+                expect(encoded).to.equal(encoded);
+              }).done();
+          });
+
+          promises("should decode BASE-64 padded test " + index, function() {
+            return maybeAsync(decode('BASE-64', encoded))
+              .then(function(decoded) {
+                expect(decoded).to.be.instanceof(ArrayBuffer);
+                return(stringify(decoded))
+              }).then(function(string) {
+                expect(string).to.be.equal(decoded);
+              }).done();
+          });
+
+        })(++i, decoded, padded[decoded]);
+      };
+
+      /* ====================================================================== */
+
+      var unpadded = {
+        "a":           "YQ",
+        "ab":          "YWI",
+        "abcd":        "YWJjZA",
+        "abcde":       "YWJjZGU",
+        "abcdefg":     "YWJjZGVmZw",
+        "abcdefgh":    "YWJjZGVmZ2g",
+        "abcdefghij":  "YWJjZGVmZ2hpag",
+        "abcdefghijk": "YWJjZGVmZ2hpams",
+      };
+
+      var i = 0;
+      for (var decoded in unpadded) {
+        (function(index, decoded, encoded) {
+
+          promises("should decode BASE-64 unpadded test " + index, function() {
+            return maybeAsync(decode('BASE-64', encoded))
+              .then(function(decoded) {
+                expect(decoded).to.be.instanceof(ArrayBuffer);
+                return(stringify(decoded))
+              }).then(function(string) {
+                expect(string).to.be.equal(decoded);
+              }).done();
+          });
+
+        })(++i, decoded, unpadded[decoded]);
+      };
 
     });
   }
