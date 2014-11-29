@@ -30,6 +30,12 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
 
   function AsyncCrypto(crypto) {
 
+    this.stringify = function(array) {
+      return Promise.resolve(array).then(function(array) {
+        return crypto.stringify(array);
+      })
+    };
+
     this.encode = promise(crypto, "encode");
     this.decode = promise(crypto, "decode");
     this.hash   = promise(crypto, "hash");

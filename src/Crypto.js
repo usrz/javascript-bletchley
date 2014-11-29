@@ -7,10 +7,11 @@ Esquire.define('bletchley/crypto/Crypto', [], function() {
     if (! hashes) throw new Error("Hashes not specified");
     if (! hmacs)  throw new Error("HMACs not specified");
 
-    this.encode = codecs.encode;
-    this.decode = codecs.decode;
-    this.hash   = hashes.hash;
-    this.hmac   = hmacs.hmac;
+    this.stringify = codecs.stringify;
+    this.encode    = codecs.encode;
+    this.decode    = codecs.decode;
+    this.hash      = hashes.hash;
+    this.hmac      = hmacs.hmac;
 
     Object.freeze(this);
   }
