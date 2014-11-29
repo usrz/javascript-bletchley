@@ -11,9 +11,12 @@ Esquire.define('bletchley/hashes/sha224', ['bletchley/hashes/sha256', 'bletchley
   return new Hash("SHA-224", sha256.blockSize, function(message) {
 
     var hash = sha256.hash(message, h);
-    var result = new Uint8Array(28);
-    result.set(hash.subarray(0, 28));
-    return result;
+    if (typeof(hash.slice) === 'function') return hash.slice(0, 28);
+
+    var src = new Uint8Array(hash, 0, 28);
+    var dst = new Uint8Array(28);
+    dst.set(src, 0);
+    return dst.buffer;
 
   });
 

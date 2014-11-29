@@ -41,9 +41,10 @@ Esquire.define('bletchley/hmacs', [ 'bletchley/hmacs/HMAC',
 
     return new (extend(function() {
 
+      var h = this;
       this.hmac = function(algorithm, salt, secret) {
         return this.$helper(algorithm).hmac(salt, secret);
-      }.bind(this);
+      };
 
       helpers.Factory.call(this, create(hashes), 'hmacs');
     }, helpers.Factory, "HMACs"))();

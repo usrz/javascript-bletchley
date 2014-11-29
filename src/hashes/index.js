@@ -13,7 +13,7 @@ Esquire.define('bletchley/hashes', [ 'bletchley/utils/helpers',
 
       this.hash = function(algorithm, message) {
         return this.$helper(algorithm).hash(message);
-      }.bind(this);
+      };
 
       helpers.Factory.call(this, [sha1, sha224, sha256, sha384, sha512], 'hashes');
     }, helpers.Factory, "Hashes"))();

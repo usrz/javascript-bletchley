@@ -37,7 +37,7 @@ Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Code
       }
       string = string.substr(2);
     }
-    return view;
+    return array;
   }
 
   return new Codec("HEX", encode, decode);

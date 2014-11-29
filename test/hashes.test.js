@@ -55,22 +55,31 @@ Esquire.define('test/hashes', ['$promise', 'test/binary', 'bletchley/codecs'], f
           describe(algorithm + " hashing", function() {
 
             promises("should hash empty data", function() {
-              return Promise.resolve(encode('HEX', hash(algorithm, '')))
+              return Promise.resolve(hash(algorithm, ''))
                 .then(function(result) {
+                  expect(result).to.be.instanceof(ArrayBuffer);
+                  return encode('HEX', result);
+                }).then(function(result) {
                   expect(result).to.equal(results.empty);
                 })
             });
 
             promises("should hash a well-known string", function() {
-              return Promise.resolve(encode('HEX', hash(algorithm, knownString)))
+              return Promise.resolve(hash(algorithm, knownString))
                 .then(function(result) {
+                  expect(result).to.be.instanceof(ArrayBuffer);
+                  return encode('HEX', result);
+                }).then(function(result) {
                   expect(result).to.equal(results.known);
                 });
             });
 
             promises("should hash 10k of binary data", function() {
-              return Promise.resolve(encode('HEX', hash(algorithm, decode('BASE64', binary.base64))))
+              return Promise.resolve(hash(algorithm, decode('BASE64', binary.base64)))
                 .then(function(result) {
+                  expect(result).to.be.instanceof(ArrayBuffer);
+                  return encode('HEX', result);
+                }).then(function(result) {
                   expect(result).to.equal(results.large);
                 });
             });

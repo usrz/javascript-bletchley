@@ -1,26 +1,41 @@
 'use strict';
 
-Esquire.define('bletchley/utils/arrays', ['$esquire'], function($esquire) {
+Esquire.define('bletchley/utils/arrays', ["$global/TextEncoder",
+                                          "$global/Buffer",
+                                          "$global/decodeURIComponent",
+                                          "$global/unescape" ],
+function(TextEncoder, Buffer, decodeURIComponent, unescape) {
 
-  var utf8;
-  $esquire.require('bletchley/codecs/utf8')
-    .then(function(u) { utf8 = u });
+  /* String to UTF8 ArrayBuffer */
+  var decode = null;
+  if (TextEncoder) {
+    var encoder = new TextEncoder("UTF-8");
+    decode = encoder.encode.bind(encoder);
+  } else if (Buffer) {
+    decode = function(string) {
+      var buffer = new Buffer(string, 'utf8');
+      return new Uint8Array(buffer);
+    }
+  } else if (unescape && decodeURIComponent) {
+    decode = function(string) {
+      var raw = unescape(encodeURIComponent(string));
+      return fromUint8String(raw);
+    }
+  }
 
   /**
    * Convert an Array, ArrayBuffer or ArrayBufferView into a valid Uint8Array.
    */
   function toUint8Array(array) {
-    if (typeof(array) === 'string') {
-      if (!utf8) throw new Error("UTF8 decoder unavailable");
-      return utf8.decode(array);
-    }
+    /* Strings are simply "decoded" into their UTF8 */
+    if (typeof(array) === 'string') return decode(array);
 
+    /* If this is not a string, the "object" must be something */
     if (! array) throw new Error("No array to convert to Uint8Array");
 
-    /* Basic arrays / array bufffers / array buffer views */
+    /* Uint8Array, ArrayBuffer, plain array */
     if (array instanceof Uint8Array) return array;
     if (array instanceof ArrayBuffer) return new Uint8Array(array);
-    if (array.buffer instanceof ArrayBuffer) return new Uint8Array(array.buffer);
     if (Array.isArray(array)) return new Uint8Array(array);
 
     /* Fail miserably */

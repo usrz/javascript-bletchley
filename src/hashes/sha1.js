@@ -89,9 +89,7 @@ Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash
     hashView.setUint32( 8, h2, false);
     hashView.setUint32(12, h3, false);
     hashView.setUint32(16, h4, false);
-
-    /* Wrap the result in a Uint8Array */
-    return new Uint8Array(hash);
+    return hash;
 
   });
 

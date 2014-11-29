@@ -1,4 +1,13 @@
+'use strict';
+
 Esquire.define("test/binary", [], function() {
+
+  // Exporting:
+  // {
+  //   hex:        "70591547be6cc5aaba5511b1ae905d75135b4f3...",
+  //   base64:     "cFkVR75sxaq6VRGxrpBddRNbTzs7VaDToesOxDE...",
+  //   uint8Array: new Uint8Array([ 0x70 ,0x59 ,0x15 ,0x47 ...])
+  // }
 
   var base64 =
     "cFkVR75sxaq6VRGxrpBddRNbTzs7VaDToesOxDE+u8cMSNk9D443FKWPLDPFhU423myiFmsPm4dmhZ4NebwFHqCLVZ0vHvRTQYCJKSUYJaYytMOBfvZI+4y7DJevRHlrtWsQ0fxP5VO4kS3CRxWTBfy59FuYw9UDPSY+XhJtjAn8yoc4HLPcrQT8QTEDugP9d++15Q/H5E6Fof98w5lVwHU4giUZTpqEZdXSiBDlRbTp9j6/OA6Ra+lCKZZ/DDH1n95toY1TfNq4jM6A915BoWiHn4iXfNNVWCFoZCmyV5Ya/j5dNwEhD0AFtkd8HfznaOLYRyAtQ3GoHyylyuqDYJ4OPfrPpXGTf6WDOrk/x0Curf432QddJoecp7jW8eYe+6ppRELTcJf00JpQ" +
@@ -737,6 +746,6 @@ Esquire.define("test/binary", [], function() {
   return {
     hex: hex,
     base64: base64,
-    uint8Array: uint8Array
+    uint8Array: uint8Array,
   }
 });

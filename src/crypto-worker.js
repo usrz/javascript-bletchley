@@ -1,12 +1,18 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/worker', ['bletchley/crypto/Crypto', 'rodosha'], function(Crypto, rodosha) {
+Esquire.define('bletchley/crypto/worker', ['rodosha'], function(rodosha) {
 
-  return rodosha.create()
+  return rodosha.create('bletchley/codecs/utf8', 'bletchley/hashes', 'bletchley/hmacs', true)
     .then(function(rodosha) {
-      return rodosha.proxy('bletchley/crypto/sync');
-    }).then(function(crypto) {
-      return new Crypto.async(crypto);
+      console.log("CREATED");
+      return Promise.all([
+        codecs, // use synchronous codecs!
+        rodosha.proxy('bletchley/hashes'),
+        rodosha.proxy('bletchley/hmacs'),
+      ]);
+    }).then(function(args) {
+      console.log("PROXIED");
+      return Crypto.async.apply(null, args);
     });
 
 });
