@@ -5,10 +5,11 @@ esquire(['bletchley/crypto/Crypto',
          '$global/navigator',
 
          'test/hashes',
-         'test/hmacs'],
+         'test/hmacs',
+         'test/kdfs'],
 
   function(Crypto, SubtleCrypto, navigator,
-           testHashes, testHMACs) {
+           testHashes, testHMACs, testKDFs) {
 
     /* Super idiotic browser detection */
     var browserName;
@@ -44,7 +45,7 @@ esquire(['bletchley/crypto/Crypto',
       this.encode    = function() { throw new Error("Do not call") }
       this.decode    = function() { throw new Error("Do not call") }
 
-      this.hash      = function() {
+      this.hash = function() {
         /* PhantomJS: No subtle crypto */
         canSkip("PhantomJS", /.*/);
 
@@ -64,7 +65,7 @@ esquire(['bletchley/crypto/Crypto',
         throw new Error("Subtle crypto failure");
       }
 
-      this.hmac      = function() {
+      this.hmac = function() {
         /* PhantomJS: No subtle crypto */
         canSkip("PhantomJS", /.*/);
 
@@ -84,6 +85,10 @@ esquire(['bletchley/crypto/Crypto',
 
         throw new Error("Subtle crypto failure");
       }
+
+      this.kdf = function() {
+        return null;
+      }
     }
 
     SkippingCrypto.prototype = Object.create(Crypto.prototype);
@@ -100,6 +105,7 @@ esquire(['bletchley/crypto/Crypto',
 
       testHashes(subtleCrypto, true);
       testHMACs(subtleCrypto, true);
+      testKDFs(subtleCrypto, true);
     });
   }
 );
