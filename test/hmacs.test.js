@@ -10,7 +10,6 @@ Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', '
       /* Functions must be bound */
       var hmac = crypto.hmac;
       var encode = codecs.encode;
-      var decode = codecs.decode;
 
       it("should exist", function() {
         expect(crypto).to.exist;
