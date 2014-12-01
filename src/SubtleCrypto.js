@@ -123,13 +123,12 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto) {
        }
 
         /* Parameters, HMAC with our algorithm */
-        var importParameters = { name: "HMAC", hash: { name: algorithm } };
-        var signParameters = { name: "HMAC", hash: { name: algorithm } };
+        var parameters = { name: "HMAC", hash: { name: algorithm } };
 
         /* Need to use two promises: the first is for importing the salt */
-        return wrapper.importKey("raw", salt, importParameters, false, [ "sign" ])
+        return wrapper.importKey("raw", salt, parameters, false, [ "sign" ])
         .then(function(saltKey) {
-          return wrapper.sign(signParameters, saltKey, secret);
+          return wrapper.sign(parameters, saltKey, secret);
         }).then(function(signature) {
           return toArrayBuffer(signature);
         }, function(error) {
