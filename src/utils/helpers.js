@@ -29,6 +29,7 @@ Esquire.define('bletchley/utils/helpers', [], function() {
     }
 
     /* Process helpers */
+    if (!helpers.length) throw new Error("No helpers specified");
     for (var i in helpers) {
       var helper = helpers[i];
       if (! (helper instanceof Helper)) throw new Error("Invalid helper " + helper);
@@ -41,14 +42,21 @@ Esquire.define('bletchley/utils/helpers', [], function() {
     }
 
     /* Our helper getter */
-    algorithms = algorithms.join(', ');
-    Object.defineProperty(this, "$helper", {
-      enumerable: false,
-      configurable: false,
-      value: function(algorithm) {
-        var helper = instances[normalize(algorithm)];
-        if (helper) return helper;
-        throw new Error("'" + algorithm + "' not in [" + algorithms + "]");
+    var names = algorithms.join(', ');
+    Object.defineProperties(this, {
+      "$algorithms": {
+        enumerable: false,
+        configurable: false,
+        value: Object.freeze(algorithms)
+      },
+      "$helper": {
+        enumerable: false,
+        configurable: false,
+        value: function(algorithm) {
+          var helper = instances[normalize(algorithm)];
+          if (helper) return helper;
+          throw new Error("'" + algorithm + "' not in [" + names + "]");
+        }
       }
     });
 
