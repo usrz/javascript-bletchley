@@ -4,38 +4,35 @@ esquire(['bletchley/utils/random',
          'bletchley/codecs',
          'bletchley/hashes',
          'bletchley/hmacs',
+         'bletchley/kdfs',
 
          'bletchley/crypto/sync',
          'bletchley/crypto/async',
          'bletchley/crypto/worker',
 
-         'bletchley/crypto/Crypto',
-         'bletchley/crypto/SubtleCrypto',
-         '$global/crypto.subtle',
-         '$global/navigator',
-         '$global/process',
-
          'test/random',
          'test/codecs',
          'test/hashes',
-         'test/hmacs'],
-  function(random, codecs, hashes, hmacs,
+         'test/hmacs',
+         'test/kdfs' ],
+  function(random, codecs, hashes, hmacs, kdfs,
            syncCrypto, asyncCrypto, workerCrypto,
-           Crypto, SubtleCrypto, subtle, navigator, process,
-           testRandom, testCodecs, testHashes, testHMACs) {
+           testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Helpers implementation", function() {
       testRandom(random, false)
       testCodecs(codecs, false);
       testHashes(hashes, false);
       testHMACs(hmacs, false);
+      testKDFs(kdfs, false);
     });
 
     describe("Synchronous crypto implementation", function() {
       testRandom(syncCrypto, false)
       testCodecs(syncCrypto, false);
-      testHashes(hashes, false);
-      testHMACs(hmacs, false);
+      testHashes(syncCrypto, false);
+      testHMACs(syncCrypto, false);
+      testKDFs(syncCrypto, false);
     });
 
     describe("Asynchronous crypto implementation", function() {
@@ -43,6 +40,7 @@ esquire(['bletchley/utils/random',
       testCodecs(asyncCrypto, true);
       testHashes(asyncCrypto, true);
       testHMACs(asyncCrypto, true);
+      testKDFs(asyncCrypto, true);
     });
 
     describe("Worker crypto implementation", function() {
@@ -50,6 +48,7 @@ esquire(['bletchley/utils/random',
       testCodecs(workerCrypto, true);
       testHashes(workerCrypto, true);
       testHMACs(workerCrypto, true);
+      testKDFs(workerCrypto, true);
     });
 
   }

@@ -46,6 +46,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
     this.decode = promise(crypto, "decode");
     this.hash   = promise(crypto, "hash");
     this.hmac   = promise(crypto, "hmac");
+    this.kdf    = promise(crypto, "kdf");
 
     Object.freeze(this);
   }
