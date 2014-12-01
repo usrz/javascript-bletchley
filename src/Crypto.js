@@ -1,12 +1,13 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/Crypto', [], function() {
+Esquire.define('bletchley/crypto/Crypto', ['$global/crypto', 'bletchley/utils/random'], function(crypto, random) {
 
   function Crypto(codecs, hashes, hmacs) {
     if (! codecs) throw new Error("Codecs not specified");
     if (! hashes) throw new Error("Hashes not specified");
     if (! hmacs)  throw new Error("HMACs not specified");
 
+    this.random    = random.random;
     this.stringify = codecs.stringify;
     this.encode    = codecs.encode;
     this.decode    = codecs.decode;

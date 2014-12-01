@@ -6,6 +6,7 @@ esquire(['bletchley/crypto/Crypto',
 
          'test/hashes',
          'test/hmacs'],
+
   function(Crypto, SubtleCrypto, navigator,
            testHashes, testHMACs) {
 
@@ -38,6 +39,7 @@ esquire(['bletchley/crypto/Crypto',
 
     /* A fake crypto marking tests as skipped for specific cases */
     function SkippingCrypto() {
+      this.random    = function() { throw new Error("Do not call") }
       this.stringify = function() { throw new Error("Do not call") }
       this.encode    = function() { throw new Error("Do not call") }
       this.decode    = function() { throw new Error("Do not call") }

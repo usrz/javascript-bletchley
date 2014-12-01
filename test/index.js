@@ -1,6 +1,7 @@
 'use strict';
 
-esquire(['bletchley/codecs',
+esquire(['bletchley/utils/random',
+         'bletchley/codecs',
          'bletchley/hashes',
          'bletchley/hmacs',
 
@@ -14,33 +15,38 @@ esquire(['bletchley/codecs',
          '$global/navigator',
          '$global/process',
 
+         'test/random',
          'test/codecs',
          'test/hashes',
          'test/hmacs'],
-  function(codecs, hashes, hmacs,
+  function(random, codecs, hashes, hmacs,
            syncCrypto, asyncCrypto, workerCrypto,
            Crypto, SubtleCrypto, subtle, navigator, process,
-           testCodecs, testHashes, testHMACs) {
+           testRandom, testCodecs, testHashes, testHMACs) {
 
     describe("Helpers implementation", function() {
+      testRandom(random, false)
       testCodecs(codecs, false);
       testHashes(hashes, false);
       testHMACs(hmacs, false);
     });
 
     describe("Synchronous crypto implementation", function() {
+      testRandom(syncCrypto, false)
       testCodecs(syncCrypto, false);
-      testHashes(hashes);
+      testHashes(hashes, false);
       testHMACs(hmacs, false);
     });
 
     describe("Asynchronous crypto implementation", function() {
+      testRandom(asyncCrypto, true);
       testCodecs(asyncCrypto, true);
       testHashes(asyncCrypto, true);
       testHMACs(asyncCrypto, true);
     });
 
     describe("Worker crypto implementation", function() {
+      testRandom(workerCrypto, true);
       testCodecs(workerCrypto, true);
       testHashes(workerCrypto, true);
       testHMACs(workerCrypto, true);
