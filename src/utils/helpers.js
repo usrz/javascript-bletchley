@@ -3,7 +3,7 @@
 Esquire.define('bletchley/utils/helpers', [], function() {
 
   function normalize(name) {
-    if (typeof('name') !== 'string') throw new Error("Invalid name " + name);
+    if (typeof(name) !== 'string') throw new Error("Invalid algorithm name '" + name + "'");
     return name.replace(/[- ]/g,'').toLowerCase();
   }
 
