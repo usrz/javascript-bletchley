@@ -136,8 +136,8 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         promises("should decode", function() {
           return maybeAsync(decode('HEX', tokyoHex))
             .then(function(decoded) {
-              expect(decoded).to.be.instanceof(ArrayBuffer);
-              expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
+              expect(decoded).to.be.instanceof(Uint8Array);
+              expect(decoded).to.deep.equal(tokyoUint8Array);
             }).done();
         });
 
@@ -154,8 +154,8 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         promises("should decode a large binary", function() {
           return maybeAsync(decode('HEX', binary.hex))
             .then(function(decoded) {
-              expect(decoded).to.be.instanceof(ArrayBuffer);
-              expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
+              expect(decoded).to.be.instanceof(Uint8Array);
+              expect(decoded).to.deep.equal(binary.uint8Array);
             }).done();
         });
       });
@@ -218,8 +218,8 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         promises("should decode", function() {
           return maybeAsync(decode('BASE-64', tokyoB64))
             .then(function(decoded) {
-              expect(decoded).to.be.instanceof(ArrayBuffer);
-              expect(new Uint8Array(decoded)).to.deep.equal(tokyoUint8Array);
+              expect(decoded).to.be.instanceof(Uint8Array);
+              expect(decoded).to.deep.equal(tokyoUint8Array);
             }).done();
         });
 
@@ -236,8 +236,8 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         promises("should decode a large binary", function() {
           return maybeAsync(decode('BASE-64', binary.base64))
             .then(function(decoded) {
-              expect(decoded).to.be.instanceof(ArrayBuffer);
-              expect(new Uint8Array(decoded)).to.deep.equal(binary.uint8Array);
+              expect(decoded).to.be.instanceof(Uint8Array);
+              expect(decoded).to.deep.equal(binary.uint8Array);
             }).done();
         });
 
@@ -291,7 +291,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
               promises("test " + index, function() {
                 return maybeAsync(decode('BASE-64', encoded))
                   .then(function(decoded) {
-                    expect(decoded).to.be.instanceof(ArrayBuffer);
+                    expect(decoded).to.be.instanceof(Uint8Array);
                     return(stringify(decoded))
                   }).then(function(string) {
                     expect(string).to.be.equal(decoded);
@@ -309,7 +309,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
               promises("test " + index, function() {
                 return maybeAsync(decode('BASE-64', encoded))
                   .then(function(decoded) {
-                    expect(decoded).to.be.instanceof(ArrayBuffer);
+                    expect(decoded).to.be.instanceof(Uint8Array);
                     return(stringify(decoded))
                   }).then(function(string) {
                     expect(string).to.be.equal(decoded);

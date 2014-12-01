@@ -21,6 +21,8 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
       var raw = unescape(encodeURIComponent(string));
       return fromUint8String(raw);
     }
+  } else {
+    throw new Error("UTF-8 decoding unsupported");
   }
 
   /**
@@ -40,10 +42,7 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
 
     /* Fail miserably */
     var type = typeof(array);
-    if (type === 'object') {
-      type = Object.keys(array);
-      //type = array.toString();
-    }
+    if (type === 'object') type = "Object{" + Object.keys(array) + "}";
     throw new Error("Unable to convert " + type + " to Uint8Array");
   }
 

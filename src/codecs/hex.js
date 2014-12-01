@@ -26,12 +26,11 @@ Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Code
       throw new Error("String length must be divisible by 2: " + string.length);
     }
 
-    var array = new ArrayBuffer(string.length / 2);
-    var view = new Uint8Array(array);
-    for (var i = 0; i < view.length; i++) {
+    var array = new Uint8Array(string.length / 2);
+    for (var i = 0; i < array.length; i++) {
       var hex = string.substr(0, 2);
       if (hex in hexToBytes) {
-        view[i] = hexToBytes[hex];
+        array[i] = hexToBytes[hex];
       } else {
         throw new Error("Invalid hex sequence '" + hex + "' at offset " + (i * 2));
       }

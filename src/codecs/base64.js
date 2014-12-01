@@ -127,7 +127,7 @@ Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
           result[resultpos++] = (((v3 << 6) & 0x0c0) | ((v4     ) & 0x03f));
       }
 
-      return result.buffer;
+      return result;
     };
 
     if (btoa && atob) {
@@ -136,7 +136,7 @@ Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
       };
 
       decode = function(string) {
-        return arrays.fromUint8String(atob(string)).buffer
+        return arrays.fromUint8String(atob(string))
       };
     } else if (Buffer) {
       encode = function(array)  {
@@ -145,7 +145,7 @@ Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
 
       decode = function(string) {
         var buffer = new Buffer(string, 'base64');
-        return new Uint8Array(buffer).buffer;
+        return new Uint8Array(buffer);
       }
     } else {
       console.warn("Native BASE64 support not available");

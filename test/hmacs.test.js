@@ -134,7 +134,7 @@ Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', '
             promises("should compute a valid HMAC for empty secret and salt", function() {
               return maybeAsync(hmac(algorithm, '', ''))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.empty);
@@ -144,7 +144,7 @@ Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', '
             promises("should compute a valid HMAC for empty salt", function() {
               return maybeAsync(hmac(algorithm, '', knownSecret))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.noslt);
@@ -154,7 +154,7 @@ Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', '
             promises("should compute a valid HMAC for empty secret", function() {
               return maybeAsync(hmac(algorithm, knownSalt, ''))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.nomsg);
@@ -165,7 +165,7 @@ Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', '
             promises("should compute a valid HMAC for a well-known string", function() {
               return maybeAsync(hmac(algorithm, knownSalt, knownSecret))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.known);
@@ -185,7 +185,7 @@ Esquire.define('test/hmacs', ['test/async', 'test/binary', 'bletchley/codecs', '
                   promises("test " + (rfcTest + 1), function(resolve) {
                     return maybeAsync(hmac(algorithm, rfcData.salt, rfcData.secret))
                       .then(function(result) {
-                        expect(result).to.be.instanceof(ArrayBuffer);
+                        expect(result).to.be.instanceof(Uint8Array);
                         return encode('HEX', result);
                       }).then(function(result) {
                         expect(result).to.equal(rfcResult);

@@ -14,8 +14,6 @@ Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'],
       var encode = codecs.encode;
 
       it("should exist", function() {
-        console.log("CRYPTO IS", crypto);
-
         expect(crypto).to.exist;
         expect(crypto).to.be.a('object');
         expect(crypto.hash).to.be.a('function');
@@ -57,7 +55,7 @@ Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'],
             promises("should hash empty data", function() {
               return maybeAsync(hash(algorithm, ''))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.empty);
@@ -67,7 +65,7 @@ Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'],
             promises("should hash a well-known string", function() {
               return maybeAsync(hash(algorithm, knownString))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.known);
@@ -77,7 +75,7 @@ Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'],
             promises("should hash 10k of binary data", function() {
               return maybeAsync(hash(algorithm, binary.uint8Array))
                 .then(function(result) {
-                  expect(result).to.be.instanceof(ArrayBuffer);
+                  expect(result).to.be.instanceof(Uint8Array);
                   return encode('HEX', result);
                 }).then(function(result) {
                   expect(result).to.equal(results.large);

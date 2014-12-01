@@ -69,15 +69,6 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto) {
     }
   }
 
-  function toArrayBuffer(result) {
-    if (result) {
-      if (result instanceof ArrayBuffer) return result;
-      if (result.buffer instanceof ArrayBuffer) return result.buffer;
-    }
-    return result;
-  }
-
-
   function SubtleCrypto(crypto) {
 
     /* Must have an asynchronous crypto */
@@ -101,7 +92,7 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto) {
 
         return wrapper.digest({ name: algorithm }, message)
         .then(function(result) {
-          return toArrayBuffer(result);
+          return arrays.toUint8Array(result);
         }, function(error) {
           return crypto.hash(algorithm, message)
             .catch(function(failure) { throw error });
@@ -130,7 +121,7 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto) {
         .then(function(saltKey) {
           return wrapper.sign(parameters, saltKey, secret);
         }).then(function(signature) {
-          return toArrayBuffer(signature);
+          return arrays.toUint8Array(signature);
         }, function(error) {
           return crypto.hmac(algorithm, salt, secret)
             .catch(function(failure) { throw error });

@@ -4,7 +4,7 @@
 
 Esquire.define('bletchley/hashes/sha512', ['bletchley/hashes/Hash'], function(Hash) {
 
-  return new Hash("SHA-512", 128, function(message, h) {
+  return new Hash("SHA-512", 128, 64, function(message, h) {
 
     /* Initialize hash values */
     var h0h = h ? h[ 0] : 0x6a09e667; var h0l = h ? h[ 1] : 0xf3bcc908;
@@ -196,7 +196,7 @@ Esquire.define('bletchley/hashes/sha512', ['bletchley/hashes/Hash'], function(Ha
     hashView.setUint32(40, h5h, false); hashView.setUint32(44, h5l, false);
     hashView.setUint32(48, h6h, false); hashView.setUint32(52, h6l, false);
     hashView.setUint32(56, h7h, false); hashView.setUint32(60, h7l, false);
-    return hash;
+    return new Uint8Array(hash);
 
   });
 

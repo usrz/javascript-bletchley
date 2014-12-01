@@ -57,6 +57,8 @@ Esquire.define('bletchley/utils/random', ['$global/crypto',
         if (crypto && (typeof(crypto.getRandomValues) === 'function')) {
           var result = crypto.getRandomValues(key);
           if (result) key = result; // PhantomJS returns undefined
+        } else {
+          console.warn("Native 'crypto.getRandomValues(...)' support not available");
         }
 
         /* Mix in some initial Math.random() data */

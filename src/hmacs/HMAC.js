@@ -15,6 +15,8 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
     }
 
     return extend(function(hash, innerPadding, outerPadding) {
+      this.blockSize = hash.blockSize;
+      this.digestSize = hash.digestSize;
 
       this.hmac = function(salt, secret) {
         salt = arrays.toUint8Array(salt);
