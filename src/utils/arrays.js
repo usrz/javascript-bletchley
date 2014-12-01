@@ -113,12 +113,37 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     return result;
   }
 
+  /* XOR the contents of two arrays */
+  function xorUint8Arrays(array1, array2) {
+
+    /* array1 must be shorter than array2 */
+    if (array1.length > array2.length) {
+      var temp = array2;
+      array2 = array1;
+      array1 = temp;
+    }
+
+    /* New array cloning the longer array */
+    var array = new Uint8Array(array2.length);
+    array.set(array2, 0);
+
+    /* XOR each element from the short array */
+    for (var i = 0; i < array1.length; i ++) {
+      array[i] ^= array1[i];
+    }
+
+    /* Done! */
+    return array;
+  }
+
+
   return Object.freeze({
     toUint8Array: toUint8Array,
     toUint8String: toUint8String,
     fromUint8String: fromUint8String,
     createUint8Array: createUint8Array,
-    concatUint8Arrays: concatUint8Arrays
+    concatUint8Arrays: concatUint8Arrays,
+    xorUint8Arrays: xorUint8Arrays,
   });
 
 });

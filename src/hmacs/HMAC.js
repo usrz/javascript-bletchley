@@ -5,15 +5,6 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
                                          'bletchley/utils/arrays' ],
   function(helpers, extend, arrays) {
 
-    /* XOR two Uint8Arrays */
-    function xor(array1, array2) {
-      var array = new Uint8Array(array1.length);
-      for (var i = 0; i < array.length; i ++) {
-        array[i] = array1[i] ^ array2[i];
-      }
-      return array;
-    }
-
     return extend(function(hash, innerPadding, outerPadding) {
       this.blockSize = hash.blockSize;
       this.digestSize = hash.digestSize;
@@ -36,10 +27,10 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
           key = new Uint8Array(hash.hash(salt));
         }
 
-        var innerKeyPadding = xor(innerPadding, key);
+        var innerKeyPadding = arrays.xorUint8Arrays(innerPadding, key);
         var innerHash = hash.hash(arrays.concatUint8Arrays(innerKeyPadding, secret));
 
-        var outerKeyPadding = xor(outerPadding, key);
+        var outerKeyPadding = arrays.xorUint8Arrays(outerPadding, key);
         return hash.hash(arrays.concatUint8Arrays(outerKeyPadding, innerHash));
       }
 
