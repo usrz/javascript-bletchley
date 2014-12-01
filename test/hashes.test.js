@@ -11,8 +11,8 @@ Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'],
       var hash   = crypto.hash;
 
       /* Need encode and decode when testing the hash helper */
-      var encode = crypto.encode || codecs.encode;
-      var decode = crypto.decode || codecs.encode;
+      var encode = codecs.encode;
+      var decode = codecs.encode;
 
       it("should exist", function() {
         console.log("CRYPTO IS", crypto);

@@ -8,11 +8,18 @@ esquire(['bletchley/codecs',
          'bletchley/crypto/async',
          'bletchley/crypto/worker',
 
+         'bletchley/crypto/Crypto',
+         'bletchley/crypto/SubtleCrypto',
+         '$global/crypto.subtle',
+         '$global/navigator',
+         '$global/process',
+
          'test/codecs',
          'test/hashes',
          'test/hmacs'],
   function(codecs, hashes, hmacs,
            syncCrypto, asyncCrypto, workerCrypto,
+           Crypto, SubtleCrypto, subtle, navigator, process,
            testCodecs, testHashes, testHMACs) {
 
     describe("Helpers implementation", function() {
@@ -38,5 +45,6 @@ esquire(['bletchley/codecs',
       testHashes(workerCrypto, true);
       testHMACs(workerCrypto, true);
     });
+
   }
 );

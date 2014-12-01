@@ -39,7 +39,12 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     if (Array.isArray(array)) return new Uint8Array(array);
 
     /* Fail miserably */
-    throw new Error("Unable to convert " + typeof(array) + " to Uint8Array");
+    var type = typeof(array);
+    if (type === 'object') {
+      type = Object.keys(array);
+      //type = array.toString();
+    }
+    throw new Error("Unable to convert " + type + " to Uint8Array");
   }
 
   /**

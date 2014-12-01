@@ -15,7 +15,8 @@ module.exports = function(config) {
       'node_modules/rodosha/src/*',
       'src/**/*.js',
       'test/**/*.test.js',
-      'test/index.js'
+      'test/index.js',
+      'test/subtle.js'
     ],
 
     /* Pretty */
@@ -24,6 +25,12 @@ module.exports = function(config) {
     colors: true,
 
     /* Our browsers */
-    browsers: ['PhantomJS', 'Chrome', 'Firefox', 'Safari'],
+    customLaunchers: {
+      "Firefox-Crypto": {
+        base: 'Firefox',
+        prefs: { "dom.webcrypto.enabled": true },
+      }
+    },
+    browsers: ['PhantomJS', 'Chrome', 'Firefox-Crypto', 'Safari'],
   });
 };
