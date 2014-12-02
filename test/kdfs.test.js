@@ -32,7 +32,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should work with test vector 2", function() {
-          this.timeout(10000); // timeout for Phantom & MSIE
+          this.timeout(10000); // timeout for Node, Phantom & MSIE
           var options = { hash: "SHA-256",
                           iterations: 1024,
                           blockSize: 8,
@@ -50,7 +50,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should work with test vector 3", function() {
-          this.timeout(10000); // timeout for Phantom & MSIE
+          this.timeout(10000); // timeout for Node, Phantom & MSIE
           var options = { hash: "SHA-256",
                           iterations: 16384,
                           blockSize: 8,
@@ -118,6 +118,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate RFC-6070 test vector 3", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA1", iterations: 4096 };
 
           return maybeAsync(crypto.kdf("PBKDF2", "password", "salt", options))
@@ -131,6 +132,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate RFC-6070 test vector 4", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA1", iterations: 4096, derivedKeyLength: 25 };
 
           return maybeAsync(crypto.kdf("PBKDF2", "passwordPASSWORDpassword", "saltSALTsaltSALTsaltSALTsaltSALTsalt", options))
@@ -144,6 +146,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate RFC-6070 test vector 5", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA1", iterations: 4096, derivedKeyLength: 16 };
 
           return maybeAsync(crypto.kdf("PBKDF2", "pass\0word", "sa\0lt", options))
@@ -191,6 +194,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate a simple SHA-265 example 3", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-256", iterations: 6400 };
 
           var salt = decode("BASE-64", "+6UI/S+nXIk8jcbdHx3Fhg");
@@ -254,6 +258,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate RFC-6070 test vector 3 with SHA-256", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-256", iterations: 4096 };
 
           return maybeAsync(crypto.kdf("PBKDF2", "password", "salt", options))
@@ -267,6 +272,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate RFC-6070 test vector 4 with SHA-256", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-256", iterations: 4096, derivedKeyLength: 40 };
 
           return maybeAsync(crypto.kdf("PBKDF2", "passwordPASSWORDpassword", "saltSALTsaltSALTsaltSALTsaltSALTsalt", options))
@@ -280,6 +286,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         });
 
         promises("should validate RFC-6070 test vector 5 with SHA-256", function() {
+          this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-256", iterations: 4096, derivedKeyLength: 16 };
 
           return maybeAsync(crypto.kdf("PBKDF2", "pass\0word", "sa\0lt", options))
