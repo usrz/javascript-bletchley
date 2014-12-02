@@ -43,22 +43,20 @@ Esquire.define('bletchley/hashes/sha512', ['bletchley/hashes/Hash'], function(Ha
     var expanded = new ArrayBuffer(expandedLength);
 
     /* Copy the message */
-    new Uint8Array(expanded).set(new Uint8Array(message, 0));
+    new Uint8Array(expanded).set(message, 0);
 
     /* Add an extra '1' bit (0x80) after the message, and set the length */
     var expandedView = new DataView(expanded);
     expandedView.setUint8(message.byteLength, 0x80);
     expandedView.setUint32(expanded.byteLength - 4, message.byteLength * 8, false);
 
+    /* Expand our 16 64-bit words into 80 (32 32-bit words into 160) */
+    var words = new Array(160);
+
     /* Process the message in 1024-bits (128-bytes) chunks */
     for (var offset = 0; offset < expandedLength; offset += 128) {
-      var chunk = new DataView(expanded, offset, 128);
-
-      /* Expand our 16 64-bit words into 80 (32 32-bit words into 160) */
-      var words = new Array(160);
-
       for (var i = 0; i < 32; i ++) {
-        words[i] = chunk.getUint32(i * 4, false);
+        words[i] = expandedView.getUint32(offset + (i * 4), false);
       }
 
       for (var i = 32; i < 160; i += 2) {
