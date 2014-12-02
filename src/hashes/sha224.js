@@ -9,6 +9,7 @@ Esquire.define('bletchley/hashes/sha224', ['bletchley/hashes/sha256', 'bletchley
            0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4];
 
   return new Hash("SHA-224", sha256.blockSize, 28, function(message) {
+    console.warn("XTOR", Object.getPrototypeOf(sha256).constructor);
 
     return sha256.hash(message, h).subarray(0, 28);
 
