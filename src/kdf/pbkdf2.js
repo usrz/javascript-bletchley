@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/pbkdf2', ['$promise', 'bletchley/kdfs/KDF', 'bletchley/hmacs'], function(Promise, KDF, hmacs) {
+Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs'], function(KDF, hmacs) {
 
   return new KDF("PBKDF2", function(password, salt, options) {
 
