@@ -28,19 +28,22 @@ Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs'
     var roundedSaltData = new DataView(roundedSalt.buffer, salt.byteLength);
     roundedSalt.set(salt);
 
+    /* The "update" buffer can be reused over and over */
+    var update = new Uint8Array(hmac.digestSize);
+
     /* Run our rounds synchronously */
     for (var round = 1, offset = 0; round <= rounds; round ++, offset += digestSize) {
 
       /* Set our round calculating the base HMAC */
       roundedSaltData.setUint32(0, round, false);
-      var update = hmac.hmac(password, roundedSalt);
+      hmac.hmac(password, roundedSalt, update);
 
       /* Slap in the current update */
       output.set(update, offset);
 
       /* Iterations: update and XOR it in */
       for (var i = 1; i < iterations; i++) {
-        update = hmac.hmac(password, update);
+        hmac.hmac(password, update, update);
         for (var j = 0, k = offset; j < update.length; j ++, k ++) {
           output[k] ^= update[j];
         }
