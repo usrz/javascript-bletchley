@@ -7,7 +7,7 @@ Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash
   /* Words, don't reallocate */
   var words = new Array(80);
 
-  return new Hash("SHA1", 64, 20, function(message) {
+  return new Hash("SHA1", 64, 20, function(message, output) {
 
     /* Initialize our variables */
     var h0 = 0x67452301;
@@ -80,15 +80,13 @@ Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash
     }
 
     /* Put our results in an array */
-    var hash = new ArrayBuffer(20);
-    var hashView = new DataView(hash);
-    hashView.setUint32( 0, h0, false);
-    hashView.setUint32( 4, h1, false);
-    hashView.setUint32( 8, h2, false);
-    hashView.setUint32(12, h3, false);
-    hashView.setUint32(16, h4, false);
-    return new Uint8Array(hash);
-
+    return this.$$result(output, function(view) {
+      view.setUint32( 0, h0, false);
+      view.setUint32( 4, h1, false);
+      view.setUint32( 8, h2, false);
+      view.setUint32(12, h3, false);
+      view.setUint32(16, h4, false);
+    });
   });
 
 });
