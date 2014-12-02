@@ -4,6 +4,9 @@
 
 Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash) {
 
+  /* Words, don't reallocate */
+  var words = new Array(80);
+
   return new Hash("SHA1", 64, 20, function(message) {
 
     /* Initialize our variables */
@@ -28,9 +31,6 @@ Esquire.define('bletchley/hashes/sha1', ['bletchley/hashes/Hash'], function(Hash
     var expandedView = new DataView(expanded);
     expandedView.setUint8(message.byteLength, 0x80);
     expandedView.setUint32(expanded.byteLength - 4, message.byteLength * 8, false);
-
-    /* Expand our 16 words into 80 */
-    var words = new Array(80);
 
     /* Process the message in 512-bits (64-bytes) chunks */
     for (var offset = 0; offset < expandedLength; offset += 64) {
