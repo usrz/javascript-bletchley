@@ -22,16 +22,8 @@ Esquire.define('bletchley/hashes/Hash', ['bletchley/utils/helpers',
       value: function(output, fn) {
         var result, view;
         if (output) {
-          if (output instanceof Uint8Array) {
-            if (output.byteLength < this.digestSize) {
-              throw new Error("Output need at least " + this.digestSize + " bytes");
-            } else {
-              fn.call(this, new DataView(output.buffer, output.byteOffset, output.byteLength));
-              return output;
-            }
-          } else {
-            throw new Error("Output must be an Uint8Array");
-          }
+          fn.call(this, new DataView(output.buffer, output.byteOffset, output.byteLength));
+          return output;
         } else {
           var hash = new ArrayBuffer(this.digestSize);
           fn.call(this, new DataView(hash));
