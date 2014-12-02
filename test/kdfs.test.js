@@ -10,7 +10,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
     describe("Key Derivation Functions", function() {
 
-      describe.skip("PBKDF2", function() {
+      describe("PBKDF2", function() {
 
         promises("should validate RFC-6070 test vector 1", function() {
           var options = {hash: "SHA1", iterations: 1 };
