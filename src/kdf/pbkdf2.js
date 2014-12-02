@@ -1,12 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/pbkdf2', ['$promise', 'bletchley/kdfs/KDF', 'bletchley/hmacs', 'bletchley/utils/arrays', 'bletchley/codecs' ], function(Promise, KDF, hmacs, arrays, codecs) {
+Esquire.define('bletchley/kdfs/pbkdf2', ['$promise', 'bletchley/kdfs/KDF', 'bletchley/hmacs'], function(Promise, KDF, hmacs) {
 
   return new KDF("PBKDF2", function(password, salt, options) {
-
-    /* Normalize our arguments */
-    password = arrays.toUint8Array(password);
-    salt = arrays.toUint8Array(salt);
 
     /* We *NEED* the number of iterations */
     var iterations = options.iterations;
@@ -28,8 +24,9 @@ Esquire.define('bletchley/kdfs/pbkdf2', ['$promise', 'bletchley/kdfs/KDF', 'blet
     var output = new Uint8Array(rounds * digestSize);
 
     /* At every iteration, we do an HMAC of concat(salt + round) */
-    var roundedSalt = arrays.concatUint8Arrays(salt, new Uint8Array(4));
+    var roundedSalt = new Uint8Array(salt.byteLength + 4);
     var roundedSaltData = new DataView(roundedSalt.buffer, salt.byteLength);
+    roundedSalt.set(salt);
 
     /* Run our rounds synchronously */
     for (var round = 1, offset = 0; round <= rounds; round ++, offset += digestSize) {
