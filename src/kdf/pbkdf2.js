@@ -1,8 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs', 'bletchley/utils/arrays' ], function(KDF, hmacs, arrays) {
+Esquire.define('bletchley/kdfs/pbkdf2', ['$promise', 'bletchley/kdfs/KDF', 'bletchley/hmacs', 'bletchley/utils/arrays', 'bletchley/codecs' ], function(Promise, KDF, hmacs, arrays, codecs) {
 
-  return new KDF("PBKDF2", function(password, salt, options, asyncHMAC) {
+  return new KDF("PBKDF2", function(password, salt, options) {
 
     /* Normalize our arguments */
     password = arrays.toUint8Array(password);
@@ -31,7 +31,7 @@ Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs'
     var roundedSalt = arrays.concatUint8Arrays(salt, new Uint8Array(4));
     var roundedSaltData = new DataView(roundedSalt.buffer, salt.byteLength);
 
-    /* Run our rounds */
+    /* Run our rounds synchronously */
     for (var round = 1, offset = 0; round <= rounds; round ++, offset += digestSize) {
 
       /* Set our round calculating the base HMAC */
@@ -56,3 +56,63 @@ Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs'
 
   });
 });
+
+/* ========================================================================== */
+
+/*
+ * Asynchronous implementation: whille actually working, this is much slower
+ * than our normal code. It seems that method invocation through promises is
+ * much slower (3x) than the actual MAC computation. Keeping it for reference...
+ */
+
+// /* Asynchronous HMAC? (this is from subtle) */
+// if (asyncHMAC) {
+
+//   /* Our promise-returning HMAC */
+//   hmac = function(s, p) { return asyncHMAC(options.hash, s, p) };
+
+//   /* Round and iterations count */
+//   var round = 1;
+//   var iteration = 0;
+//   var offset = 0;
+
+//   /* What to do every time we get an update */
+//   var async = function(update) {
+
+//     /* Are we done with our rounds? Truncate if necessary */
+//     if (round > rounds) {
+//       if (output.length == derivedKeyLength) return output;
+//       return new Uint8Array(output.buffer, 0, derivedKeyLength);
+//     }
+
+//     /* Current round is not over yet */
+//     if (iteration < iterations) {
+//       if (iteration == 0) {
+//         output.set(update, offset);
+//       } else {
+//         for (var j = 0, k = offset; j < update.length; j ++, k ++) {
+//           output[k] ^= update[j];
+//         }
+//       }
+
+//       /* Next iteration! */
+//       iteration ++;
+//       return hmac(password, update).then(async);
+
+//     }
+
+//     /* Next round... */
+//     round ++;
+//     iteration = 0;
+//     offset += digestSize;
+
+//     roundedSaltData.setUint32(0, round, false);
+//     return hmac(password, roundedSalt).then(async);
+//   };
+
+//   /* Let's start... */
+//   roundedSaltData.setUint32(0, round, false);
+//   return hmac(password, roundedSalt).then(async);
+
+// }
+

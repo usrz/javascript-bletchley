@@ -8,8 +8,8 @@ Esquire.define('bletchley/kdfs', [ 'bletchley/utils/helpers',
 
     return new (extend(function() {
 
-      this.kdf = function(algorithm, password, salt, options, asyncHMAC) {
-        return this.$helper(algorithm).kdf(password, salt, options, asyncHMAC);
+      this.kdf = function(algorithm, password, salt, options) {
+        return this.$helper(algorithm).kdf(password, salt, options);
       };
 
       helpers.Factory.call(this, [pbkdf2]);

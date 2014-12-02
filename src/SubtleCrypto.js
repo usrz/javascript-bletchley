@@ -5,8 +5,7 @@ Esquire.define('bletchley/crypto/SubtleCrypto', [ '$deferred',
                                                   '$global',
                                                   '$global/crypto.subtle',
                                                   'bletchley/utils/arrays',
-                                                  'bletchley/crypto/AsyncCrypto',
-                                                  'bletchley/kdfs' ],
+                                                  'bletchley/crypto/AsyncCrypto' ],
 function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
 
   var msCrypto = subtle && (subtle === (global.msCrypto && global.msCrypto.subtle)) || false;
@@ -78,6 +77,7 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
     this.stringify = crypto.stringify;
     this.encode    = crypto.encode;
     this.decode    = crypto.decode;
+    this.kdf       = crypto.kdf;
 
     this.hash = function(algorithm, message) {
       if (!(wrapper.digest)) return crypto.hash.apply(crypto, arguments);
@@ -129,13 +129,6 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
         });
       });
     }
-
-    this.kdf = function(algorithm, password, salt, options) {
-      return Promise.all([algorithm, password, salt, options, this.hmac])
-        .then(function(args) {
-          return kdfs.kdf.apply(kdfs, args);
-        });
-    };
 
     Object.freeze(this);
   }
