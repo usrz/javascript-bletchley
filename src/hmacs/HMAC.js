@@ -9,6 +9,10 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
       this.blockSize = hash.blockSize;
       this.digestSize = hash.digestSize;
 
+      /* Inner hash can be reused for each digest size */
+      var innerHash = new Uint8Array(hash.digestSize);
+
+      /* HMAC calculation */
       this.hmac = function(salt, secret) {
         salt = arrays.toUint8Array(salt);
         secret = arrays.toUint8Array(secret);
@@ -28,7 +32,7 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
         }
 
         var innerKeyPadding = arrays.xorUint8Arrays(innerPadding, key);
-        var innerHash = hash.hash(arrays.concatUint8Arrays(innerKeyPadding, secret));
+        hash.hash(arrays.concatUint8Arrays(innerKeyPadding, secret), innerHash);
 
         var outerKeyPadding = arrays.xorUint8Arrays(outerPadding, key);
         return hash.hash(arrays.concatUint8Arrays(outerKeyPadding, innerHash));
