@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash2', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
+Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
 
   /* Hash constants for SHA1 */
   var h = [ 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0 ];

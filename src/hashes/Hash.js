@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/Hash2', ['bletchley/utils/helpers',
+Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/helpers',
                                           'bletchley/utils/extend',
                                           'bletchley/utils/arrays' ],
   function(helpers, extend, arrays) {

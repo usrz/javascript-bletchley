@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash2', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
+Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
 
   /* Round constants */
   var K = [ 0x428a2f98, 0xd728ae22,    0x71374491, 0x23ef65cd,    0xb5c0fbcf, 0xec4d3b2f,    0xe9b5dba5, 0x8189dbbc,    0x3956c25b, 0xf348b538,
@@ -59,16 +59,6 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash2', 'bletchley/
 
     /* Compute a 128-bytes block */
     function compute(bview) {
-
-      (function() {
-        var a = [];
-        for (var i = 0; i < BLOCK_SIZE; i++) {
-          var q = bview.getUint8(i);
-          if (q) a.push('0x' + q.toString(16));
-          else a.push(0);
-        }
-        //console.warn("HASHING-B", "[ " + a.join(", ") + " ]");
-      })();
 
       /* Copy as normal numbers (faster) */
       for (var i = 0; i < 32; i ++) {
@@ -151,7 +141,7 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash2', 'bletchley/
         var t2l = sigma0l + majl;
         var t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
 
-        // Update working variables
+        /* Update working variables */
         hh = gh;
         hl = gl;
         gh = fh;
