@@ -6,9 +6,8 @@ esquire(['bletchley/utils/random',
          'bletchley/hmacs',
          'bletchley/kdfs',
 
-         'bletchley/crypto/sync',
-         'bletchley/crypto/async',
-         'bletchley/crypto/worker',
+         'bletchley/sync',
+         'bletchley/worker',
 
          'test/random',
          'test/codecs',
@@ -16,7 +15,7 @@ esquire(['bletchley/utils/random',
          'test/hmacs',
          'test/kdfs' ],
   function(random, codecs, hashes, hmacs, kdfs,
-           syncCrypto, asyncCrypto, workerCrypto,
+           syncCrypto, workerCrypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Helpers implementation", function() {
@@ -33,14 +32,6 @@ esquire(['bletchley/utils/random',
       testHashes(syncCrypto, false);
       testHMACs(syncCrypto, false);
       testKDFs(syncCrypto, false);
-    });
-
-    describe("Asynchronous crypto implementation", function() {
-      testRandom(asyncCrypto, true);
-      testCodecs(asyncCrypto, true);
-      testHashes(asyncCrypto, true);
-      testHMACs(asyncCrypto, true);
-      testKDFs(asyncCrypto, true);
     });
 
     describe("Worker crypto implementation", function() {

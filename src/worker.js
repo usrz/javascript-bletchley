@@ -1,12 +1,12 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/worker', ['$promise', 'bletchley/crypto/AsyncCrypto', 'bletchley/utils/random', 'rodosha'],
+Esquire.define('bletchley/worker', ['$promise', 'bletchley/crypto/AsyncCrypto', 'bletchley/utils/random', 'rodosha'],
   function(Promise, AsyncCrypto, random, rodosha) {
 
-    return rodosha.create('bletchley/crypto/sync', 'bletchley/utils/random', false)
+    return rodosha.create('bletchley/sync', 'bletchley/utils/random', false)
       .then(function(rodosha) {
         return Promise.all([
-          rodosha.proxy('bletchley/crypto/sync'),
+          rodosha.proxy('bletchley/sync'),
           rodosha.proxy('bletchley/utils/random')
         ]);
       }).then(function(result) {
