@@ -5,13 +5,16 @@ module.exports = function(grunt) {
 
     /* Unit testing */
     'karma': {
-      unit: {
+      options: {
         configFile: 'karma.conf.js',
         runnerPort: 9999,
         singleRun: true,
-        browsers: ['PhantomJS', 'Chrome', 'Firefox', 'Safari'],
-        logLevel: 'ERROR'
-      }
+        logLevel: 'INFO'
+      },
+      'PhantomJS': { browsers: ['PhantomJS']      },
+      'Chrome':    { browsers: ['Chrome']         },
+      'Firefox':   { browsers: ['Firefox-Crypto'] },
+      'Safari':    { browsers: ['Safari']         },
     },
 
     /* Simple mocha */
