@@ -1,40 +1,23 @@
 'use strict';
 
-Esquire.define('bletchley/hmacs', [ 'bletchley/hashes',
+Esquire.define('bletchley/hmacs', [ 'bletchley/utils/helpers',
+                                    'bletchley/utils/extend',
                                     'bletchley/hmacs/HMAC',
-                                    'bletchley/utils/arrays',
-                                    'bletchley/utils/helpers',
-                                    'bletchley/utils/extend' ],
-  function(hashes, HMAC, arrays, helpers, extend) {
+                                    'bletchley/hashes/SHA1',
+                                    'bletchley/hashes/SHA224',
+                                    'bletchley/hashes/SHA256',
+                                    'bletchley/hashes/SHA384',
+                                    'bletchley/hashes/SHA512' ],
+  function(helpers, extend, HMAC, SHA1, SHA224, SHA256, SHA384, SHA512) {
 
     var hmacs = (function create(hashes) {
       var hmacs = [];
-      var outerPaddings = {};
-      var innerPaddings = {};
-      for (var i in hashes.$algorithms) {
-        var hash = hashes.$helper(hashes.$algorithms[i]);
-        var blockSize = hash.blockSize;
-
-        var innerPadding;
-        if (blockSize in innerPaddings) {
-          innerPadding = innerPaddings[blockSize];
-        } else {
-          innerPadding = arrays.createUint8Array(blockSize, 0x36);
-          innerPaddings[blockSize] = innerPadding;
-        }
-
-        var outerPadding;
-        if (blockSize in outerPaddings) {
-          outerPadding = outerPaddings[blockSize];
-        } else {
-          outerPadding = arrays.createUint8Array(blockSize, 0x5c);
-          outerPaddings[blockSize] = outerPadding;
-        }
-
-        hmacs.push(new HMAC(hash, innerPadding, outerPadding));
+      for (var i in hashes) {
+        var hash = new hashes[i]();
+        hmacs.push(new HMAC(hash));
       }
       return hmacs;
-    })(hashes);
+    })([SHA1, SHA224, SHA256, SHA384, SHA512]);
 
     return new (extend(function() {
 
