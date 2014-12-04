@@ -6,6 +6,25 @@ Esquire.define('bletchley/utils/arrays', ["$global/TextEncoder",
                                           "$global/unescape" ],
 function(TextEncoder, Buffer, decodeURIComponent, unescape) {
 
+  /* A function to get the type name of an object for names */
+  function typeName(object) {
+    if (object === 'undefined') return 'undefined';
+    if (object === 'null') return 'null'
+
+    var type = typeof(object);
+    if (type === 'object') {
+      var prototype = Object.getPrototypeOf(object);
+      if (prototype) {
+        if (prototype.name) {
+          type += ':' + prototype.name;
+        } else if (prototype.constructor && prototype.constructor.name) {
+          type += ':' + prototype.constructor.name;
+        }
+      }
+    }
+    return type;
+  }
+
   /* String to UTF8 ArrayBuffer */
   var decode = null;
   if (TextEncoder) {
@@ -22,8 +41,10 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
       return fromUint8String(raw);
     }
   } else {
-    throw new Error("UTF-8 decoding unsupported");
-  }
+    decode = function(string) {
+      throw new ReferenceError("Native UTF-8 decoding unsupported");
+    }
+  };
 
   /**
    * Convert an Array, ArrayBuffer or ArrayBufferView into a valid Uint8Array.
@@ -32,18 +53,13 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     /* Strings are simply "decoded" into their UTF8 */
     if (typeof(array) === 'string') return decode(array);
 
-    /* If this is not a string, the "object" must be something */
-    if (! array) throw new Error("No array to convert to Uint8Array");
-
     /* Uint8Array, ArrayBuffer, plain array */
     if (array instanceof Uint8Array) return array;
     if (array instanceof ArrayBuffer) return new Uint8Array(array);
     if (Array.isArray(array)) return new Uint8Array(array);
 
     /* Fail miserably */
-    var type = typeof(array);
-    if (type === 'object') type = "Object{" + Object.keys(array) + "}";
-    throw new Error("Unable to convert " + type + " to Uint8Array");
+    throw new TypeError("Unable to convert " + typeName(array) + " to Uint8Array");
   }
 
   /**
@@ -52,6 +68,7 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
    * using native helpers.
    */
   function fromUint8String(string) {
+
     if (typeof(string) === 'string') {
       var array = new ArrayBuffer(string.length);
       var view = new Uint8Array(array);
@@ -60,7 +77,9 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
       }
       return view;
     }
-    throw new Error("Unable to convert " + typeof(string) + " to Uint8String");
+
+    /* Fail miserably */
+    throw new Error("Unable to convert " + typeName(string) + " to Uint8String");
   }
 
   /**
@@ -91,40 +110,21 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     return array;
   }
 
-  /**
-   * Concatenate all Uint8Array specified as parameters.
-   */
-  function concatUint8Arrays() {
-    var length = 0;
-    var arrays = [];
-    for (var i = 0; i < arguments.length; i ++) {
-      var current = toUint8Array(arguments[i]);
-      length += current.length;
-      arrays.push(current);
-    }
-
-    var offset = 0;
-    var result = new Uint8Array(length);
-    for (var i = 0; i < arrays.length; i ++) {
-      result.set(arrays[i], offset);
-      offset += arrays[i].length;
-    }
-
-    return result;
-  }
-
   /* XOR the contents of two arrays */
-  function xorUint8Arrays(array1, array2) {
+  function xorUint8Arrays(array1, array2, output) {
 
     /* array1 must be shorter than array2 */
     if (array1.length > array2.length) {
+      //console.warn("SWAPPING", array1.length, array2.length);
       var temp = array2;
       array2 = array1;
       array1 = temp;
+    } else if (array1.length === array2.length) {
+      //console.warn("EQUALS", array1.length);
     }
 
     /* New array cloning the longer array */
-    var array = new Uint8Array(array2.length);
+    var array = output || new Uint8Array(array2.length);
     array.set(array2, 0);
 
     /* XOR each element from the short array */
@@ -142,7 +142,6 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     toUint8String: toUint8String,
     fromUint8String: fromUint8String,
     createUint8Array: createUint8Array,
-    concatUint8Arrays: concatUint8Arrays,
     xorUint8Arrays: xorUint8Arrays,
   });
 
