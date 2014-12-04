@@ -77,7 +77,8 @@ Esquire.define('bletchley/utils/random', ['$global/crypto',
 
     /* Our "random()" function */
     function random(size) {
-      if (size < 1) throw new RangeError("Invalid size (must be positive integer)");
+      if (typeof(size) !== 'number') throw new TypeError("Size must be a number");
+      if (size < 1) throw new RangeError("Size must be a positive integer");
       if (! arcfour) init(); // lazy initialization
       var array = new Uint8Array(size);
       for (var i = 0; i < size; i ++) array[i] = arcfour.next();
