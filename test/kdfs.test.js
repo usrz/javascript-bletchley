@@ -131,7 +131,21 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
         });
 
-        promises("should validate RFC-6070 test vector 4", function() {
+        /* This times out for more or less forever :-) */
+        promises.skip("should validate RFC-6070 test vector 4", function() {
+          var options = {hash: "SHA1", iterations: 16777216 };
+
+          return maybeAsync(crypto.kdf("PBKDF2", "password", "salt", options))
+          .then(function(result) {
+            expect(result).to.be.instanceof(Uint8Array);
+            return encode('HEX', result);
+          }).then(function(result) {
+            expect(result).to.equal("eefe3d61cd4da4e4e9945b3d6ba2158c2634e984");
+          }).done();
+
+        });
+
+        promises("should validate RFC-6070 test vector 5", function() {
           this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA1", iterations: 4096, derivedKeyLength: 25 };
 
@@ -145,7 +159,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
         });
 
-        promises("should validate RFC-6070 test vector 5", function() {
+        promises("should validate RFC-6070 test vector 6", function() {
           this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA1", iterations: 4096, derivedKeyLength: 16 };
 
@@ -209,6 +223,8 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
         });
 
+        /* ================================================================== */
+
         /* From http://packages.python.org/passlib/lib/passlib.hash.grub_pbkdf2_sha512.html */
 
         promises("should validate a simple SHA-512 example", function() {
@@ -271,7 +287,20 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
         });
 
-        promises("should validate RFC-6070 test vector 4 with SHA-256", function() {
+        /* This times out for more or less forever :-) */
+        promises.skip("should validate RFC-6070 test vector 4 with SHA-256", function() {
+          var options = {hash: "SHA-256", iterations: 16777216 };
+
+          return maybeAsync(crypto.kdf("PBKDF2", "password", "salt", options))
+          .then(function(result) {
+            expect(result).to.be.instanceof(Uint8Array);
+            return encode('HEX', result);
+          }).then(function(result) {
+            expect(result).to.equal("cf81c66fe8cfc04d1f31ecb65dab4089f7f179e89b3b0bcb17ad10e3ac6eba46");
+          }).done();
+
+        });
+        promises("should validate RFC-6070 test vector 5 with SHA-256", function() {
           this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-256", iterations: 4096, derivedKeyLength: 40 };
 
@@ -285,7 +314,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
         });
 
-        promises("should validate RFC-6070 test vector 5 with SHA-256", function() {
+        promises("should validate RFC-6070 test vector 6 with SHA-256", function() {
           this.timeout(5000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-256", iterations: 4096, derivedKeyLength: 16 };
 
