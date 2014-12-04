@@ -74,6 +74,8 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
     /* Must have an asynchronous crypto */
     if (!(crypto instanceof AsyncCrypto)) crypto = new AsyncCrypto(crypto);
 
+    /* Simple pass-through of methods */
+    this.random    = crypto.random;
     this.stringify = crypto.stringify;
     this.encode    = crypto.encode;
     this.decode    = crypto.decode;
