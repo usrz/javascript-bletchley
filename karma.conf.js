@@ -15,8 +15,7 @@ module.exports = function(config) {
       'node_modules/rodosha/src/*',
       'src/**/*.js',
       'test/**/*.test.js',
-      'test/index.js',
-      'test/subtle.js'
+      'test/index.js'
     ],
 
     /* Pretty */
