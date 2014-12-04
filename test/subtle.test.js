@@ -1,23 +1,19 @@
 'use strict';
 
-esquire(['bletchley/crypto/Crypto',
-         'bletchley/crypto/SubtleCrypto',
-         '$global/navigator',
-
-         'test/hashes',
-         'test/hmacs'],
-
-  function(Crypto, SubtleCrypto, navigator,
-           testHashes, testHMACs) {
+Esquire.define('test/subtleWrapper', [ 'bletchley/crypto/SubtleCrypto',
+                                       '$global/navigator' ],
+  function(SubtleCrypto, navigator) {
 
     /* Super idiotic browser detection */
     var browserName;
-    if      (/PhantomJS\//.test(navigator.userAgent)) browserName = "PhantomJS";
-    else if (/Chrome\//   .test(navigator.userAgent)) browserName = "Chrome";
-    else if (/Safari\//   .test(navigator.userAgent)) browserName = "Safari";
-    else if (/Firefox\//  .test(navigator.userAgent)) browserName = "Firefox";
-    else if (/Trident\//  .test(navigator.userAgent)) browserName = "MSIE";
-    else browserName = "Unknown";
+    if (navigator && navigator.userAgent) {
+      if      (/PhantomJS\//.test(navigator.userAgent)) return null;
+      else if (/Chrome\//   .test(navigator.userAgent)) browserName = "Chrome";
+      else if (/Safari\//   .test(navigator.userAgent)) browserName = "Safari";
+      else if (/Firefox\//  .test(navigator.userAgent)) browserName = "Firefox";
+      else if (/Trident\//  .test(navigator.userAgent)) browserName = "MSIE";
+    }
+    if (! browserName) return null;
 
     /* The current test, injected by beforeEach(), cleared by afterEach() */
     var currentTest = null;
@@ -46,8 +42,6 @@ esquire(['bletchley/crypto/Crypto',
       this.kdf       = function() { throw new Error("Do not call") }
 
       this.hash = function() {
-        /* PhantomJS: No subtle crypto */
-        canSkip("PhantomJS", /.*/);
 
         /* Chrome: No support for SHA1/SHA-224 */
         canSkip("Chrome", /^Subtle crypto implementation Hashes SHA(1|-224) hashing /);
@@ -66,8 +60,6 @@ esquire(['bletchley/crypto/Crypto',
       }
 
       this.hmac = function() {
-        /* PhantomJS: No subtle crypto */
-        canSkip("PhantomJS", /.*/);
 
         /* Chrome: No support for SHA1/SHA-224 */
         canSkip("Chrome", /^Subtle crypto implementation HMACs SHA(1|-224) /);
@@ -88,20 +80,12 @@ esquire(['bletchley/crypto/Crypto',
 
     }
 
-    SkippingCrypto.prototype = Object.create(Crypto.prototype);
-    SkippingCrypto.prototype.constructor = SkippingCrypto;
-    SkippingCrypto.prototype.name = "SkippingCrypto";
+    /* Karma's before and after each method */
+    beforeEach (function() { currentTest = this.currentTest });
+    afterEach  (function()  { currentTest = null });
 
     /* Wrap our skipping test crypto in a new SubtleCrypto */
-    var subtleCrypto = new SubtleCrypto(new SkippingCrypto());
+    return new SubtleCrypto(new SkippingCrypto());
 
-    /* Run the tests */
-    describe("Subtle crypto implementation", function() {
-      beforeEach (function() { currentTest = this.currentTest });
-      afterEach  (function()  { currentTest = null });
-
-      testHashes(subtleCrypto, true);
-      testHMACs(subtleCrypto, true);
-    });
   }
 );

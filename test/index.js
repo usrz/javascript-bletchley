@@ -8,6 +8,8 @@ esquire(['bletchley/utils/random',
 
          'bletchley/sync',
          'bletchley/worker',
+         'test/subtleWrapper',
+         'bletchley',
 
          'test/random',
          'test/codecs',
@@ -15,7 +17,7 @@ esquire(['bletchley/utils/random',
          'test/hmacs',
          'test/kdfs' ],
   function(random, codecs, hashes, hmacs, kdfs,
-           syncCrypto, workerCrypto,
+           syncCrypto, workerCrypto, subtleCrypto, crypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Helpers implementation", function() {
@@ -40,6 +42,20 @@ esquire(['bletchley/utils/random',
       testHashes(workerCrypto, true);
       testHMACs(workerCrypto, true);
       testKDFs(workerCrypto, true);
+    });
+
+    /* Wrapper around a mock, don't test what we don't have to */
+    if (subtleCrypto) describe("Subtle crypto implementation", function() {
+      testHashes(subtleCrypto, true);
+      testHMACs(subtleCrypto, true);
+    });
+
+    describe("Default crypto implementation", function() {
+      testRandom(crypto, true);
+      testCodecs(crypto, true);
+      testHashes(crypto, true);
+      testHMACs(crypto, true);
+      testKDFs(crypto, true);
     });
 
   }
