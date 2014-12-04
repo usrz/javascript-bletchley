@@ -19,6 +19,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
   /* Digest and block size for SHA-256 */
   var DIGEST_SIZE = 32;
   var BLOCK_SIZE = 64;
+  var NUM_WORDS = 64;
 
   /* Constructor function */
   return extend(function SHA256(algorithm, digestSize, h) {
@@ -27,10 +28,6 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
     if (!h) h = H;
     var h0 = h[0]; var h1 = h[1]; var h2 = h[2]; var h3 = h[3];
     var h4 = h[4]; var h5 = h[5]; var h6 = h[6]; var h7 = h[7];
-
-    /* Computed hash and its data view */
-    var hash = new Uint8Array(DIGEST_SIZE);
-    var view = new DataView(hash.buffer);
 
     /* Final block for updates */
     var final = new Uint8Array(BLOCK_SIZE);
@@ -42,7 +39,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
     var pos = 0;
 
     /* Words for compute cycle */
-    var words = new Array(64);
+    var words = new Array(NUM_WORDS);
 
     /* Total digest length */
     var len = 0;
@@ -52,11 +49,11 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
 
       /* Copy as normal numbers (faster) */
       for (var i = 0; i < 16; i ++) {
-        words[i] = bview.getUint32((i * 4), false);
+        words[i] = bview.getUint32(i * 4, false);
       }
 
       /* Expand our block */
-      for (var i = 16; i < 64; i ++) {
+      for (var i = 16; i < NUM_WORDS; i ++) {
         var gamma0x = words[i - 15];
         var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
                       ((gamma0x << 14) | (gamma0x >>> 18)) ^
@@ -81,7 +78,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
       var h = h7;
 
       /* Compression function main loop */
-      for (var i = 0; i < 64; i ++) {
+      for (var i = 0; i < NUM_WORDS; i ++) {
         var ch  = (e & f) ^ (~e & g);
         var maj = (a & b) ^ (a & c) ^ (b & c);
 
@@ -136,7 +133,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
         /* Copy in chunks to our block */
         while (mpos < message.length) {
           /* Bytes available in the block */
-          var blen = 64 - pos;
+          var blen = BLOCK_SIZE - pos;
           /* Bytes available in the message */
           var mlen = message.length - mpos;
           /* Copy up to 64 bytes (nothing more) */
@@ -174,7 +171,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
         /* Compute the last chunk, if needed */
         if (pos > 56) {
           /* No space for the message length */
-          block.set(final.subarray(0, 64 - pos), pos);
+          block.set(final.subarray(0, BLOCK_SIZE - pos), pos);
           compute(bview);
           compute(fview);
         } else {
@@ -185,11 +182,14 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
         /* No output? Create a new buffer */
         if (! output) {
           output = new Uint8Array(this.digestSize);
-        } else if(!(output instanceof Uint8Array)) {
+        } else if (!(output instanceof Uint8Array)) {
           throw new Error("Output must be a Uint8Array");
+        } else if (output.length < this.digestSize) {
+          throw new Error("Required at least " + this.digestSize + " for output");
         }
 
         /* Write out our result in the output buffer */
+        var view = new DataView(output.buffer, output.byteOffset, output.byteLength);
         view.setUint32( 0, h0, false);
         view.setUint32( 4, h1, false);
         view.setUint32( 8, h2, false);
@@ -197,13 +197,8 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash2', 'bletchley/
         view.setUint32(16, h4, false);
         view.setUint32(20, h5, false);
         view.setUint32(24, h6, false);
-        view.setUint32(28, h7, false);
-
-        /* Truncated hash (SHA-224, for example) */
-        if (output.length < DIGEST_SIZE) {
-          output.set(hash.subarray(0, output.length));
-        } else {
-          output.set(hash);
+        if (this.digestSize > 28) {
+          view.setUint32(28, h7, false);
         }
 
         /* Reset and return */

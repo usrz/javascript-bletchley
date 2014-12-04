@@ -156,27 +156,24 @@ Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash2', 'bletchley/ut
         /* No output? Create a new buffer */
         if (! output) {
           output = new Uint8Array(this.digestSize);
-        } else if(!(output instanceof Uint8Array)) {
+        } else if (!(output instanceof Uint8Array)) {
           throw new Error("Output must be a Uint8Array");
+        } else if (output.length < this.digestSize) {
+          throw new Error("Required at least " + this.digestSize + " for output");
         }
 
         /* Write out our result in the output buffer */
-      view.setUint32( 0, h0, false);
-      view.setUint32( 4, h1, false);
-      view.setUint32( 8, h2, false);
-      view.setUint32(12, h3, false);
-      view.setUint32(16, h4, false);
-
-        /* Truncated hash */
-        if (output.length < DIGEST_SIZE) {
-          output.set(hash.subarray(0, output.length));
-        } else {
-          output.set(hash);
-        }
+        var view = new DataView(output.buffer, output.byteOffset, output.byteLength);
+        view.setUint32( 0, h0, false);
+        view.setUint32( 4, h1, false);
+        view.setUint32( 8, h2, false);
+        view.setUint32(12, h3, false);
+        view.setUint32(16, h4, false);
 
         /* Reset and return */
         this.reset();
         return output;
+
       }}
     });
 
