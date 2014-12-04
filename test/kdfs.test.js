@@ -228,7 +228,7 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
         /* From http://packages.python.org/passlib/lib/passlib.hash.grub_pbkdf2_sha512.html */
 
         promises("should validate a simple SHA-512 example", function() {
-          this.timeout(5000); // timeout for Node, Phantom & MSIE
+          this.timeout(10000); // timeout for Node, Phantom & MSIE
           var options = {hash: "SHA-512", iterations: 10000 };
 
           var salt = decode("HEX", "4483972ad2c52e1f590b3e2260795fda9ca0b07b96ff492814ca9775f08c4b59cd1707f10b269e09b61b1e2d11729bca8d62b7827b25b093ec58c4c1eac23137");

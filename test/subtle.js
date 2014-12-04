@@ -60,7 +60,7 @@ esquire(['bletchley/crypto/Crypto',
 
         /* Chrome: No support for SHA1/SHA-224/SHA-512, empty messages */
         canSkip("MSIE", /^Subtle crypto implementation Hashes SHA(1|-224|-512) hashing /);
-        canSkip("MSIE", /^Subtle crypto implementation Hashes SHA(-256|-384) hashing should hash empty data$/);
+        canSkip("MSIE", /^Subtle crypto implementation Hashes SHA(-256|-384) hashing should hash the FIPS-180 test vector of 0 bits$/);
 
         throw new Error("Subtle crypto failure");
       }
