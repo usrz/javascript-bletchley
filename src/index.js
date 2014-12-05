@@ -9,7 +9,7 @@ Esquire.define('bletchley', [ 'bletchley/crypto/Crypto',
       .then(function(crypto) {
         return new SubtleCrypto(crypto);
       }, function(error) {
-        console.warn("Unable to create worker instance", error);
+        console.warn("Unable to create WorkerCrypto instance", error);
         return new SubtleCrypto(new Crypto());
       });
 

@@ -71,68 +71,64 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
 
   function SubtleCrypto(crypto) {
 
-    /* Must have an asynchronous crypto */
-    if (!(crypto instanceof AsyncCrypto)) crypto = new AsyncCrypto(crypto);
+    if (wrapper.digest) {
+      Object.defineProperty(this, "hash", {
+        enumerable: true,
+        configurable: false,
+        value: function(algorithm, message) {
+          return Promise.resolve(message).then(function(message) {
+            message = arrays.toUint8Array(message);
 
-    /* Simple pass-through of methods */
-    this.random    = crypto.random;
-    this.stringify = crypto.stringify;
-    this.encode    = crypto.encode;
-    this.decode    = crypto.decode;
-    this.kdf       = crypto.kdf;
+            /* Remember, MSIE does not trigger failures, just hangs forever */
+            if (msCrypto && (message.length === 0)) {
+              return crypto.hash(algorithm, message);
+            }
 
-    this.hash = function(algorithm, message) {
-      if (!(wrapper.digest)) return crypto.hash.apply(crypto, arguments);
-
-      return Promise.resolve(message).then(function(message) {
-
-        message = arrays.toUint8Array(message);
-
-        /* Remember, MSIE does not trigger failures, just hangs forever */
-        if (msCrypto && (message.length === 0)) {
-          return crypto.hash(algorithm, message);
+            return wrapper.digest({ name: algorithm }, message)
+            .then(function(result) {
+              return arrays.toUint8Array(result);
+            }, function(error) {
+              return crypto.hash(algorithm, message)
+                .catch(function(failure) { throw error });
+            });
+          });
         }
+      })
+    }
 
-        return wrapper.digest({ name: algorithm }, message)
-        .then(function(result) {
-          return arrays.toUint8Array(result);
-        }, function(error) {
-          return crypto.hash(algorithm, message)
-            .catch(function(failure) { throw error });
-        });
-      });
-    };
+    if (wrapper.importKey && wrapper.sign) {
+      Object.defineProperty(this, "hmac", {
+        enumerable: true,
+        configurable: false,
+        value: function(algorithm, salt, secret) {
+          return Promise.all([salt, secret]).then(function(result) {
+            var salt = arrays.toUint8Array(result[0]);
+            var secret = arrays.toUint8Array(result[1]);
 
-    this.hmac = function(algorithm, salt, secret) {
-      if (!(wrapper.importKey)) return crypto.hmac.apply(crypto, arguments);
-      if (!(wrapper.sign))      return crypto.hmac.apply(crypto, arguments);
+            /* Remember, MSIE does not trigger failures, just hangs forever */
+            if (msCrypto && (secret.length === 0)) {
+              return crypto.hmac(algorithm, salt, secret);
+            }
 
-      return Promise.all([salt, secret]).then(function(result) {
-        var salt = arrays.toUint8Array(result[0]);
-        var secret = arrays.toUint8Array(result[1]);
+            /* Parameters, HMAC with our algorithm */
+            var parameters = { name: "HMAC", hash: { name: algorithm } };
 
-        /* Remember, MSIE does not trigger failures, just hangs forever */
-       if (msCrypto && (secret.length === 0)) {
-         return crypto.hmac(algorithm, salt, secret);
-       }
-
-        /* Parameters, HMAC with our algorithm */
-        var parameters = { name: "HMAC", hash: { name: algorithm } };
-
-        /* Need to use two promises: the first is for importing the salt */
-        return wrapper.importKey("raw", salt, parameters, false, [ "sign" ])
-        .then(function(saltKey) {
-          return wrapper.sign(parameters, saltKey, secret);
-        }).then(function(signature) {
-          return arrays.toUint8Array(signature);
-        }, function(error) {
-          return crypto.hmac(algorithm, salt, secret)
-            .catch(function(failure) { throw error });
-        });
+            /* Need to use two promises: the first is for importing the salt */
+            return wrapper.importKey("raw", salt, parameters, false, [ "sign" ])
+            .then(function(saltKey) {
+              return wrapper.sign(parameters, saltKey, secret);
+            }).then(function(signature) {
+              return arrays.toUint8Array(signature);
+            }, function(error) {
+              return crypto.hmac(algorithm, salt, secret)
+                .catch(function(failure) { throw error });
+            });
+          });
+        }
       });
     }
 
-    Object.freeze(this);
+    AsyncCrypto.call(this, crypto);
   }
 
   SubtleCrypto.prototype = Object.create(AsyncCrypto.prototype);
