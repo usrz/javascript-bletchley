@@ -3,22 +3,19 @@
 Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
                                                   'bletchley/crypto/AsyncCrypto',
                                                   'bletchley/utils/Random',
+                                                  'bletchley/utils/extend',
                                                   'rodosha' ],
-  function(Promise, AsyncCrypto, Random, rodosha) {
+  function(Promise, AsyncCrypto, Random, extend, rodosha) {
 
     var internalRandom = new Random();
 
-    function WorkerCrypto(proxy) {
+    var WorkerCrypto = extend(function (proxy) {
       if (proxy && proxy['!$proxyId$!']) {
         AsyncCrypto.call(this, proxy);
       } else {
         throw new Error("Construct using WorkerCrypto.newInstance()");
       }
-    }
-
-    WorkerCrypto.prototype = Object.create(AsyncCrypto.prototype);
-    WorkerCrypto.prototype.constructor = WorkerCrypto;
-    WorkerCrypto.prototype.name = "WorkerCrypto";
+    }, AsyncCrypto, "WorkerCrypto");
 
     WorkerCrypto.newInstance = function() {
 
@@ -53,7 +50,7 @@ Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
     };
 
     /* Return our WorkerCrypto class */
-    return Object.freeze(WorkerCrypto);
+    return WorkerCrypto;
   }
 );
 

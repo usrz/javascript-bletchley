@@ -5,8 +5,9 @@ Esquire.define('bletchley/crypto/SubtleCrypto', [ '$deferred',
                                                   '$global',
                                                   '$global/crypto.subtle',
                                                   'bletchley/utils/arrays',
+                                                  'bletchley/utils/extend',
                                                   'bletchley/crypto/AsyncCrypto' ],
-function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
+function(Deferred, Promise, global, subtle, arrays, extend, AsyncCrypto, kdfs) {
 
   var msCrypto = subtle && (subtle === (global.msCrypto && global.msCrypto.subtle)) || false;
 
@@ -69,7 +70,7 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
     }
   }
 
-  function SubtleCrypto(crypto) {
+  return extend(function(crypto) {
 
     if (wrapper.digest) {
       Object.defineProperty(this, "hash", {
@@ -129,13 +130,7 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto, kdfs) {
     }
 
     AsyncCrypto.call(this, crypto);
-  }
 
-  SubtleCrypto.prototype = Object.create(AsyncCrypto.prototype);
-  SubtleCrypto.prototype.constructor = SubtleCrypto;
-  SubtleCrypto.prototype.name = "SubtleCrypto";
-
-  /* Return our function */
-  return SubtleCrypto;
+  }, AsyncCrypto, "SubtleCrypto");
 
 });

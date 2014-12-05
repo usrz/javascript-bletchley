@@ -1,13 +1,14 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/Random',
+Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/extend',
+                                            'bletchley/utils/Random',
                                             'bletchley/codecs',
                                             'bletchley/hashes',
                                             'bletchley/hmacs',
                                             'bletchley/kdfs' ],
-  function(Random, codecs, hashes, hmacs, kdfs) {
+  function(extend, Random, codecs, hashes, hmacs, kdfs) {
 
-    function Crypto(random) {
+    return extend(function(random) {
       if (! random) {
         random = new Random();
       } else if (!(random instanceof Random)) {
@@ -21,14 +22,8 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/Random',
       Object.defineProperty(this, "hash",      { enumerable: true, configurable: false, value: hashes.hash      });
       Object.defineProperty(this, "hmac",      { enumerable: true, configurable: false, value: hmacs.hmac       });
       Object.defineProperty(this, "kdf",       { enumerable: true, configurable: false, value: kdfs.kdf         });
-    }
 
-    Crypto.prototype = Object.create(Object.prototype);
-    Crypto.prototype.constructor = Crypto;
-    Crypto.prototype.name = "Crypto";
-
-    /* Return our function */
-    return Crypto;
+    }, Object, "Crypto");
 
   }
 );
