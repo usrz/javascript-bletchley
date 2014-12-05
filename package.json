@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "esquire": "^1.1.4",
-    "rodosha": "^1.1.2"
+    "rodosha": "^1.2.0"
   }
 }
