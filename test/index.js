@@ -8,6 +8,7 @@ Esquire.define('test/workerCrypto', [ 'bletchley/crypto/WorkerCrypto' ], functio
 /* Run our tests */
 esquire([ 'test/BigInteger',
           'test/RSAKey',
+          'test/random',
 
           'bletchley/codecs/Codecs',
           'bletchley/hashes/Hashes',
@@ -19,20 +20,20 @@ esquire([ 'test/BigInteger',
           'test/subtleWrapper',
           'bletchley',
 
-          'test/random',
           'test/codecs',
           'test/hashes',
           'test/hmacs',
           'test/kdfs' ],
 
-  function(testBigInteger, testRSAKey,
+  function(testBigInteger, testRSAKey, testRandom,
            Codecs, Hashes, HMACs, KDFs,
            Crypto, workerCrypto, subtleWrapper, crypto,
-           testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
+           testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Basic tests", function() {
       testBigInteger();
       testRSAKey();
+      testRandom();
     });
 
     describe("Helpers implementation", function() {

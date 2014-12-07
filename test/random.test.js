@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/random', ['test/async', 'bletchley/codecs/Codecs'], function(async, Codecs) {
+Esquire.define('test/random', ['bletchley/utils/Random', 'bletchley/codecs/Codecs'], function(Random, Codecs) {
 
   var codecs = new Codecs();
 
@@ -17,50 +17,33 @@ Esquire.define('test/random', ['test/async', 'bletchley/codecs/Codecs'], functio
           + "79dfcec99afd865ac117d77a363cb270921a46d9c4e93a264e7fb10f063f290ac5ca44bd3d07db7307fdda6d8de007f0943a274ad3f1b57d08f9745418e570c2"
           + "c7cb8fd45f1e02cd6b1b1120f9928358ccb2afb5518f26526657ea505a03aabe96d13940ccbad90fb7bb01c6df9a7f36b8210378b532bd39da32697c8e32d1b3";
 
-  return function(crypto, isAsync) {
-    var maybeAsync = async(isAsync);
-
+  return function() {
     describe("Random", function() {
 
-      /* Functions must be bound */
-      var random = crypto.random;
-      var encode = codecs.encode;
+      it("should generate some non-random data when wrongly initialized", function() {
+        var data = new Random(new Uint8Array(256)).nextBytes(16);
+        var hex = codecs.encode("HEX", data);
 
+        expect(data).to.be.instanceof(Uint8Array);
+        expect(data).not.to.be.deep.equal(new Uint8Array(16));
 
-      it("should exist", function() {
-        expect(crypto).to.exist;
-        expect(crypto).to.be.a('object');
-        expect(crypto.random).to.be.a('function');
+        expect(bad.indexOf(hex), "Bad RC4 initialization").to.be.at.least(0);
       });
 
-      promises("should generate some random data", function() {
-        return maybeAsync(random(16))
+      it("should generate some random data when correctly initialized", function() {
+        var data = new Random().nextBytes(16);
+        var hex = codecs.encode("HEX", data);
 
-        .then(function(data) {
-          expect(data).to.be.instanceof(Uint8Array);
-          expect(data).not.to.be.deep.equal(new Uint8Array(16));
-          return encode("HEX", data);
-        })
+        expect(data).to.be.instanceof(Uint8Array);
+        expect(data).not.to.be.deep.equal(new Uint8Array(16));
 
-        .then(function(hex) {
-          expect(bad.indexOf(hex), "Bad RC4 initialization").to.be.equal(-1);
-        })
-
-        .done();
+        expect(bad.indexOf(hex), "Bad RC4 initialization").to.be.equal(-1);
       });
 
-      promises("should not generate empty arrays", function() {
-        return maybeAsync(function() {
-          return random(0)
-        })
-
-        .then(function(data) {
-          throw new Error("Should fail");
-        }, function(failure) {
-          expect(failure).to.be.instanceof(Error);
-        })
-
-        .done();
+      it("should not generate empty arrays", function() {
+        expect(function() {
+          return new Random().nextBytes(0);
+        }).to.throw(Error);
       });
 
     });

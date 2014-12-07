@@ -34,7 +34,6 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/Bou
     AsyncCrypto.prototype = Object.create(BoundClass.prototype);
     AsyncCrypto.prototype.constructor = AsyncCrypto;
 
-    AsyncCrypto.prototype.random    = promise("random");
     AsyncCrypto.prototype.stringify = promise("stringify");
     AsyncCrypto.prototype.encode    = promise("encode");
     AsyncCrypto.prototype.decode    = promise("decode");
