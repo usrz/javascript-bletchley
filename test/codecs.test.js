@@ -1,14 +1,19 @@
 'use strict';
 
-Esquire.define('test/codecs', ['test/async', 'test/binary', 'bletchley/crypto/Crypto', 'bletchley/utils/arrays'], function(async, binary, Crypto, arrays) {
+Esquire.define('test/codecs', ['test/async', 'test/binary', 'bletchley/crypto/Crypto', 'bletchley/crypto/AsyncCrypto', 'bletchley/utils/arrays'],
+function(async, binary, Crypto, AsyncCrypto, arrays) {
 
   return function(crypto, isAsync) {
     var maybeAsync = async(isAsync);
 
+    function isCrypto(crypto) {
+      return (crypto instanceof Crypto || crypto instanceof AsyncCrypto);
+    }
+
     describe("Codecs", function() {
 
       /* Functions must be bound */
-      var stringify = crypto instanceof Crypto ? crypto.stringify : arrays.decodeUTF8;
+      var stringify = isCrypto(crypto) ? crypto.stringify : arrays.decodeUTF8;
       var encode = crypto.encode;
       var decode = crypto.decode;
 
@@ -34,7 +39,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary', 'bletchley/crypto/Cr
         expect(crypto).to.be.a('object');
         expect(crypto.encode).to.be.a('function');
         expect(crypto.decode).to.be.a('function');
-        if (crypto instanceof Crypto) {
+        if (isCrypto(crypto)) {
           expect(crypto.stringify).to.be.a('function');
         } else {
           expect(crypto.stringify).not.to.exist;
