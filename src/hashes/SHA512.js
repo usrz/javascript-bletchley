@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/utils/arrays'], function(Hash, arrays) {
+Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/BaseSHA', 'bletchley/utils/arrays'], function(BaseSHA, arrays) {
 
   /* Round constants */
   var K = [ 0x428a2f98, 0xd728ae22,    0x71374491, 0x23ef65cd,    0xb5c0fbcf, 0xec4d3b2f,    0xe9b5dba5, 0x8189dbbc,    0x3956c25b, 0xf348b538,
@@ -29,6 +29,8 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
   /* Digest and block size for SHA-512 */
   var DIGEST_SIZE = 64;
   var BLOCK_SIZE = 128;
+  var NUM_WORDS = 80;
+  var LEN_BYTES = 16;
 
   /* Constructor function */
   function SHA512(algorithm, digestSize, h) {
@@ -42,236 +44,19 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
     var h4h = h[ 8]; var h4l = h[ 9]; var h5h = h[10]; var h5l = h[11];
     var h6h = h[12]; var h6l = h[13]; var h7h = h[14]; var h7l = h[15];
 
-    /* Final block for updates */
-    var final = new Uint8Array(BLOCK_SIZE);
-    var fview = new DataView(final.buffer);
-
-    /* Current block, its view and position */
-    var block = new Uint8Array(BLOCK_SIZE);
-    var bview = new DataView(block.buffer);
-    var pos = 0;
-
     /* Words for compute cycle */
-    var words = new Array(160);
-
-    /* Total digest length */
-    var len = 0;
-
-    /* Compute a 128-bytes block */
-    function compute(bview) {
-
-      /* Copy as normal numbers (faster) */
-      for (var i = 0; i < 32; i ++) {
-        words[i] = bview.getUint32(i * 4, false);
-      }
-
-      /* Expand our block */
-      for (var i = 32; i < 160; i += 2) {
-        // Gamma0
-        var gamma0xh = words[i - 30];
-        var gamma0xl = words[i - 29];
-        var gamma0h  = ((gamma0xh >>> 1) | (gamma0xl << 31)) ^ ((gamma0xh >>> 8) | (gamma0xl << 24)) ^ (gamma0xh >>> 7);
-        var gamma0l  = ((gamma0xl >>> 1) | (gamma0xh << 31)) ^ ((gamma0xl >>> 8) | (gamma0xh << 24)) ^ ((gamma0xl >>> 7) | (gamma0xh << 25));
-
-        // Gamma1
-        var gamma1xh = words[i - 4];
-        var gamma1xl = words[i - 3];
-        var gamma1h  = ((gamma1xh >>> 19) | (gamma1xl << 13)) ^ ((gamma1xh << 3) | (gamma1xl >>> 29)) ^ (gamma1xh >>> 6);
-        var gamma1l  = ((gamma1xl >>> 19) | (gamma1xh << 13)) ^ ((gamma1xl << 3) | (gamma1xh >>> 29)) ^ ((gamma1xl >>> 6) | (gamma1xh << 26));
-
-        // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
-        var Wi7h = words[i - 14];
-        var Wi7l = words[i - 13];
-
-        var Wi16h = words[i - 32];
-        var Wi16l = words[i - 31];
-
-        var Wil = gamma0l + Wi7l;
-        var Wih = gamma0h + Wi7h + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0);
-        var Wil = Wil + gamma1l;
-        var Wih = Wih + gamma1h + ((Wil >>> 0) < (gamma1l >>> 0) ? 1 : 0);
-        var Wil = Wil + Wi16l;
-        var Wih = Wih + Wi16h + ((Wil >>> 0) < (Wi16l >>> 0) ? 1 : 0);
-
-        words[i]     = Wih;
-        words[i + 1] = Wil;
-      }
-
-      /* Initialize working variables to current hash value */
-      var ah = h0h; var al = h0l;
-      var bh = h1h; var bl = h1l;
-      var ch = h2h; var cl = h2l;
-      var dh = h3h; var dl = h3l;
-      var eh = h4h; var el = h4l;
-      var fh = h5h; var fl = h5l;
-      var gh = h6h; var gl = h6l;
-      var hh = h7h; var hl = h7l;
-
-      /* Compression function main loop */
-      for (var i = 0; i < 80; i ++) {
-        var chh  = (eh & fh) ^ (~eh & gh);
-        var chl  = (el & fl) ^ (~el & gl);
-        var majh = (ah & bh) ^ (ah & ch) ^ (bh & ch);
-        var majl = (al & bl) ^ (al & cl) ^ (bl & cl);
-
-        var sigma0h = ((ah >>> 28) | (al << 4))  ^ ((ah << 30)  | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
-        var sigma0l = ((al >>> 28) | (ah << 4))  ^ ((al << 30)  | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
-        var sigma1h = ((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9));
-        var sigma1l = ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9));
-
-        // t1 = h + sigma1 + ch + K[i] + W[i]
-        var hoff = i * 2;
-        var loff = hoff + 1;
-        var Kih = K[hoff];
-        var Kil = K[loff];
-
-        var Wih = words[hoff];
-        var Wil = words[loff];
-
-        var t1l = hl + sigma1l;
-        var t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
-        var t1l = t1l + chl;
-        var t1h = t1h + chh + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0);
-        var t1l = t1l + Kil;
-        var t1h = t1h + Kih + ((t1l >>> 0) < (Kil >>> 0) ? 1 : 0);
-        var t1l = t1l + Wil;
-        var t1h = t1h + Wih + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0);
-
-        // t2 = sigma0 + maj
-        var t2l = sigma0l + majl;
-        var t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
-
-        /* Update working variables */
-        hh = gh;
-        hl = gl;
-        gh = fh;
-        gl = fl;
-        fh = eh;
-        fl = el;
-        el = (dl + t1l);
-        eh = (dh + t1h + ((el >>> 0) < (dl >>> 0) ? 1 : 0));
-        dh = ch;
-        dl = cl;
-        ch = bh;
-        cl = bl;
-        bh = ah;
-        bl = al;
-        al = (t1l + t2l);
-        ah = (t1h + t2h + ((al >>> 0) < (t1l >>> 0) ? 1 : 0));
-      }
-
-      /* Add the compressed chunk to the current hash value */
-      h0l = (h0l + al);
-      h0h = (h0h + ah + ((h0l >>> 0) < (al >>> 0) ? 1 : 0));
-      h1l = (h1l + bl);
-      h1h = (h1h + bh + ((h1l >>> 0) < (bl >>> 0) ? 1 : 0));
-      h2l = (h2l + cl);
-      h2h = (h2h + ch + ((h2l >>> 0) < (cl >>> 0) ? 1 : 0));
-      h3l = (h3l + dl);
-      h3h = (h3h + dh + ((h3l >>> 0) < (dl >>> 0) ? 1 : 0));
-      h4l = (h4l + el);
-      h4h = (h4h + eh + ((h4l >>> 0) < (el >>> 0) ? 1 : 0));
-      h5l = (h5l + fl);
-      h5h = (h5h + fh + ((h5l >>> 0) < (fl >>> 0) ? 1 : 0));
-      h6l = (h6l + gl);
-      h6h = (h6h + gh + ((h6l >>> 0) < (gl >>> 0) ? 1 : 0));
-      h7l = (h7l + hl);
-      h7h = (h7h + hh + ((h7l >>> 0) < (hl >>> 0) ? 1 : 0));
-
-      /* Remember, Javascript numbers are 64-bits doubles... */
-      h0l &= 0x0FFFFFFFF; h0h &= 0x0FFFFFFFF;
-      h1l &= 0x0FFFFFFFF; h1h &= 0x0FFFFFFFF;
-      h2l &= 0x0FFFFFFFF; h2h &= 0x0FFFFFFFF;
-      h3l &= 0x0FFFFFFFF; h3h &= 0x0FFFFFFFF;
-      h4l &= 0x0FFFFFFFF; h4h &= 0x0FFFFFFFF;
-      h5l &= 0x0FFFFFFFF; h5h &= 0x0FFFFFFFF;
-      h6l &= 0x0FFFFFFFF; h6h &= 0x0FFFFFFFF;
-      h7l &= 0x0FFFFFFFF; h7h &= 0x0FFFFFFFF;
-
-    };
+    var words = new Array(NUM_WORDS * 2);
 
     Object.defineProperties(this, {
 
-      /* Reset H to their default values */
-      "reset": { enumerable: true, configurable: false, value: function() {
+      "$reset": { configurable: true, enumerable: false, value: function() {
         h0h = h[ 0]; h0l = h[ 1]; h1h = h[ 2]; h1l = h[ 3];
         h2h = h[ 4]; h2l = h[ 5]; h3h = h[ 6]; h3l = h[ 7];
         h4h = h[ 8]; h4l = h[ 9]; h5h = h[10]; h5l = h[11];
         h6h = h[12]; h6l = h[13]; h7h = h[14]; h7l = h[15];
-        len = 0;
-        pos = 0;
-
-        /* Return ourselves */
-        return this;
       }},
 
-
-      "update": { enumerable: true, configurable: false, value: function(message) {
-
-        /* Normalize and process the message*/
-        message = arrays.toUint8Array(message);
-        var mpos = 0;
-
-        /* Copy in chunks to our block */
-        while (mpos < message.length) {
-          /* Bytes available in the block */
-          var blen = BLOCK_SIZE - pos;
-          /* Bytes available in the message */
-          var mlen = message.length - mpos;
-          /* Copy up to 128 bytes (nothing more) */
-          var clen = blen < mlen ? blen : mlen;
-          /* End message offset after copy */
-          var mend = mpos + clen;
-
-          /* Copy the (part of) message in our block */
-          block.set(message.subarray(mpos, mend), pos);
-
-          /* Update length and positions */
-          len += clen;
-          pos += clen;
-          mpos = mend;
-
-          /* If we have a full block, compute it */
-          if (pos >= BLOCK_SIZE) {
-            compute(bview);
-            pos = 0;
-          }
-        }
-
-        /* Return ourselves */
-        return this;
-      }},
-
-      "finish": { enumerable: true, configurable: false, value: function(output) {
-
-        /* Append the final 0x80 to the message */
-        block[pos ++] = 0x80;
-
-        /* Set the length in our final chunk */
-        fview.setUint32(124, len * 8, false);
-
-        /* Compute the last chunk, if needed */
-        if (pos > 112) {
-          /* No space for the message length */
-          block.set(final.subarray(0, BLOCK_SIZE - pos), pos);
-          compute(bview);
-          compute(fview);
-        } else {
-          block.set(final.subarray(pos), pos);
-          compute(bview);
-        }
-
-        /* No output? Create a new buffer */
-        if (! output) {
-          output = new Uint8Array(this.digestSize);
-        } else if (!(output instanceof Uint8Array)) {
-          throw new Error("Output must be a Uint8Array");
-        } else if (output.length < this.digestSize) {
-          throw new Error("Required at least " + this.digestSize + " for output");
-        }
-
-        /* Write out our result in the output buffer */
-        var view = new DataView(output.buffer, output.byteOffset, output.byteLength);
+      "$hash": { configurable: true, enumerable: false, value: function(view) {
         view.setUint32( 0, h0h, false); view.setUint32( 4, h0l, false);
         view.setUint32( 8, h1h, false); view.setUint32(12, h1l, false);
         view.setUint32(16, h2h, false); view.setUint32(20, h2l, false);
@@ -282,18 +67,145 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
           view.setUint32(48, h6h, false); view.setUint32(52, h6l, false);
           view.setUint32(56, h7h, false); view.setUint32(60, h7l, false);
         }
+      }},
 
-        /* Reset and return */
-        this.reset();
-        return output;
+      "$compute": { configurable: true, enumerable: false, value: function(view) {
+
+        /* Copy as normal numbers (faster) */
+        for (var i = 0; i < 32; i ++) {
+          words[i] = view.getUint32(i * 4, false);
+        }
+
+        /* Expand our block */
+        for (var i = 32; i < 160; i += 2) {
+          // Gamma0
+          var gamma0xh = words[i - 30];
+          var gamma0xl = words[i - 29];
+          var gamma0h  = ((gamma0xh >>> 1) | (gamma0xl << 31)) ^ ((gamma0xh >>> 8) | (gamma0xl << 24)) ^ (gamma0xh >>> 7);
+          var gamma0l  = ((gamma0xl >>> 1) | (gamma0xh << 31)) ^ ((gamma0xl >>> 8) | (gamma0xh << 24)) ^ ((gamma0xl >>> 7) | (gamma0xh << 25));
+
+          // Gamma1
+          var gamma1xh = words[i - 4];
+          var gamma1xl = words[i - 3];
+          var gamma1h  = ((gamma1xh >>> 19) | (gamma1xl << 13)) ^ ((gamma1xh << 3) | (gamma1xl >>> 29)) ^ (gamma1xh >>> 6);
+          var gamma1l  = ((gamma1xl >>> 19) | (gamma1xh << 13)) ^ ((gamma1xl << 3) | (gamma1xh >>> 29)) ^ ((gamma1xl >>> 6) | (gamma1xh << 26));
+
+          // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
+          var Wi7h = words[i - 14];
+          var Wi7l = words[i - 13];
+
+          var Wi16h = words[i - 32];
+          var Wi16l = words[i - 31];
+
+          var Wil = gamma0l + Wi7l;
+          var Wih = gamma0h + Wi7h + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0);
+          var Wil = Wil + gamma1l;
+          var Wih = Wih + gamma1h + ((Wil >>> 0) < (gamma1l >>> 0) ? 1 : 0);
+          var Wil = Wil + Wi16l;
+          var Wih = Wih + Wi16h + ((Wil >>> 0) < (Wi16l >>> 0) ? 1 : 0);
+
+          words[i]     = Wih;
+          words[i + 1] = Wil;
+        }
+
+        /* Initialize working variables to current hash value */
+        var ah = h0h; var al = h0l;
+        var bh = h1h; var bl = h1l;
+        var ch = h2h; var cl = h2l;
+        var dh = h3h; var dl = h3l;
+        var eh = h4h; var el = h4l;
+        var fh = h5h; var fl = h5l;
+        var gh = h6h; var gl = h6l;
+        var hh = h7h; var hl = h7l;
+
+        /* Compression function main loop */
+        for (var i = 0; i < NUM_WORDS; i ++) {
+          var chh  = (eh & fh) ^ (~eh & gh);
+          var chl  = (el & fl) ^ (~el & gl);
+          var majh = (ah & bh) ^ (ah & ch) ^ (bh & ch);
+          var majl = (al & bl) ^ (al & cl) ^ (bl & cl);
+
+          var sigma0h = ((ah >>> 28) | (al << 4))  ^ ((ah << 30)  | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
+          var sigma0l = ((al >>> 28) | (ah << 4))  ^ ((al << 30)  | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
+          var sigma1h = ((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9));
+          var sigma1l = ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9));
+
+          // t1 = h + sigma1 + ch + K[i] + W[i]
+          var hoff = i * 2;
+          var loff = hoff + 1;
+          var Kih = K[hoff];
+          var Kil = K[loff];
+
+          var Wih = words[hoff];
+          var Wil = words[loff];
+
+          var t1l = hl + sigma1l;
+          var t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
+          var t1l = t1l + chl;
+          var t1h = t1h + chh + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0);
+          var t1l = t1l + Kil;
+          var t1h = t1h + Kih + ((t1l >>> 0) < (Kil >>> 0) ? 1 : 0);
+          var t1l = t1l + Wil;
+          var t1h = t1h + Wih + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0);
+
+          // t2 = sigma0 + maj
+          var t2l = sigma0l + majl;
+          var t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
+
+          /* Update working variables */
+          hh = gh;
+          hl = gl;
+          gh = fh;
+          gl = fl;
+          fh = eh;
+          fl = el;
+          el = (dl + t1l);
+          eh = (dh + t1h + ((el >>> 0) < (dl >>> 0) ? 1 : 0));
+          dh = ch;
+          dl = cl;
+          ch = bh;
+          cl = bl;
+          bh = ah;
+          bl = al;
+          al = (t1l + t2l);
+          ah = (t1h + t2h + ((al >>> 0) < (t1l >>> 0) ? 1 : 0));
+        }
+
+        /* Add the compressed chunk to the current hash value */
+        h0l = (h0l + al);
+        h0h = (h0h + ah + ((h0l >>> 0) < (al >>> 0) ? 1 : 0));
+        h1l = (h1l + bl);
+        h1h = (h1h + bh + ((h1l >>> 0) < (bl >>> 0) ? 1 : 0));
+        h2l = (h2l + cl);
+        h2h = (h2h + ch + ((h2l >>> 0) < (cl >>> 0) ? 1 : 0));
+        h3l = (h3l + dl);
+        h3h = (h3h + dh + ((h3l >>> 0) < (dl >>> 0) ? 1 : 0));
+        h4l = (h4l + el);
+        h4h = (h4h + eh + ((h4l >>> 0) < (el >>> 0) ? 1 : 0));
+        h5l = (h5l + fl);
+        h5h = (h5h + fh + ((h5l >>> 0) < (fl >>> 0) ? 1 : 0));
+        h6l = (h6l + gl);
+        h6h = (h6h + gh + ((h6l >>> 0) < (gl >>> 0) ? 1 : 0));
+        h7l = (h7l + hl);
+        h7h = (h7h + hh + ((h7l >>> 0) < (hl >>> 0) ? 1 : 0));
+
+        /* Remember, Javascript numbers are 64-bits doubles... */
+        h0l &= 0x0FFFFFFFF; h0h &= 0x0FFFFFFFF;
+        h1l &= 0x0FFFFFFFF; h1h &= 0x0FFFFFFFF;
+        h2l &= 0x0FFFFFFFF; h2h &= 0x0FFFFFFFF;
+        h3l &= 0x0FFFFFFFF; h3h &= 0x0FFFFFFFF;
+        h4l &= 0x0FFFFFFFF; h4h &= 0x0FFFFFFFF;
+        h5l &= 0x0FFFFFFFF; h5h &= 0x0FFFFFFFF;
+        h6l &= 0x0FFFFFFFF; h6h &= 0x0FFFFFFFF;
+        h7l &= 0x0FFFFFFFF; h7h &= 0x0FFFFFFFF;
       }}
     });
 
     /* Super constructor */
-    Hash.call(this, algorithm || "SHA-512", BLOCK_SIZE, digestSize || DIGEST_SIZE);
+    BaseSHA.call(this, algorithm || "SHA-512", BLOCK_SIZE, digestSize || DIGEST_SIZE, LEN_BYTES);
   };
 
-  SHA512.prototype = Object.create(Hash.prototype);
+  SHA512.prototype = Object.create(BaseSHA.prototype);
   SHA512.prototype.constructor = SHA512;
 
   return SHA512;
