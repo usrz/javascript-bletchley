@@ -21,7 +21,7 @@ Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/Helper' ], fu
         if (typeof(fn) !== 'function') return;
 
         /* Try to use native "bind" if possible */
-        fn = typeof(fn.bind) !== 'function' ?
+        var boundFn = typeof(fn.bind) !== 'function' ?
                     function() { return fn.apply(factory, arguments); } :
                     fn.bind(factory);
 
@@ -29,7 +29,7 @@ Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/Helper' ], fu
         Object.defineProperty(factory, i, {
           enumerable: factory.propertyIsEnumerable(i),
           configurable: false,
-          value: fn
+          value: boundFn
         });
 
       })(i, factory[i]);
