@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/extend', 'bletchley/crypto/Crypto'], function(Promise, extend, Crypto) {
+Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Crypto'], function(Promise, Crypto) {
 
     function promise(crypto, functionName) {
       var fn = crypto[functionName];
@@ -24,7 +24,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/ext
       };
     }
 
-    return extend("AsyncCrypto", Crypto, function(crypto) {
+    function AsyncCrypto(crypto) {
 
       if (!crypto) throw new Error("Crypto instance to wrap unspecified");
 
@@ -36,7 +36,11 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/ext
       if (! this.hmac)      Object.defineProperty(this, "hmac",      { enumerable: true, configurable: false, value: promise(crypto, "hmac")      });
       if (! this.kdf)       Object.defineProperty(this, "kdf",       { enumerable: true, configurable: false, value: promise(crypto, "kdf")       });
 
-    });
+    };
 
+    AsyncCrypto.prototype = Object.create(Crypto.prototype);
+    AsyncCrypto.prototype.constructor = AsyncCrypto;
+
+    return AsyncCrypto;
   }
 );
