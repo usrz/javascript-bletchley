@@ -1,12 +1,18 @@
 'use strict';
 
+/* WorkerCrypto.newInstance() returns a promise, inject an instance for tests */
+Esquire.define('test/workerCrypto', [ 'bletchley/crypto/WorkerCrypto' ], function(WorkerCrypto) {
+  return WorkerCrypto.newInstance();
+});
+
+/* Run our tests */
 esquire(['bletchley/codecs/Codecs',
          'bletchley/hashes/Hashes',
          'bletchley/hmacs/HMACs',
          'bletchley/kdfs/KDFs',
 
-         'bletchley/sync',
-         'bletchley/worker',
+         'bletchley/crypto/Crypto',
+         'test/workerCrypto',
          'test/subtleWrapper',
          'bletchley',
 
@@ -17,7 +23,7 @@ esquire(['bletchley/codecs/Codecs',
          'test/kdfs'],
 
   function(Codecs, Hashes, HMACs, KDFs,
-           syncCrypto, workerCrypto, subtleCrypto, crypto,
+           Crypto, workerCrypto, subtleWrapper, crypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Helpers implementation", function() {
@@ -28,7 +34,8 @@ esquire(['bletchley/codecs/Codecs',
     });
 
     describe("Synchronous crypto implementation", function() {
-      testRandom(syncCrypto, false)
+      var syncCrypto = new Crypto();
+      testRandom(syncCrypto, false);
       testCodecs(syncCrypto, false);
       testHashes(syncCrypto, false);
       testHMACs(syncCrypto, false);
@@ -44,9 +51,9 @@ esquire(['bletchley/codecs/Codecs',
     });
 
     /* Wrapper around a mock, don't test what we don't have to */
-    if (subtleCrypto) describe("Subtle crypto implementation", function() {
-      testHashes(subtleCrypto, true);
-      testHMACs(subtleCrypto, true);
+    if (subtleWrapper) describe("Subtle crypto implementation", function() {
+      testHashes(subtleWrapper, true);
+      testHMACs(subtleWrapper, true);
     });
 
     describe("Default crypto implementation", function() {
