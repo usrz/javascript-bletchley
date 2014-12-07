@@ -70,7 +70,7 @@ function(Deferred, Promise, global, subtle, arrays, extend, AsyncCrypto, kdfs) {
     }
   }
 
-  return extend(function(crypto) {
+  return extend("SubtleCrypto", AsyncCrypto, function(crypto) {
 
     if (wrapper.digest) {
       Object.defineProperty(this, "hash", {
@@ -131,6 +131,6 @@ function(Deferred, Promise, global, subtle, arrays, extend, AsyncCrypto, kdfs) {
 
     AsyncCrypto.call(this, crypto);
 
-  }, AsyncCrypto, "SubtleCrypto");
+  });
 
 });

@@ -15,14 +15,14 @@ Esquire.define('bletchley/hashes', [ 'bletchley/utils/helpers',
     var sha384 = new SHA384();
     var sha512 = new SHA512();
 
-    return new (extend(function() {
+    return new (extend("Hashes", helpers.Factory, function() {
 
       this.hash = function(algorithm, message) {
         return this.$helper(algorithm).hash(message);
       };
 
       helpers.Factory.call(this, [sha1, sha224, sha256, sha384, sha512], 'hashes');
-    }, helpers.Factory, "Hashes"))();
+    }))();
 
   }
 );

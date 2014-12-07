@@ -24,7 +24,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/ext
       };
     }
 
-    return extend(function(crypto) {
+    return extend("AsyncCrypto", Crypto, function(crypto) {
 
       if (!crypto) throw new Error("Crypto instance to wrap unspecified");
 
@@ -36,7 +36,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/ext
       if (! this.hmac)      Object.defineProperty(this, "hmac",      { enumerable: true, configurable: false, value: promise(crypto, "hmac")      });
       if (! this.kdf)       Object.defineProperty(this, "kdf",       { enumerable: true, configurable: false, value: promise(crypto, "kdf")       });
 
-    }, Crypto, "AsyncCrypto");
+    });
 
   }
 );

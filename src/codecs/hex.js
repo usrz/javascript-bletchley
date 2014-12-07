@@ -1,6 +1,10 @@
 'use strict';
 
-Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Codec) {
+Esquire.define('bletchley/codecs/HEX', ["bletchley/codecs/Codec"], function(Codec) {
+
+  /* ====================================================================== */
+  /* Javascript implementation of HEX encoding/decoding                     */
+  /* ====================================================================== */
 
   /* Initialize our tables for HEX encoding/decoding */
   var hexTable = new Array(256);
@@ -39,6 +43,13 @@ Esquire.define('bletchley/codecs/hex', ["bletchley/codecs/Codec"], function(Code
     return array;
   }
 
-  return new Codec("HEX", encode, decode);
+  function HEX() {
+    Codec.call(this, "HEX", encode, decode);
+  }
+
+  HEX.prototype = Object.create(Codec.prototype);
+  HEX.prototype.constructor = HEX;
+
+  return HEX;
 
 });

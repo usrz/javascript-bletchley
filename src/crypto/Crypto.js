@@ -1,14 +1,16 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/extend',
+Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
                                             'bletchley/utils/Random',
-                                            'bletchley/codecs',
+                                            'bletchley/codecs/Codecs',
                                             'bletchley/hashes',
                                             'bletchley/hmacs',
                                             'bletchley/kdfs' ],
-  function(extend, Random, codecs, hashes, hmacs, kdfs) {
+  function(arrays, Random, Codecs, hashes, hmacs, kdfs) {
 
-    return extend(function(random) {
+    var codecs = new Codecs();
+
+    return function Crypto(random) {
       if (! random) {
         random = new Random();
       } else if (!(random instanceof Random)) {
@@ -16,14 +18,13 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/extend',
       }
 
       Object.defineProperty(this, "random",    { enumerable: true, configurable: false, value: random.nextBytes });
-      Object.defineProperty(this, "stringify", { enumerable: true, configurable: false, value: codecs.stringify });
+      Object.defineProperty(this, "stringify", { enumerable: true, configurable: false, value: arrays.encodeUTF8 });
       Object.defineProperty(this, "encode",    { enumerable: true, configurable: false, value: codecs.encode    });
       Object.defineProperty(this, "decode",    { enumerable: true, configurable: false, value: codecs.decode    });
       Object.defineProperty(this, "hash",      { enumerable: true, configurable: false, value: hashes.hash      });
       Object.defineProperty(this, "hmac",      { enumerable: true, configurable: false, value: hmacs.hmac       });
       Object.defineProperty(this, "kdf",       { enumerable: true, configurable: false, value: kdfs.kdf         });
-
-    }, Object, "Crypto");
+    };
 
   }
 );

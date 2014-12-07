@@ -5,7 +5,7 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
                                          'bletchley/utils/arrays' ],
   function(helpers, extend, arrays) {
 
-    return extend(function(hash) {
+    return extend("HMAC", helpers.Helper, function(hash) {
       this.blockSize = hash.blockSize;
       this.digestSize = hash.digestSize;
 
@@ -58,7 +58,7 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/helpers',
       }
 
       helpers.Helper.call(this, hash.algorithm);
-    }, helpers.Helper, "HMAC");
+    });
 
   }
 );

@@ -9,13 +9,13 @@ Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
 
     var internalRandom = new Random();
 
-    var WorkerCrypto = extend(function (proxy) {
+    var WorkerCrypto = extend("WorkerCrypto", AsyncCrypto, function(proxy) {
       if (proxy && proxy['!$proxyId$!']) {
         AsyncCrypto.call(this, proxy);
       } else {
         throw new Error("Construct using WorkerCrypto.newInstance()");
       }
-    }, AsyncCrypto, "WorkerCrypto");
+    });
 
     WorkerCrypto.newInstance = function() {
 

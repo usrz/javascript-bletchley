@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, binary) {
+Esquire.define('test/codecs', ['test/async', 'test/binary', 'bletchley/crypto/Crypto', 'bletchley/utils/arrays'], function(async, binary, Crypto, arrays) {
 
   return function(crypto, isAsync) {
     var maybeAsync = async(isAsync);
@@ -8,7 +8,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
     describe("Codecs", function() {
 
       /* Functions must be bound */
-      var stringify = crypto.stringify;
+      var stringify = crypto instanceof Crypto ? crypto.stringify : arrays.encodeUTF8;
       var encode = crypto.encode;
       var decode = crypto.decode;
 
@@ -34,7 +34,11 @@ Esquire.define('test/codecs', ['test/async', 'test/binary'], function(async, bin
         expect(crypto).to.be.a('object');
         expect(crypto.encode).to.be.a('function');
         expect(crypto.decode).to.be.a('function');
-        expect(crypto.stringify).to.be.a('function');
+        if (crypto instanceof Crypto) {
+          expect(crypto.stringify).to.be.a('function');
+        } else {
+          expect(crypto.stringify).not.to.exist;
+        }
       });
 
       promises("should fail encoding with unknown algorithm", function() {

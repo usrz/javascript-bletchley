@@ -22,7 +22,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash', 'bletchley/u
   var NUM_WORDS = 64;
 
   /* Constructor function */
-  return extend(function SHA256(algorithm, digestSize, h) {
+  return extend("SHA256", Hash, function(algorithm, digestSize, h) {
 
     /* Initial values for H */
     if (!h) h = H;
@@ -209,6 +209,6 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash', 'bletchley/u
 
     /* Super constructor */
     Hash.call(this, algorithm || "SHA-256", BLOCK_SIZE, digestSize || DIGEST_SIZE);
-  }, Hash, "SHA256");
+  });
 
 });

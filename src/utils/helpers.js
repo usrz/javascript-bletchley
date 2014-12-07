@@ -1,17 +1,11 @@
 'use strict';
 
-Esquire.define('bletchley/utils/helpers', [], function() {
+Esquire.define('bletchley/utils/helpers', [ 'bletchley/utils/Helper' ], function(Helper) {
 
   function normalize(name) {
     if (typeof(name) !== 'string') throw new Error("Invalid algorithm name '" + name + "'");
     return name.replace(/[- ]/g,'').toLowerCase();
   }
-
-  function Helper(algorithm) {
-    if (!algorithm) throw new Error("Algorithm not specified in " + this);
-    this.algorithm = algorithm;
-    Object.freeze(this);
-  };
 
   function Factory(helpers) {
     var algorithms = [];

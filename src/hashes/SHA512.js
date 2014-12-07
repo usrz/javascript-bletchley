@@ -31,7 +31,7 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
   var BLOCK_SIZE = 128;
 
   /* Constructor function */
-  return extend(function SHA512(algorithm, digestSize, h) {
+  return extend("SHA512", Hash, function(algorithm, digestSize, h) {
 
     /* Initial values for H */
     if (!h) h = H;
@@ -291,6 +291,6 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
 
     /* Super constructor */
     Hash.call(this, algorithm || "SHA-512", BLOCK_SIZE, digestSize || DIGEST_SIZE);
-  }, Hash, "SHA512");
+  });
 
 });

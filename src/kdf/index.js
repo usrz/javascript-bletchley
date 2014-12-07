@@ -7,14 +7,14 @@ Esquire.define('bletchley/kdfs', [ 'bletchley/utils/helpers',
 
   function(helpers, extend, pbkdf2, scrypt) {
 
-    return new (extend(function() {
+    return new (extend("KDFs", helpers.Factory, function() {
 
       this.kdf = function(algorithm, password, salt, options) {
         return this.$helper(algorithm).kdf(password, salt, options);
       };
 
       helpers.Factory.call(this, [pbkdf2, scrypt]);
-    }, helpers.Factory, "KDFs"))();
+    }))();
 
   }
 );

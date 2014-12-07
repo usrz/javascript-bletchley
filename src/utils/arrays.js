@@ -1,10 +1,13 @@
 'use strict';
 
-Esquire.define('bletchley/utils/arrays', ["$global/TextEncoder",
-                                          "$global/Buffer",
-                                          "$global/decodeURIComponent",
-                                          "$global/unescape" ],
-function(TextEncoder, Buffer, decodeURIComponent, unescape) {
+Esquire.define('bletchley/utils/arrays', [ "$global/TextEncoder",
+                                           "$global/TextDecoder",
+                                           "$global/Buffer",
+                                           "$global/encodeURIComponent",
+                                           "$global/decodeURIComponent",
+                                           "$global/unescape",
+                                           "$global/escape" ],
+function(TextEncoder, TextDecoder, Buffer, encodeURIComponent, decodeURIComponent, unescape, escape) {
 
   /* A function to get the type name of an object for names */
   function typeName(object) {
@@ -25,33 +28,64 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     return type;
   }
 
-  /* String to UTF8 ArrayBuffer */
-  var decode = null;
+  /* ======================================================================== */
+  /* UTF-8 string <--> Uint8Array                                             */
+  /* ======================================================================== */
+
+  /* String to UTF8 Uint8Array */
+  var decodeUTF8 = null;
   if (TextEncoder) {
     var encoder = new TextEncoder("UTF-8");
-    decode = encoder.encode.bind(encoder);
+    decodeUTF8 = encoder.encode.bind(encoder);
   } else if (Buffer) {
-    decode = function(string) {
+    decodeUTF8 = function(string) {
       var buffer = new Buffer(string, 'utf8');
       return new Uint8Array(buffer);
     }
   } else if (unescape && decodeURIComponent) {
-    decode = function(string) {
+    decodeUTF8 = function(string) {
       var raw = unescape(encodeURIComponent(string));
       return fromUint8String(raw);
     }
   } else {
-    decode = function(string) {
+    decodeUTF8 = function(string) {
       throw new ReferenceError("Native UTF-8 decoding unsupported");
     }
   };
+
+  /* UTF8 Uint8Array to String */
+  var encodeUTF8;
+  if (TextDecoder) {
+    var textDecoder = new TextDecoder("UTF8");
+    encodeUTF8 = function(array) {
+      array = toUint8Array(array);
+      return textDecoder.decode(array)
+    }
+  } else if (Buffer) {
+    encodeUTF8 = function(array) {
+      return new Buffer(array).toString('utf8');
+    }
+  } else if (decodeURIComponent && escape) {
+    encodeUTF8 = function(array) {
+      var raw = arrays.toUint8String(array);
+      return decodeURIComponent(escape(raw));
+    }
+  } else {
+    encodeUTF8 = function(array) {
+      throw new ReferenceError("Native UTF-8 decoding unsupported");
+    }
+  }
+
+  /* ======================================================================== */
+  /* Uint8Array functions                                                     */
+  /* ======================================================================== */
 
   /**
    * Convert an Array, ArrayBuffer or ArrayBufferView into a valid Uint8Array.
    */
   function toUint8Array(array) {
     /* Strings are simply "decoded" into their UTF8 */
-    if (typeof(array) === 'string') return decode(array);
+    if (typeof(array) === 'string') return decodeUTF8(array);
 
     /* Uint8Array, ArrayBuffer, plain array */
     if (array instanceof Uint8Array) return array;
@@ -136,8 +170,13 @@ function(TextEncoder, Buffer, decodeURIComponent, unescape) {
     return array;
   }
 
+  /* ======================================================================== */
+  /* Export our functions                                                     */
+  /* ======================================================================== */
 
   return Object.freeze({
+    decodeUTF8: decodeUTF8,
+    encodeUTF8: encodeUTF8,
     toUint8Array: toUint8Array,
     toUint8String: toUint8String,
     fromUint8String: fromUint8String,

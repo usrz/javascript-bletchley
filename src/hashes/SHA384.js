@@ -8,8 +8,8 @@ Esquire.define('bletchley/hashes/SHA384', ['bletchley/hashes/SHA512', 'bletchley
             0x67332667, 0xffc00b31,   0x8eb44a87, 0x68581511,
             0xdb0c2e0d, 0x64f98fa7,   0x47b5481d, 0xbefa4fa4 ];
 
-  return extend(function SHA384(algorithm, digestSize, h) {
+  return extend("SHA384", SHA512, function(algorithm, digestSize, h) {
     SHA512.call(this, "SHA-384", 48, H);
-  }, SHA512, "SHA512");
+  });
 
 });

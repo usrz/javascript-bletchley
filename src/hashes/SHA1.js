@@ -10,7 +10,7 @@ Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/uti
   var BLOCK_SIZE = 64;
 
   /* Constructor function */
-  return extend(function SHA1() {
+  return extend("SHA1", Hash, function() {
 
     /* Initial values for H */
     var h0 = h[0]; var h1 = h[1]; var h2 = h[2]; var h3 = h[3]; var h4 = h[4];
@@ -179,6 +179,6 @@ Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/uti
 
     /* Super constructor */
     Hash.call(this, "SHA1", BLOCK_SIZE, DIGEST_SIZE);
-  }, Hash, "SHA1");
+  });
 
 });

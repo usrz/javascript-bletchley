@@ -19,14 +19,14 @@ Esquire.define('bletchley/hmacs', [ 'bletchley/utils/helpers',
       return hmacs;
     })([SHA1, SHA224, SHA256, SHA384, SHA512]);
 
-    return new (extend(function() {
+    return new (extend("HMACs", helpers.Factory, function() {
 
       this.hmac = function(algorithm, salt, secret) {
         return this.$helper(algorithm).hmac(salt, secret);
       };
 
       helpers.Factory.call(this, hmacs, 'hmacs');
-    }, helpers.Factory, "HMACs"))();
+    }))();
 
   }
 );

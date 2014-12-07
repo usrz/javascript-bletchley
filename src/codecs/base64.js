@@ -1,11 +1,15 @@
 'use strict';
 
-Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
+Esquire.define('bletchley/codecs/BASE64', ["bletchley/codecs/Codec",
                                            "bletchley/utils/arrays",
                                            "$global/Buffer",
                                            "$global/btoa",
                                            "$global/atob"],
   function(Codec, arrays, Buffer, btoa, atob) {
+
+    /* ====================================================================== */
+    /* Javascript implementation of BASE-64                                   */
+    /* ====================================================================== */
 
     var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -130,6 +134,10 @@ Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
       return result;
     };
 
+    /* ====================================================================== */
+    /* Attempt to override our JS-based functions with native code            */
+    /* ====================================================================== */
+
     if (btoa && atob) {
       encode = function(array) {
         return btoa(arrays.toUint8String(array))
@@ -151,7 +159,15 @@ Esquire.define('bletchley/codecs/base64', ["bletchley/codecs/Codec",
       console.warn("Native BASE64 support not available");
     }
 
-    return new Codec("BASE-64", encode, decode);
+    /* ====================================================================== */
 
+    function BASE64() {
+      Codec.call(this, "BASE-64", encode, decode);
+    }
+
+    BASE64.prototype = Object.create(Codec.prototype);
+    BASE64.prototype.constructor = BASE64;
+
+    return BASE64;
   }
 );
