@@ -20,21 +20,20 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
   var j_lm = ((canary&0xffffff)==0xefcafe);
 
   // (public) Constructor
-  function BigInteger(a,b,c) {
-    if(a != null)
-      if("number" == typeof a) this.fromNumber(a,b,c);
-      else if(b == null && "string" != typeof a) this.fromString(a,256);
-      else this.fromString(a,b);
+  var lock = {};
+  function BigInteger(clock) {
+    if (clock !== lock) throw new Error("Create using static methods");
+    // if(a != null)
+    //   if("number" == typeof a) this.fromNumber(a,b,c);
+    //   else if(b == null && "string" != typeof a) this.fromString(a,256);
+    //   else this.fromString(a,b);
   }
 
   // return new, unset BigInteger
-  function nbi() { return new BigInteger(null); }
+  function nbi() { return new BigInteger(lock); }
 
   // return bigint initialized to value
   function nbv(i) { var r = nbi(); r.fromInt(i); return r; }
-
-  // return bigint initialized from string
-  function nbs(s) { var r = nbi(); r.fromString(s); return r; }
 
   /* ======================================================================== */
 
@@ -110,76 +109,11 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
 
   /* ======================================================================== */
 
-  // Digit conversions
-  var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
-  var BI_RC = new Array();
-  var rr,vv;
-  rr = "0".charCodeAt(0);
-  for(vv = 0; vv <= 9; ++vv) BI_RC[rr++] = vv;
-  rr = "a".charCodeAt(0);
-  for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
-  rr = "A".charCodeAt(0);
-  for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
-
-  function int2char(n) { return BI_RM.charAt(n); }
-  function intAt(s,i) {
-    var c = BI_RC[s.charCodeAt(i)];
-    return (c==null)?-1:c;
-  }
-
   // (protected) copy this to r
   function bnpCopyTo(r) {
     for(var i = this.t-1; i >= 0; --i) r[i] = this[i];
     r.t = this.t;
     r.s = this.s;
-  }
-
-  // (protected) set from integer value x, -DV <= x < DV
-  function bnpFromInt(x) {
-    this.t = 1;
-    this.s = (x<0)?-1:0;
-    if(x > 0) this[0] = x;
-    else if(x < -1) this[0] = x+this.DV;
-    else this.t = 0;
-  }
-
-  // (protected) set from string and radix
-  function bnpFromString(s,b) {
-    var k;
-    if(b == 16) k = 4;
-    else if(b == 8) k = 3;
-    else if(b == 256) k = 8; // byte array
-    else if(b == 2) k = 1;
-    else if(b == 32) k = 5;
-    else if(b == 4) k = 2;
-    else { this.fromRadix(s,b); return; }
-    this.t = 0;
-    this.s = 0;
-    var i = s.length, mi = false, sh = 0;
-    while(--i >= 0) {
-      var x = (k==8)?s[i]&0xff:intAt(s,i);
-      if(x < 0) {
-        if(s.charAt(i) == "-") mi = true;
-        continue;
-      }
-      mi = false;
-      if(sh == 0)
-        this[this.t++] = x;
-      else if(sh+k > this.DB) {
-        this[this.t-1] |= (x&((1<<(this.DB-sh))-1))<<sh;
-        this[this.t++] = (x>>(this.DB-sh));
-      }
-      else
-        this[this.t-1] |= x<<sh;
-      sh += k;
-      if(sh >= this.DB) sh -= this.DB;
-    }
-    if(k == 8 && (s[0]&0x80) != 0) {
-      this.s = -1;
-      if(sh > 0) this[this.t-1] |= ((1<<(this.DB-sh))-1)<<sh;
-    }
-    this.clamp();
-    if(mi) BigInteger.ZERO.subTo(this,this);
   }
 
   /* ======================================================================== */
@@ -188,36 +122,6 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
   function bnpClamp() {
     var c = this.s&this.DM;
     while(this.t > 0 && this[this.t-1] == c) --this.t;
-  }
-
-  // (public) return string representation in given radix
-  function bnToString(b) {
-    if(this.s < 0) return "-"+this.negate().toString(b);
-    var k;
-    if(b == 16) k = 4;
-    else if(b == 8) k = 3;
-    else if(b == 2) k = 1;
-    else if(b == 32) k = 5;
-    else if(b == 4) k = 2;
-    else return this.toRadix(b);
-    var km = (1<<k)-1, d, m = false, r = "", i = this.t;
-    var p = this.DB-(i*this.DB)%k;
-    if(i-- > 0) {
-      if(p < this.DB && (d = this[i]>>p) > 0) { m = true; r = int2char(d); }
-      while(i >= 0) {
-        if(p < k) {
-          d = (this[i]&((1<<p)-1))<<(k-p);
-          d |= this[--i]>>(p+=this.DB-k);
-        }
-        else {
-          d = (this[i]>>(p-=k))&km;
-          if(p <= 0) { p += this.DB; --i; }
-        }
-        if(d > 0) m = true;
-        if(m) r += int2char(d);
-      }
-    }
-    return m?r:"0";
   }
 
   // (public) -this
@@ -584,99 +488,6 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
     if(this.s < 0) return -1;
     else if(this.t <= 0 || (this.t == 1 && this[0] <= 0)) return 0;
     else return 1;
-  }
-
-  // (protected) convert to radix string
-  function bnpToRadix(b) {
-    if(b == null) b = 10;
-    if(this.signum() == 0 || b < 2 || b > 36) return "0";
-    var cs = this.chunkSize(b);
-    var a = Math.pow(b,cs);
-    var d = nbv(a), y = nbi(), z = nbi(), r = "";
-    this.divRemTo(d,y,z);
-    while(y.signum() > 0) {
-      r = (a+z.intValue()).toString(b).substr(1) + r;
-      y.divRemTo(d,y,z);
-    }
-    return z.intValue().toString(b) + r;
-  }
-
-  // (protected) convert from radix string
-  function bnpFromRadix(s,b) {
-    this.fromInt(0);
-    if(b == null) b = 10;
-    var cs = this.chunkSize(b);
-    var d = Math.pow(b,cs), mi = false, j = 0, w = 0;
-    for(var i = 0; i < s.length; ++i) {
-      var x = intAt(s,i);
-      if(x < 0) {
-        if(s.charAt(i) == "-" && this.signum() == 0) mi = true;
-        continue;
-      }
-      w = b*w+x;
-      if(++j >= cs) {
-        this.dMultiply(d);
-        this.dAddOffset(w,0);
-        j = 0;
-        w = 0;
-      }
-    }
-    if(j > 0) {
-      this.dMultiply(Math.pow(b,j));
-      this.dAddOffset(w,0);
-    }
-    if(mi) BigInteger.ZERO.subTo(this,this);
-  }
-
-  // (protected) alternate constructor
-  function bnpFromNumber(a,b,c) {
-    if("number" == typeof b) {
-      // new BigInteger(int,int,RNG)
-      if(a < 2) this.fromInt(1);
-      else {
-        this.fromNumber(a,c);
-        if(!this.testBit(a-1))  // force MSB set
-          this.bitwiseTo(BigInteger.ONE.shiftLeft(a-1),op_or,this);
-        if(this.isEven()) this.dAddOffset(1,0); // force odd
-        while(!this.isProbablePrime(b)) {
-          this.dAddOffset(2,0);
-          if(this.bitLength() > a) this.subTo(BigInteger.ONE.shiftLeft(a-1),this);
-        }
-      }
-    }
-    else {
-      // new BigInteger(int,RNG)
-      var x = new Array(), t = a&7;
-      x.length = (a>>3)+1;
-      b.nextBytes(x);
-      if(t > 0) x[0] &= ((1<<t)-1); else x[0] = 0;
-      this.fromString(x,256);
-    }
-  }
-
-  // (public) convert to bigendian byte array
-  function bnToByteArray() {
-    var i = this.t, r = new Array();
-    r[0] = this.s;
-    var p = this.DB-(i*this.DB)%8, d, k = 0;
-    if(i-- > 0) {
-      if(p < this.DB && (d = this[i]>>p) != (this.s&this.DM)>>p)
-        r[k++] = d|(this.s<<(this.DB-p));
-      while(i >= 0) {
-        if(p < 8) {
-          d = (this[i]&((1<<p)-1))<<(8-p);
-          d |= this[--i]>>(p+=this.DB-8);
-        }
-        else {
-          d = (this[i]>>(p-=8))&0xff;
-          if(p <= 0) { p += this.DB; --i; }
-        }
-        if((d&0x80) != 0) d |= -256;
-        if(k == 0 && (this.s&0x80) != (d&0x80)) ++k;
-        if(k > 0 || d != this.s) r[k++] = d;
-      }
-    }
-    return r;
   }
 
   function bnEquals(a) { return(this.compareTo(a)==0); }
@@ -1145,6 +956,232 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
 
 
   /* ======================================================================== *
+   * CONVERSION (IN AND OUT)                                                  *
+   * ======================================================================== */
+
+  /* Digit conversions */
+
+  var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
+  var BI_RC = new Array();
+  var rr,vv;
+  rr = "0".charCodeAt(0);
+  for(vv = 0; vv <= 9; ++vv) BI_RC[rr++] = vv;
+  rr = "a".charCodeAt(0);
+  for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
+  rr = "A".charCodeAt(0);
+  for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
+
+  function int2char(n) { return BI_RM.charAt(n); }
+  function intAt(s,i) {
+    var c = BI_RC[s.charCodeAt(i)];
+    return (c==null)?-1:c;
+  }
+
+  /* ======================================================================== */
+
+  // (protected) set from integer value x, -DV <= x < DV
+  function bnpFromInt(x) {
+    this.t = 1;
+    this.s = (x<0)?-1:0;
+    if(x > 0) this[0] = x;
+    else if(x < -1) this[0] = x+this.DV;
+    else this.t = 0;
+  }
+
+  /* ======================================================================== */
+
+  // (protected) set from string and radix
+  function bnpFromString(s,b,as) {
+    var k;
+    if     (b ==  16) k = 4;
+    else if(b ==   8) k = 3;
+    else if(b == 256) k = 8; // byte array
+    else if(b ==   2) k = 1;
+    else if(b ==  32) k = 5;
+    else if(b ==   4) k = 2;
+    else { this.fromRadix(s,b); return; }
+
+    this.t = 0;
+    this.s = 0;
+    var i = s.length, mi = false, sh = 0;
+    while(--i >= 0) {
+      var x = (k==8)?s[i]&0xff:intAt(s,i);
+      if(x < 0) {
+        if(s.charAt(i) == "-") mi = true;
+        continue;
+      }
+      mi = false;
+      if(sh == 0)
+        this[this.t++] = x;
+      else if(sh+k > this.DB) {
+        this[this.t-1] |= (x&((1<<(this.DB-sh))-1))<<sh;
+        this[this.t++] = (x>>(this.DB-sh));
+      }
+      else
+        this[this.t-1] |= x<<sh;
+      sh += k;
+      if(sh >= this.DB) sh -= this.DB;
+    }
+
+    if (k == 8) {
+      if(as == null && (s[0]&0x80) != 0) {
+        this.s = -1;
+        if(sh > 0) this[this.t-1] |= ((1<<(this.DB-sh))-1)<<sh;
+      } else if (as < 0) {
+        mi = true;
+      }
+    }
+
+    this.clamp();
+    if(mi) BigInteger.ZERO.subTo(this,this);
+  }
+
+  // (public) return string representation in given radix
+  function bnToString(b) {
+    if(this.s < 0) return "-"+this.negate().toString(b);
+
+    var k;
+    if     (b == 16) k = 4;
+    else if(b ==  8) k = 3;
+    else if(b ==  2) k = 1;
+    else if(b == 32) k = 5;
+    else if(b ==  4) k = 2;
+    else return this.toRadix(b);
+    var km = (1<<k)-1, d, m = false, r = "", i = this.t;
+    var p = this.DB-(i*this.DB)%k;
+    if(i-- > 0) {
+      if(p < this.DB && (d = this[i]>>p) > 0) { m = true; r = int2char(d); }
+      while(i >= 0) {
+        if(p < k) {
+          d = (this[i]&((1<<p)-1))<<(k-p);
+          d |= this[--i]>>(p+=this.DB-k);
+        }
+        else {
+          d = (this[i]>>(p-=k))&km;
+          if(p <= 0) { p += this.DB; --i; }
+        }
+        if(d > 0) m = true;
+        if(m) r += int2char(d);
+      }
+    }
+    return m?r:"0";
+  }
+
+  /* ======================================================================== */
+
+  // (protected) convert to radix string
+  function bnpToRadix(b) {
+    if(b == null) b = 10;
+    if(b > 36) throw new Error("Maximum radix value is 36");
+    if(this.signum() == 0 || b < 2 || b > 36) return "0";
+    var cs = this.chunkSize(b);
+    var a = Math.pow(b,cs);
+    var d = nbv(a), y = nbi(), z = nbi(), r = "";
+    this.divRemTo(d,y,z);
+    while(y.signum() > 0) {
+      r = (a+z.intValue()).toString(b).substr(1) + r;
+      y.divRemTo(d,y,z);
+    }
+    return z.intValue().toString(b) + r;
+  }
+
+  // (protected) convert from radix string
+  function bnpFromRadix(s,b) {
+    this.fromInt(0);
+    if(b == null) b = 10;
+    if(b > 36) throw new Error("Maximum radix value is 36");
+    var cs = this.chunkSize(b);
+    var d = Math.pow(b,cs), mi = false, j = 0, w = 0;
+    for(var i = 0; i < s.length; ++i) {
+      var x = intAt(s,i);
+      if(x < 0) {
+        if(s.charAt(i) == "-" && this.signum() == 0) mi = true;
+        continue;
+      }
+      w = b*w+x;
+      if(++j >= cs) {
+        this.dMultiply(d);
+        this.dAddOffset(w,0);
+        j = 0;
+        w = 0;
+      }
+    }
+    if(j > 0) {
+      this.dMultiply(Math.pow(b,j));
+      this.dAddOffset(w,0);
+    }
+    if(mi) BigInteger.ZERO.subTo(this,this);
+  }
+
+  /* ======================================================================== */
+
+  // (protected) alternate constructor
+  function bnpFromNumber(a,b,c) {
+    if("number" == typeof b) {
+      // new BigInteger(int,int,RNG)
+      if(a < 2) this.fromInt(1);
+      else {
+        this.fromNumber(a,c);
+        if(!this.testBit(a-1))  // force MSB set
+          this.bitwiseTo(BigInteger.ONE.shiftLeft(a-1),op_or,this);
+        if(this.isEven()) this.dAddOffset(1,0); // force odd
+        while(!this.isProbablePrime(b)) {
+          this.dAddOffset(2,0);
+          if(this.bitLength() > a) this.subTo(BigInteger.ONE.shiftLeft(a-1),this);
+        }
+      }
+    }
+    else {
+      // new BigInteger(int,RNG)
+      var x = new Array(), t = a&7;
+      x.length = (a>>3)+1;
+      b.nextBytes(x);
+      if(t > 0) x[0] &= ((1<<t)-1); else x[0] = 0;
+      this.fromString(x,256);
+    }
+  }
+
+  /* ======================================================================== */
+
+  // (protected) push bytes in array
+  function bnpToBytes(r) {
+    var i = this.t;
+    r[0] = this.s;
+    var p = this.DB-(i*this.DB)%8, d, k = 0;
+    if(i-- > 0) {
+      if(p < this.DB && (d = this[i]>>p) != (this.s&this.DM)>>p)
+        r[k++] = d|(this.s<<(this.DB-p));
+      while(i >= 0) {
+        if(p < 8) {
+          d = (this[i]&((1<<p)-1))<<(8-p);
+          d |= this[--i]>>(p+=this.DB-8);
+        }
+        else {
+          d = (this[i]>>(p-=8))&0xff;
+          if(p <= 0) { p += this.DB; --i; }
+        }
+        if((d&0x80) != 0) d |= -256;
+        if(k == 0 && (this.s&0x80) != (d&0x80)) ++k;
+        if(k > 0 || d != this.s) r[k++] = d;
+      }
+    }
+    return r;
+  }
+
+  // (public) convert to bigendian byte array
+  function bnToByteArray() {
+    return this.toBytes(new Array((this.bitLength()>>3)+1));
+  }
+
+  // (public) convert to bigendian uint8 byte array
+  function bnToUint8Array() {
+    return this.toBytes(new Uint8Array((this.bitLength()>>3)+1));
+  }
+
+
+
+
+  /* ======================================================================== *
    * BigInteger class prototype                                               *
    * ======================================================================== */
 
@@ -1197,7 +1234,6 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
     "byteValue":          { configurable: false, enumerable: true,  value: bnByteValue          },
     "shortValue":         { configurable: false, enumerable: true,  value: bnShortValue         },
     "signum":             { configurable: false, enumerable: true,  value: bnSigNum             },
-    "toByteArray":        { configurable: false, enumerable: true,  value: bnToByteArray        },
     "equals":             { configurable: false, enumerable: true,  value: bnEquals             },
     "min":                { configurable: false, enumerable: true,  value: bnMin                },
     "max":                { configurable: false, enumerable: true,  value: bnMax                },
@@ -1228,6 +1264,12 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
 
     /* From "jsbn2.js", public JSBN-specific extension (enumerable) */
     "square":             { configurable: false, enumerable: true,  value: bnSquare             },
+
+    /* Locally modified */
+    "toBytes":            { configurable: false, enumerable: false, value: bnpToBytes           },
+    "toByteArray":        { configurable: false, enumerable: true,  value: bnToByteArray        },
+    "toUint8Array":       { configurable: false, enumerable: true,  value: bnToUint8Array       },
+
   });
 
   /* ======================================================================== *
@@ -1240,9 +1282,15 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
     "ZERO":       { configurable: false, enumerable: true, value: nbv(0) },
     "ONE":        { configurable: false, enumerable: true, value: nbv(1) },
 
-    /* Public constructors */
+    /* Public "constructors" */
     "fromInt":    { configurable: false, enumerable: true, value: nbv    },
-    "fromString": { configurable: false, enumerable: true, value: nbs    },
+    "fromString": { configurable: false, enumerable: true, value: function(s, x) {
+      var r = nbi(); r.fromString(s, x); return r;
+    }},
+    "fromArray":  { configurable: false, enumerable: true, value: function(s, a) {
+      if (a == null) { a = s; s = null };
+      var r = nbi(); r.fromString(a, 256, s); return r;
+    }},
 
   });
 
