@@ -8,7 +8,7 @@ Esquire.define('test/codecs', ['test/async', 'test/binary', 'bletchley/crypto/Cr
     describe("Codecs", function() {
 
       /* Functions must be bound */
-      var stringify = crypto instanceof Crypto ? crypto.stringify : arrays.encodeUTF8;
+      var stringify = crypto instanceof Crypto ? crypto.stringify : arrays.decodeUTF8;
       var encode = crypto.encode;
       var decode = crypto.decode;
 

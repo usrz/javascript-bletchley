@@ -22,7 +22,7 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
 
       Object.defineProperties(this, {
         "random":    { enumerable: true, configurable: false, value: random.nextBytes  },
-        "stringify": { enumerable: true, configurable: false, value: arrays.encodeUTF8 },
+        "stringify": { enumerable: true, configurable: false, value: arrays.decodeUTF8 },
         "encode":    { enumerable: true, configurable: false, value: codecs.encode     },
         "decode":    { enumerable: true, configurable: false, value: codecs.decode     },
         "hash":      { enumerable: true, configurable: false, value: hashes.hash       },

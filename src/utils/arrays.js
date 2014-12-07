@@ -32,48 +32,76 @@ function(TextEncoder, TextDecoder, Buffer, encodeURIComponent, decodeURIComponen
   /* UTF-8 string <--> Uint8Array                                             */
   /* ======================================================================== */
 
-  /* String to UTF8 Uint8Array */
-  var decodeUTF8 = null;
+  function encodeUTF8(string) {
+    var ba = new Uint8Array(string.length * 3);
+    var n = 0;
+    for (var i = 0; i < string.length; i ++) {
+      var c = string.charCodeAt(i);
+      if(c < 128) {
+        ba[n ++] = c;
+      } else if((c > 127) && (c < 2048)) {
+        ba[n++] = (c >> 6) | 192;
+        ba[n++] = (c & 63) | 128;
+      } else {
+        ba[n++] = (c >> 12) | 224;
+        ba[n++] = ((c >> 6) & 63) | 128;
+        ba[n++] = (c & 63) | 128;
+      }
+    }
+    return ba.subarray(0, n);
+  }
+
+  function decodeUTF8(array) {
+    array = toUint8Array(array);
+    var ret = "";
+    for (var i = 0; i < array.length; i++) {
+      var c = array[i];
+      if(c < 128) {
+        ret += String.fromCharCode(c);
+      } else if((c > 191) && (c < 224)) {
+        ret += String.fromCharCode(((c & 31) << 6) | (array[i+1] & 63));
+        i ++;
+      } else {
+        ret += String.fromCharCode(((c & 15) << 12) | ((array[i+1] & 63) << 6) | (array[i+2] & 63));
+        i += 2;
+      }
+    }
+    return ret;
+  }
+
   if (TextEncoder) {
     var encoder = new TextEncoder("UTF-8");
-    decodeUTF8 = encoder.encode.bind(encoder);
+    encodeUTF8 = encoder.encode.bind(encoder);
   } else if (Buffer) {
-    decodeUTF8 = function(string) {
+    encodeUTF8 = function(string) {
       var buffer = new Buffer(string, 'utf8');
       return new Uint8Array(buffer);
     }
   } else if (unescape && decodeURIComponent) {
-    decodeUTF8 = function(string) {
+    encodeUTF8 = function(string) {
       var raw = unescape(encodeURIComponent(string));
       return fromUint8String(raw);
     }
   } else {
-    decodeUTF8 = function(string) {
-      throw new ReferenceError("Native UTF-8 decoding unsupported");
-    }
+    console.warn("Native UTF-8 encoding unsupported");
   };
 
-  /* UTF8 Uint8Array to String */
-  var encodeUTF8;
   if (TextDecoder) {
     var textDecoder = new TextDecoder("UTF8");
-    encodeUTF8 = function(array) {
-      array = toUint8Array(array);
-      return textDecoder.decode(array)
+    decodeUTF8 = function(array) {
+      return textDecoder.decode(toUint8Array(array))
     }
   } else if (Buffer) {
-    encodeUTF8 = function(array) {
-      return new Buffer(array).toString('utf8');
+    decodeUTF8 = function(array) {
+      return new Buffer(toUint8Array(array)).toString('utf8');
     }
   } else if (decodeURIComponent && escape) {
-    encodeUTF8 = function(array) {
-      var raw = arrays.toUint8String(array);
+    decodeUTF8 = function(array) {
+      var raw = toUint8String(toUint8Array(array));
       return decodeURIComponent(escape(raw));
     }
   } else {
-    encodeUTF8 = function(array) {
-      throw new ReferenceError("Native UTF-8 decoding unsupported");
-    }
+    console.warn("Native UTF-8 decoding unsupported");
   }
 
   /* ======================================================================== */
@@ -85,7 +113,7 @@ function(TextEncoder, TextDecoder, Buffer, encodeURIComponent, decodeURIComponen
    */
   function toUint8Array(array) {
     /* Strings are simply "decoded" into their UTF8 */
-    if (typeof(array) === 'string') return decodeUTF8(array);
+    if (typeof(array) === 'string') return encodeUTF8(array);
 
     /* Uint8Array, ArrayBuffer, plain array */
     if (array instanceof Uint8Array) return array;
@@ -175,8 +203,8 @@ function(TextEncoder, TextDecoder, Buffer, encodeURIComponent, decodeURIComponen
   /* ======================================================================== */
 
   return Object.freeze({
-    decodeUTF8: decodeUTF8,
     encodeUTF8: encodeUTF8,
+    decodeUTF8: decodeUTF8,
     toUint8Array: toUint8Array,
     toUint8String: toUint8String,
     fromUint8String: fromUint8String,
