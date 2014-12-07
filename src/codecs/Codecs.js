@@ -1,14 +1,14 @@
-Esquire.define('bletchley/codecs/Codecs', [ 'bletchley/utils/helpers',
+Esquire.define('bletchley/codecs/Codecs', [ 'bletchley/utils/HelperFactory',
                                             'bletchley/codecs/Base64',
                                             'bletchley/codecs/HEX' ],
 
-  function(helpers, Base64, HEX) {
+  function(HelperFactory, Base64, HEX) {
 
     function Codecs() {
-      helpers.Factory.call(this, [ new Base64(), new HEX() ]);
+      HelperFactory.call(this, [ new Base64(), new HEX() ]);
     }
 
-    Codecs.prototype = Object.create(helpers.Factory.prototype);
+    Codecs.prototype = Object.create(HelperFactory.prototype);
     Codecs.prototype.constructor = Codecs;
 
     Codecs.prototype.encode = function(algorithm, array) {

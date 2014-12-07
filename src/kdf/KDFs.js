@@ -1,14 +1,14 @@
-Esquire.define('bletchley/kdfs/KDFs', [ 'bletchley/utils/helpers',
+Esquire.define('bletchley/kdfs/KDFs', [ 'bletchley/utils/HelperFactory',
                                         'bletchley/kdfs/PBKDF2',
                                         'bletchley/kdfs/SCrypt' ],
 
-  function(helpers, PBKDF2, SCrypt) {
+  function(HelperFactory, PBKDF2, SCrypt) {
 
     function KDFs() {
-      helpers.Factory.call(this, [new PBKDF2(), new SCrypt()]);
+      HelperFactory.call(this, [new PBKDF2(), new SCrypt()]);
     }
 
-    KDFs.prototype = Object.create(helpers.Factory.prototype);
+    KDFs.prototype = Object.create(HelperFactory.prototype);
     KDFs.prototype.constructor = KDFs;
 
     KDFs.prototype.kdf = function(algorithm, password, salt, options) {

@@ -1,29 +1,41 @@
 'use strict';
 
-Esquire.define('bletchley/utils/helpers', [ 'bletchley/utils/Helper' ], function(Helper) {
+Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/Helper' ], function(Helper) {
 
   function normalize(name) {
     if (typeof(name) !== 'string') throw new Error("Invalid algorithm name '" + name + "'");
     return name.replace(/[- ]/g,'').toLowerCase();
   }
 
-  function Factory(helpers) {
+  function HelperFactory(helpers) {
     var algorithms = [];
     var instances = {};
+
+    /* Check helpers */
+    if (!helpers.length) throw new Error("No helpers specified");
 
     /* Bind our functions */
     var factory = this;
     for (var i in factory) {
       (function(i, fn) {
-        /* Try to use native "bind" if possible */
         if (typeof(fn) !== 'function') return;
-        factory[i] = typeof(fn.bind) === 'function' ? fn.bind(factory) :
-                   function() { return fn.apply(factory, arguments); } ;
+
+        /* Try to use native "bind" if possible */
+        fn = typeof(fn.bind) !== 'function' ?
+                    function() { return fn.apply(factory, arguments); } :
+                    fn.bind(factory);
+
+        /* Redefine and lock our function */
+        Object.defineProperty(factory, i, {
+          enumerable: factory.propertyIsEnumerable(i),
+          configurable: false,
+          value: fn
+        });
+
       })(i, factory[i]);
     }
 
     /* Process helpers */
-    if (!helpers.length) throw new Error("No helpers specified");
     for (var i in helpers) {
       var helper = helpers[i];
       if (! (helper instanceof Helper)) throw new Error("Invalid helper " + helper);
@@ -47,20 +59,15 @@ Esquire.define('bletchley/utils/helpers', [ 'bletchley/utils/Helper' ], function
         enumerable: false,
         configurable: false,
         value: function(algorithm) {
+          if (instances[algorithm]) return instances[algorithm];
           var helper = instances[normalize(algorithm)];
-          if (helper) return helper;
+          if (helper) return instances[algorithm] = helper;
           throw new Error("'" + algorithm + "' not in [" + names + "]");
         }
       }
     });
-
-    /* Freeze! */
-    Object.freeze(this);
   }
 
-  return Object.freeze({
-    Helper:  Helper,
-    Factory: Factory,
-  });
+  return HelperFactory;
 
 });
