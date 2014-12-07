@@ -28,8 +28,6 @@ Esquire.define('bletchley/utils/BoundClass', [], function() {
 
       })(this, name, fn);
     }
-
-    Object.seal(this);
   }
 
   return BoundClass;

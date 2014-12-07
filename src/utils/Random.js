@@ -6,9 +6,10 @@
  * Original source at: http://www-cs-students.stanford.edu/~tjw/jsbn/         *
  * Licensed under BSD: http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE  *
  * ========================================================================== */
-Esquire.define('bletchley/utils/Random', ['$global/crypto',
-                                          'bletchley/utils/arrays'],
-  function(crypto, arrays) {
+Esquire.define('bletchley/utils/Random', [ 'bletchley/utils/BoundClass',
+                                           'bletchley/utils/arrays',
+                                           '$global/crypto' ],
+  function(BoundClass, arrays, crypto) {
 
     /* Arcfour PRNG */
     function Random(key) {
@@ -45,7 +46,7 @@ Esquire.define('bletchley/utils/Random', ['$global/crypto',
         }
 
         /* Initialize arcfour context from key */
-        var S = new Uint8Array(256);
+        var S = new Array(256);
         var i = 0;
         var j = 0;
         var t = 0;
@@ -66,20 +67,17 @@ Esquire.define('bletchley/utils/Random', ['$global/crypto',
       var j = 0;
 
       /* What's next? */
-      var next = function() {
-        var t;
-        i = (i + 1) & 255;
-        j = (j + S[i]) & 255;
-        t = S[i];
-        S[i] = S[j];
-        S[j] = t;
-        return S[(t + S[i]) & 255];
-      }
-
-      Object.defineProperty(this, "nextBytes", {
-        enumerable: true,
-        configurable: false,
-        value: function(size) {
+      Object.defineProperties(this, {
+        "next": { enumerable: true, configurable: true, value: function() {
+          var t;
+          i = (i + 1) & 255;
+          j = (j + S[i]) & 255;
+          t = S[i];
+          S[i] = S[j];
+          S[j] = t;
+          return S[(t + S[i]) & 255];
+        }},
+        "nextBytes": { enumerable: true, configurable: true, value: function(size) {
           var array;
 
           if (typeof(size) === 'number') {
@@ -92,21 +90,23 @@ Esquire.define('bletchley/utils/Random', ['$global/crypto',
           }
 
           size = array.length;
-          for (var i = 0; i < size; i ++) array[i] = next();
+          for (var i = 0; i < size; i ++) array[i] = this.next();
           return array;
-        }
+        }}
       });
 
       /* RC4/skip1024 */
       this.nextBytes(1024);
-
+      BoundClass.call(this);
     }
 
     /* ====================================================================== */
     /* Return our Random class                                                */
     /* ====================================================================== */
 
-    /* Return our "random()" and "init()" functions */
+    Random.prototype = Object.create(BoundClass.prototype);
+    Random.prototype.constructor = Random;
+
     return Random;
 
   }
