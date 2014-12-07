@@ -1,6 +1,8 @@
 'use strict';
 
-Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs'], function(async, binary, codecs) {
+Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs/Codecs'], function(async, binary, Codecs) {
+
+  var codecs = new Codecs();
 
   return function(crypto, isAsync) {
     var maybeAsync = async(isAsync);
