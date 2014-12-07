@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
+Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash', 'bletchley/utils/arrays'], function(Hash, arrays) {
 
   /* Round constants */
   var K = [ 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -22,7 +22,7 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash', 'bletchley/u
   var NUM_WORDS = 64;
 
   /* Constructor function */
-  return extend("SHA256", Hash, function(algorithm, digestSize, h) {
+  function SHA256(algorithm, digestSize, h) {
 
     /* Initial values for H */
     if (!h) h = H;
@@ -209,6 +209,12 @@ Esquire.define('bletchley/hashes/SHA256', ['bletchley/hashes/Hash', 'bletchley/u
 
     /* Super constructor */
     Hash.call(this, algorithm || "SHA-256", BLOCK_SIZE, digestSize || DIGEST_SIZE);
-  });
+  };
+
+  SHA256.prototype = Object.create(Hash.prototype);
+  SHA256.prototype.constructor = SHA256;
+
+  return SHA256;
+
 
 });

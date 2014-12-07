@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/scrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/pbkdf2', 'bletchley/hashes'], function(KDF, pbkdf2, hashes) {
+Esquire.define('bletchley/kdfs/scrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/pbkdf2'], function(KDF, pbkdf2) {
 
   /*
    * This is an optimization: salsa20_8 is called roughly half a million times

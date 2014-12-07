@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
+Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/utils/arrays'], function(Hash, arrays) {
 
   /* Hash constants for SHA1 */
   var h = [ 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0 ];
@@ -10,7 +10,7 @@ Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/uti
   var BLOCK_SIZE = 64;
 
   /* Constructor function */
-  return extend("SHA1", Hash, function() {
+  function SHA1() {
 
     /* Initial values for H */
     var h0 = h[0]; var h1 = h[1]; var h2 = h[2]; var h3 = h[3]; var h4 = h[4];
@@ -179,6 +179,11 @@ Esquire.define('bletchley/hashes/SHA1', ['bletchley/hashes/Hash', 'bletchley/uti
 
     /* Super constructor */
     Hash.call(this, "SHA1", BLOCK_SIZE, DIGEST_SIZE);
-  });
+  };
+
+  SHA1.prototype = Object.create(Hash.prototype);
+  SHA1.prototype.constructor = SHA1;
+
+  return SHA1;
 
 });

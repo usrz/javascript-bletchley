@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/utils/extend', 'bletchley/utils/arrays'], function(Hash, extend, arrays) {
+Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/utils/arrays'], function(Hash, arrays) {
 
   /* Round constants */
   var K = [ 0x428a2f98, 0xd728ae22,    0x71374491, 0x23ef65cd,    0xb5c0fbcf, 0xec4d3b2f,    0xe9b5dba5, 0x8189dbbc,    0x3956c25b, 0xf348b538,
@@ -31,7 +31,7 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
   var BLOCK_SIZE = 128;
 
   /* Constructor function */
-  return extend("SHA512", Hash, function(algorithm, digestSize, h) {
+  function SHA512(algorithm, digestSize, h) {
 
     /* Initial values for H */
     if (!h) h = H;
@@ -291,6 +291,12 @@ Esquire.define('bletchley/hashes/SHA512', ['bletchley/hashes/Hash', 'bletchley/u
 
     /* Super constructor */
     Hash.call(this, algorithm || "SHA-512", BLOCK_SIZE, digestSize || DIGEST_SIZE);
-  });
+  };
+
+  SHA512.prototype = Object.create(Hash.prototype);
+  SHA512.prototype.constructor = SHA512;
+
+  return SHA512;
+
 
 });

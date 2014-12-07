@@ -1,7 +1,7 @@
 'use strict';
 
 esquire(['bletchley/codecs/Codecs',
-         'bletchley/hashes',
+         'bletchley/hashes/Hashes',
          'bletchley/hmacs',
          'bletchley/kdfs',
 
@@ -16,13 +16,13 @@ esquire(['bletchley/codecs/Codecs',
          'test/hmacs',
          'test/kdfs'],
 
-  function(Codecs, hashes, hmacs, kdfs,
+  function(Codecs, Hashes, hmacs, kdfs,
            syncCrypto, workerCrypto, subtleCrypto, crypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Helpers implementation", function() {
       testCodecs(new Codecs(), false);
-      testHashes(hashes, false);
+      testHashes(new Hashes(), false);
       testHMACs(hmacs, false);
       testKDFs(kdfs, false);
     });
