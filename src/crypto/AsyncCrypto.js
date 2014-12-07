@@ -14,7 +14,8 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
         };
 
         /* Resolve our promises */
-        var fn = this.$crypto[functionName];
+        var crypto = this.$crypto;
+        var fn = crypto[functionName];
         return Promise.all(promises).then(function(args) {
           return fn.apply(crypto, args);
         });
@@ -33,7 +34,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
           if (typeof(fn) !== 'function') return;
 
           /* Try to use native "bind" if possible */
-          fn = typeof(fn.bind) !== 'function' ?
+          var boundFn = typeof(fn.bind) !== 'function' ?
                       function() { return fn.apply(factory, arguments); } :
                       fn.bind(factory);
 
@@ -41,7 +42,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
           Object.defineProperty(factory, i, {
             enumerable: factory.propertyIsEnumerable(i),
             configurable: false,
-            value: fn
+            value: boundFn
           });
 
         })(i, factory[i]);
