@@ -2,11 +2,7 @@
 
 Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Crypto'], function(Promise, Crypto) {
 
-    function promise(crypto, functionName) {
-      var fn = crypto[functionName];
-      if (typeof(fn) !== 'function') {
-        throw new Error("Invalid function '" + functionName + "'");
-      }
+    function promise(functionName) {
 
       /* Create and return our function */
       return function() {
@@ -18,6 +14,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
         };
 
         /* Resolve our promises */
+        var fn = this.$crypto[functionName];
         return Promise.all(promises).then(function(args) {
           return fn.apply(crypto, args);
         });
@@ -25,21 +22,45 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
     }
 
     function AsyncCrypto(crypto) {
-
       if (!crypto) throw new Error("Crypto instance to wrap unspecified");
 
-      if (! this.random)    Object.defineProperty(this, "random",    { enumerable: true, configurable: false, value: promise(crypto, "random")    });
-      if (! this.stringify) Object.defineProperty(this, "stringify", { enumerable: true, configurable: false, value: promise(crypto, "stringify") });
-      if (! this.encode)    Object.defineProperty(this, "encode",    { enumerable: true, configurable: false, value: promise(crypto, "encode")    });
-      if (! this.decode)    Object.defineProperty(this, "decode",    { enumerable: true, configurable: false, value: promise(crypto, "decode")    });
-      if (! this.hash)      Object.defineProperty(this, "hash",      { enumerable: true, configurable: false, value: promise(crypto, "hash")      });
-      if (! this.hmac)      Object.defineProperty(this, "hmac",      { enumerable: true, configurable: false, value: promise(crypto, "hmac")      });
-      if (! this.kdf)       Object.defineProperty(this, "kdf",       { enumerable: true, configurable: false, value: promise(crypto, "kdf")       });
+      Object.defineProperty(this, "$crypto", { enumerable: false, configurable: false, value: crypto });
+
+      /* Bind and lock our functions */
+      var factory = this;
+      for (var i in factory) {
+        (function(i, fn) {
+          if (typeof(fn) !== 'function') return;
+
+          /* Try to use native "bind" if possible */
+          fn = typeof(fn.bind) !== 'function' ?
+                      function() { return fn.apply(factory, arguments); } :
+                      fn.bind(factory);
+
+          /* Redefine and lock our function */
+          Object.defineProperty(factory, i, {
+            enumerable: factory.propertyIsEnumerable(i),
+            configurable: false,
+            value: fn
+          });
+
+        })(i, factory[i]);
+      }
+
 
     };
 
     AsyncCrypto.prototype = Object.create(Crypto.prototype);
     AsyncCrypto.prototype.constructor = AsyncCrypto;
+
+    AsyncCrypto.prototype.random    = promise("random");
+    AsyncCrypto.prototype.stringify = promise("stringify");
+    AsyncCrypto.prototype.encode    = promise("encode");
+    AsyncCrypto.prototype.decode    = promise("decode");
+    AsyncCrypto.prototype.hash      = promise("hash");
+    AsyncCrypto.prototype.hmac      = promise("hmac");
+    AsyncCrypto.prototype.kdf       = promise("kdf");
+
 
     return AsyncCrypto;
   }

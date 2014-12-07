@@ -20,13 +20,15 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
         throw new Error("Must be constructed with a Random instance");
       }
 
-      Object.defineProperty(this, "random",    { enumerable: true, configurable: false, value: random.nextBytes });
-      Object.defineProperty(this, "stringify", { enumerable: true, configurable: false, value: arrays.encodeUTF8 });
-      Object.defineProperty(this, "encode",    { enumerable: true, configurable: false, value: codecs.encode    });
-      Object.defineProperty(this, "decode",    { enumerable: true, configurable: false, value: codecs.decode    });
-      Object.defineProperty(this, "hash",      { enumerable: true, configurable: false, value: hashes.hash      });
-      Object.defineProperty(this, "hmac",      { enumerable: true, configurable: false, value: hmacs.hmac       });
-      Object.defineProperty(this, "kdf",       { enumerable: true, configurable: false, value: kdfs.kdf         });
+      Object.defineProperties(this, {
+        "random":    { enumerable: true, configurable: false, value: random.nextBytes  },
+        "stringify": { enumerable: true, configurable: false, value: arrays.encodeUTF8 },
+        "encode":    { enumerable: true, configurable: false, value: codecs.encode     },
+        "decode":    { enumerable: true, configurable: false, value: codecs.decode     },
+        "hash":      { enumerable: true, configurable: false, value: hashes.hash       },
+        "hmac":      { enumerable: true, configurable: false, value: hmacs.hmac        },
+        "kdf":       { enumerable: true, configurable: false, value: kdfs.kdf          }
+      });
     };
 
   }
