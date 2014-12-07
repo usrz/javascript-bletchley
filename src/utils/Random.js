@@ -96,6 +96,10 @@ Esquire.define('bletchley/utils/Random', ['$global/crypto',
           return array;
         }
       });
+
+      /* RC4/skip1024 */
+      this.nextBytes(1024);
+
     }
 
     /* ====================================================================== */
