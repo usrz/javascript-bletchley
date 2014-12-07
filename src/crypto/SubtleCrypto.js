@@ -96,13 +96,18 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto) {
           return crypto.hash(algorithm, message);
         }
 
-        return subtle.digest({ name: algorithm }, message)
-        .then(function(result) {
-          return arrays.toUint8Array(result);
-        }, function(error) {
+        try {
+          return subtle.digest({ name: algorithm }, message)
+          .then(function(result) {
+            return arrays.toUint8Array(result);
+          }, function(error) {
+            return crypto.hash(algorithm, message)
+              .catch(function() { throw error });
+          })
+        } catch (error) {
           return crypto.hash(algorithm, message)
-            .catch(function(failure) { throw error });
-        });
+            .catch(function() { throw error });
+        }
       });
     }
   }
@@ -123,15 +128,20 @@ function(Deferred, Promise, global, subtle, arrays, AsyncCrypto) {
         var parameters = { name: "HMAC", hash: { name: algorithm } };
 
         /* Need to use two promises: the first is for importing the salt */
-        return subtle.importKey("raw", salt, parameters, false, [ "sign" ])
-        .then(function(saltKey) {
-          return subtle.sign(parameters, saltKey, secret);
-        }).then(function(signature) {
-          return arrays.toUint8Array(signature);
-        }, function(error) {
+        try {
+          return subtle.importKey("raw", salt, parameters, false, [ "sign" ])
+          .then(function(saltKey) {
+            return subtle.sign(parameters, saltKey, secret);
+          }).then(function(signature) {
+            return arrays.toUint8Array(signature);
+          }, function(error) {
+            return crypto.hmac(algorithm, salt, secret)
+              .catch(function() { throw error });
+          })
+        } catch (error) {
           return crypto.hmac(algorithm, salt, secret)
-            .catch(function(failure) { throw error });
-        });
+            .catch(function() { throw error });
+        }
       });
     }
   }
