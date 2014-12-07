@@ -5,10 +5,14 @@ Esquire.define('bletchley/utils/BoundClass', [], function() {
   function BoundClass() {
 
     /* Bind and lock our functions */
-    var instance = this;
-    for (var i in instance) {
-      (function(i, fn) {
-        if (typeof(fn) !== 'function') return;
+    for (var name in this) {
+
+      /* Only bind enumerable functions */
+      var fn = this[name];
+      if (typeof(fn) !== 'function') continue;
+
+      /* Bind the function */
+      (function(instance, name, fn) {
 
         /* Try to use native "bind" if possible */
         var boundFn = typeof(fn.bind) !== 'function' ?
@@ -16,15 +20,16 @@ Esquire.define('bletchley/utils/BoundClass', [], function() {
                     fn.bind(instance);
 
         /* Redefine and lock our function */
-        Object.defineProperty(instance, i, {
-          enumerable: instance.propertyIsEnumerable(i),
+        Object.defineProperty(instance, name, {
+          enumerable: true,
           configurable: false,
           value: boundFn
         });
 
-      })(i, instance[i]);
+      })(this, name, fn);
     }
 
+    Object.seal(this);
   }
 
   return BoundClass;
