@@ -60,7 +60,7 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/Helper',
       Helper.call(this, hash.algorithm);
     };
 
-    HMAC.prototype = Object.create(Helper.prototype)
+    HMAC.prototype = Object.create(Helper.prototype);
     HMAC.prototype.constuctor = HMAC;
 
     return HMAC;

@@ -162,11 +162,23 @@ Esquire.define('bletchley/codecs/Base64', [ "bletchley/codecs/Codec",
     /* ====================================================================== */
 
     function Base64() {
-      Codec.call(this, "BASE-64", encode, decode);
+      Codec.call(this, "BASE-64");
     }
 
     Base64.prototype = Object.create(Codec.prototype);
     Base64.prototype.constructor = Base64;
+
+    Base64.prototype.encode = function(array) {
+      array = arrays.toUint8Array(array);
+      if (array.byteLength == 0) return '';
+      return encode(array);
+    }
+
+    Base64.prototype.decode = function(string) {
+      if (typeof(string) !== 'string') throw new Error("Can only decode strings");
+      if (string.length == 0) return new ArrayBuffer(0);
+      return decode(string);
+    }
 
     return Base64;
   }

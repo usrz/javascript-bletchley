@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Crypto'], function(Promise, Crypto) {
+Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/BoundClass'], function(Promise, BoundClass) {
 
     function promise(functionName) {
 
@@ -28,30 +28,10 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
       Object.defineProperty(this, "$crypto", { enumerable: false, configurable: false, value: crypto });
 
       /* Bind and lock our functions */
-      var factory = this;
-      for (var i in factory) {
-        (function(i, fn) {
-          if (typeof(fn) !== 'function') return;
-
-          /* Try to use native "bind" if possible */
-          var boundFn = typeof(fn.bind) !== 'function' ?
-                      function() { return fn.apply(factory, arguments); } :
-                      fn.bind(factory);
-
-          /* Redefine and lock our function */
-          Object.defineProperty(factory, i, {
-            enumerable: factory.propertyIsEnumerable(i),
-            configurable: false,
-            value: boundFn
-          });
-
-        })(i, factory[i]);
-      }
-
-
+      BoundClass.call(this);
     };
 
-    AsyncCrypto.prototype = Object.create(Crypto.prototype);
+    AsyncCrypto.prototype = Object.create(BoundClass.prototype);
     AsyncCrypto.prototype.constructor = AsyncCrypto;
 
     AsyncCrypto.prototype.random    = promise("random");
@@ -61,7 +41,6 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/crypto/Cr
     AsyncCrypto.prototype.hash      = promise("hash");
     AsyncCrypto.prototype.hmac      = promise("hmac");
     AsyncCrypto.prototype.kdf       = promise("kdf");
-
 
     return AsyncCrypto;
   }

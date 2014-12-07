@@ -1,6 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/Helper' ], function(Helper) {
+Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/BoundClass',
+                                                  'bletchley/utils/Helper' ],
+function(BoundClass, Helper) {
 
   function normalize(name) {
     if (typeof(name) !== 'string') throw new Error("Invalid algorithm name '" + name + "'");
@@ -13,27 +15,6 @@ Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/Helper' ], fu
 
     /* Check helpers */
     if (!helpers.length) throw new Error("No helpers specified");
-
-    /* Bind our functions */
-    var factory = this;
-    for (var i in factory) {
-      (function(i, fn) {
-        if (typeof(fn) !== 'function') return;
-
-        /* Try to use native "bind" if possible */
-        var boundFn = typeof(fn.bind) !== 'function' ?
-                    function() { return fn.apply(factory, arguments); } :
-                    fn.bind(factory);
-
-        /* Redefine and lock our function */
-        Object.defineProperty(factory, i, {
-          enumerable: factory.propertyIsEnumerable(i),
-          configurable: false,
-          value: boundFn
-        });
-
-      })(i, factory[i]);
-    }
 
     /* Process helpers */
     for (var i in helpers) {
@@ -66,7 +47,13 @@ Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/Helper' ], fu
         }
       }
     });
+
+    /* Bind and lock functions */
+    BoundClass.call(this);
   }
+
+  HelperFactory.prototype = Object.create(BoundClass.prototype);
+  HelperFactory.prototype.constructor = HelperFactory;
 
   return HelperFactory;
 

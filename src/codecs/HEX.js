@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/codecs/HEX', ["bletchley/codecs/Codec"], function(Codec) {
+Esquire.define('bletchley/codecs/HEX', ["bletchley/codecs/Codec", "bletchley/utils/arrays"], function(Codec, arrays) {
 
   /* ====================================================================== */
   /* Javascript implementation of HEX encoding/decoding                     */
@@ -44,11 +44,23 @@ Esquire.define('bletchley/codecs/HEX', ["bletchley/codecs/Codec"], function(Code
   }
 
   function HEX() {
-    Codec.call(this, "HEX", encode, decode);
+    Codec.call(this, "HEX");
   }
 
   HEX.prototype = Object.create(Codec.prototype);
   HEX.prototype.constructor = HEX;
+
+  HEX.prototype.encode = function(array) {
+    array = arrays.toUint8Array(array);
+    if (array.byteLength == 0) return '';
+    return encode(array);
+  }
+
+  HEX.prototype.decode = function(string) {
+    if (typeof(string) !== 'string') throw new Error("Can only decode strings");
+    if (string.length == 0) return new ArrayBuffer(0);
+    return decode(string);
+  }
 
   return HEX;
 
