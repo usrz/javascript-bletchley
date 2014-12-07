@@ -1,6 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs'], function(KDF, hmacs) {
+Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/HMACs'], function(KDF, HMACs) {
+
+  var hmacs = new HMACs();
 
   return new KDF("PBKDF2", function(password, salt, options) {
 

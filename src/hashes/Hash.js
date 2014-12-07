@@ -9,9 +9,6 @@ Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper',
       Object.defineProperties(this, {
         "blockSize":  { enumerable: true, configurable: false, value: blockSize },
         "digestSize": { enumerable: true, configurable: false, value: digestSize },
-        "hash":       { enumerable: true, configurable: false, value: function(message, output) {
-          return this.reset().update(message).finish(output);
-        }},
       });
 
       Helper.call(this, algorithm);
@@ -19,6 +16,10 @@ Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper',
 
     Hash.prototype = Object.create(Helper.prototype);
     Hash.prototype.constructor = Hash;
+
+    Hash.prototype.hash = function(message, output) {
+      return this.reset().update(message).finish(output);
+    }
 
     return Hash;
 

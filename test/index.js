@@ -2,7 +2,7 @@
 
 esquire(['bletchley/codecs/Codecs',
          'bletchley/hashes/Hashes',
-         'bletchley/hmacs',
+         'bletchley/hmacs/HMACs',
          'bletchley/kdfs',
 
          'bletchley/sync',
@@ -16,14 +16,14 @@ esquire(['bletchley/codecs/Codecs',
          'test/hmacs',
          'test/kdfs'],
 
-  function(Codecs, Hashes, hmacs, kdfs,
+  function(Codecs, Hashes, HMACs, kdfs,
            syncCrypto, workerCrypto, subtleCrypto, crypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
     describe("Helpers implementation", function() {
       testCodecs(new Codecs(), false);
       testHashes(new Hashes(), false);
-      testHMACs(hmacs, false);
+      testHMACs(new HMACs(), false);
       testKDFs(kdfs, false);
     });
 
