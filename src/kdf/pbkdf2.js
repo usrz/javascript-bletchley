@@ -1,10 +1,10 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/HMACs'], function(KDF, HMACs) {
+Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/HMACs'], function(KDF, HMACs) {
 
   var hmacs = new HMACs();
 
-  return new KDF("PBKDF2", function(password, salt, options) {
+  function pbkdf2(password, salt, options) {
 
     /* We *NEED* the number of iterations */
     var iterations = options.iterations;
@@ -56,7 +56,17 @@ Esquire.define('bletchley/kdfs/pbkdf2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/
     if (output.length == derivedKeyLength) return output;
     return new Uint8Array(output.buffer, 0, derivedKeyLength);
 
-  });
+  };
+
+  function PBKDF2() {
+    KDF.call(this, "PBKDF2", pbkdf2);
+  };
+
+  PBKDF2.prototype = Object.create(KDF.prototype);
+  PBKDF2.prototype.constructor = KDF;
+
+  return PBKDF2;
+
 });
 
 /* ========================================================================== */

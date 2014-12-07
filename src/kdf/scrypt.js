@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/scrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/pbkdf2'], function(KDF, pbkdf2) {
+Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/PBKDF2'], function(KDF, PBKDF2) {
 
   /*
    * This is an optimization: salsa20_8 is called roughly half a million times
@@ -20,6 +20,9 @@ Esquire.define('bletchley/kdfs/scrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/p
       D[Di + i] ^= S[Si + i];
     }
   }
+
+  /* Our PBKDF2 instance */
+  var pbkdf2 = new PBKDF2();
 
   /* ======================================================================== */
 
@@ -193,11 +196,11 @@ Esquire.define('bletchley/kdfs/scrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/p
   };
 
   /* ======================================================================== *
-   * KDF class for SCRYPT: validating parameters, then computing the initial  *
-   *                       and final PBKDF2                                   *
+   * KDF function for SCRYPT: validating parameters, then computing the       *
+   *                           initial and final PBKDF2                       *
    * ======================================================================== */
 
-  return new KDF("SCRYPT", function(password, salt, options) {
+  function scrypt(password, salt, options) {
 
     var iterations = options.iterations;
     var blockSize = options.blockSize;
@@ -230,6 +233,17 @@ Esquire.define('bletchley/kdfs/scrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/p
       iterations: 1
     });
 
-  });
+  };
+
+  /* ======================================================================== */
+
+  function SCrypt() {
+    KDF.call(this, "SCRYPT", scrypt);
+  };
+
+  SCrypt.prototype = Object.create(KDF.prototype);
+  SCrypt.prototype.constructor = SCrypt;
+
+  return SCrypt;
 
 });

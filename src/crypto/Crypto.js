@@ -5,13 +5,14 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
                                             'bletchley/codecs/Codecs',
                                             'bletchley/hashes/Hashes',
                                             'bletchley/hmacs/HMACs',
-                                            'bletchley/kdfs' ],
-  function(arrays, Random, Codecs, Hashes, HMACs, kdfs) {
+                                            'bletchley/kdfs/KDFs' ],
+  function(arrays, Random, Codecs, Hashes, HMACs, KDFs) {
 
     return function Crypto(random) {
       var codecs = new Codecs();
       var hashes = new Hashes();
       var hmacs = new HMACs();
+      var kdfs = new KDFs();
 
       if (! random) {
         random = new Random();

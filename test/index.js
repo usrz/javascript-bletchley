@@ -3,7 +3,7 @@
 esquire(['bletchley/codecs/Codecs',
          'bletchley/hashes/Hashes',
          'bletchley/hmacs/HMACs',
-         'bletchley/kdfs',
+         'bletchley/kdfs/KDFs',
 
          'bletchley/sync',
          'bletchley/worker',
@@ -16,7 +16,7 @@ esquire(['bletchley/codecs/Codecs',
          'test/hmacs',
          'test/kdfs'],
 
-  function(Codecs, Hashes, HMACs, kdfs,
+  function(Codecs, Hashes, HMACs, KDFs,
            syncCrypto, workerCrypto, subtleCrypto, crypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
 
@@ -24,7 +24,7 @@ esquire(['bletchley/codecs/Codecs',
       testCodecs(new Codecs(), false);
       testHashes(new Hashes(), false);
       testHMACs(new HMACs(), false);
-      testKDFs(kdfs, false);
+      testKDFs(new KDFs(), false);
     });
 
     describe("Synchronous crypto implementation", function() {
