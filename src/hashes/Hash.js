@@ -1,8 +1,7 @@
 'use strict';
 
-Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper',
-                                          'bletchley/utils/arrays' ],
-  function(Helper, extend, arrays) {
+Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper' ],
+  function(Helper) {
 
     function Hash(algorithm, blockSize, digestSize) {
 
