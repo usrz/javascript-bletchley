@@ -88,7 +88,7 @@ Esquire.define('bletchley/utils/Random', ['$global/crypto',
           } else if (size instanceof Uint8Array) {
             array = size;
           } else {
-            throw new TypeError("Size must be a number or Uint8Array");
+            throw new TypeError("Parameter must be a number or Uint8Array");
           }
 
           size = array.length;
