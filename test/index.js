@@ -6,25 +6,34 @@ Esquire.define('test/workerCrypto', [ 'bletchley/crypto/WorkerCrypto' ], functio
 });
 
 /* Run our tests */
-esquire(['bletchley/codecs/Codecs',
-         'bletchley/hashes/Hashes',
-         'bletchley/hmacs/HMACs',
-         'bletchley/kdfs/KDFs',
+esquire([ 'test/BigInteger',
+          'test/RSAKey',
 
-         'bletchley/crypto/Crypto',
-         'test/workerCrypto',
-         'test/subtleWrapper',
-         'bletchley',
+          'bletchley/codecs/Codecs',
+          'bletchley/hashes/Hashes',
+          'bletchley/hmacs/HMACs',
+          'bletchley/kdfs/KDFs',
 
-         'test/random',
-         'test/codecs',
-         'test/hashes',
-         'test/hmacs',
-         'test/kdfs'],
+          'bletchley/crypto/Crypto',
+          'test/workerCrypto',
+          'test/subtleWrapper',
+          'bletchley',
 
-  function(Codecs, Hashes, HMACs, KDFs,
+          'test/random',
+          'test/codecs',
+          'test/hashes',
+          'test/hmacs',
+          'test/kdfs' ],
+
+  function(testBigInteger, testRSAKey,
+           Codecs, Hashes, HMACs, KDFs,
            Crypto, workerCrypto, subtleWrapper, crypto,
            testRandom, testCodecs, testHashes, testHMACs, testKDFs) {
+
+    describe("Basic tests", function() {
+      testBigInteger();
+      testRSAKey();
+    });
 
     describe("Helpers implementation", function() {
       testCodecs(new Codecs(), false);
