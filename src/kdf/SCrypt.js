@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/PBKDF2'], function(KDF, PBKDF2) {
+Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/PBKDF2', 'bletchley/utils/arrays'], function(KDF, PBKDF2, arrays) {
 
   /*
    * This is an optimization: salsa20_8 is called roughly half a million times
@@ -238,11 +238,17 @@ Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/P
   /* ======================================================================== */
 
   function SCrypt() {
-    KDF.call(this, "SCRYPT", scrypt);
+    KDF.call(this, "SCRYPT");
   };
 
   SCrypt.prototype = Object.create(KDF.prototype);
   SCrypt.prototype.constructor = SCrypt;
+
+  SCrypt.prototype.kdf = function(password, salt, options) {
+    password = arrays.toUint8Array(password);
+    salt = arrays.toUint8Array(salt);
+    return scrypt(password, salt, options);
+  }
 
   return SCrypt;
 

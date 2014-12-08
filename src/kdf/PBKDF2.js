@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/HMACs'], function(KDF, HMACs) {
+Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/HMACs', 'bletchley/utils/arrays'], function(KDF, HMACs, arrays) {
 
   var hmacs = new HMACs();
 
@@ -59,11 +59,17 @@ Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/
   };
 
   function PBKDF2() {
-    KDF.call(this, "PBKDF2", pbkdf2);
+    KDF.call(this, "PBKDF2");
   };
 
   PBKDF2.prototype = Object.create(KDF.prototype);
   PBKDF2.prototype.constructor = KDF;
+
+  PBKDF2.prototype.kdf = function(password, salt, options) {
+    password = arrays.toUint8Array(password);
+    salt = arrays.toUint8Array(salt);
+    return pbkdf2(password, salt, options);
+  }
 
   return PBKDF2;
 
