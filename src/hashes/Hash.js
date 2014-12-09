@@ -57,7 +57,7 @@ Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper', 'bletchley/u
         return this;
       }},
 
-      "finish": { enumerable: true, configurable: true, value: function(output) {
+      "digest": { enumerable: true, configurable: true, value: function(output) {
 
         /* No output? Create a new buffer */
         if (! output) {
@@ -71,7 +71,6 @@ Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper', 'bletchley/u
         /* Flush, get the current hash, reset, and return */
         this.$flush(buff, pos, len, view);
         this.$hash(new DataView(output.buffer, output.byteOffset, output.byteLength));
-        this.reset();
         return output;
 
       }}
@@ -84,7 +83,7 @@ Esquire.define('bletchley/hashes/Hash', [ 'bletchley/utils/Helper', 'bletchley/u
   Hash.prototype.constructor = Hash;
 
   Hash.prototype.hash = function(message, output) {
-    return this.reset().update(message).finish(output);
+    return this.reset().update(message).digest(output);
   }
 
   Hash.prototype.$reset   = function() { throw new Error("Hash $reset not implemented") }
