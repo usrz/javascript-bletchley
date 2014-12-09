@@ -52,11 +52,11 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/Helper',
 
         /* Calculate the inner key padding, and get the inner hash */
         arrays.xorUint8Arrays(innerPadding, expandedSalt, innerKeyPadding);
-        hash.reset().update(innerKeyPadding).update(secret).finish(innerHash);
+        hash.reset().update(innerKeyPadding).update(secret).digest(innerHash);
 
         /* Calculare the outer key padding, slap result in the output and done */
         arrays.xorUint8Arrays(outerPadding, expandedSalt, outerKeyPadding);
-        return hash.reset().update(outerKeyPadding).update(innerHash).finish(output);
+        return hash.reset().update(outerKeyPadding).update(innerHash).digest(output);
       };
 
       Helper.call(this, hash.algorithm);
