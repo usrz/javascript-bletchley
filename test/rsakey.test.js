@@ -23,9 +23,6 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
     var dmq1_bi  = BigInteger.fromString(dmq1_hex, 16);
     var coeff_bi = BigInteger.fromString(coeff_hex, 16);
 
-    console.log("N", n_bi.toString(10));
-    console.log("D", d_bi.toString(10));
-
     var n_arr     = codecs.decode("HEX", n_hex);
     var e_arr     = codecs.decode("HEX", e_hex);
     var d_arr     = codecs.decode("HEX", d_hex);
@@ -136,7 +133,7 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
       });
 
       it('should have a bit length', function() {
-        console.warn(new RSAKey(n_hex, e_hex).bitLength());
+        expect(new RSAKey(n_hex, e_hex).bitLength()).to.equal(1024);
       });
 
       it('should parse a X.509 public key', function() {
