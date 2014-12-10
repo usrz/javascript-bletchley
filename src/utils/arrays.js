@@ -177,12 +177,9 @@ function(TextEncoder, TextDecoder, Buffer, encodeURIComponent, decodeURIComponen
 
     /* array1 must be shorter than array2 */
     if (array1.length > array2.length) {
-      //console.warn("SWAPPING", array1.length, array2.length);
       var temp = array2;
       array2 = array1;
       array1 = temp;
-    } else if (array1.length === array2.length) {
-      //console.warn("EQUALS", array1.length);
     }
 
     /* New array cloning the longer array */
