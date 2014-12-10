@@ -177,7 +177,7 @@ Esquire.define('bletchley/codecs/Base64', [ "bletchley/codecs/Codec",
     Base64.prototype.decode = function(string) {
       if (typeof(string) !== 'string') throw new Error("Can only decode strings");
       if (string.length == 0) return new ArrayBuffer(0);
-      return decode(string);
+      return decode(string.replace(/\s*/g, ''));
     }
 
     return Base64;
