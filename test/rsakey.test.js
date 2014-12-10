@@ -23,6 +23,9 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
     var dmq1_bi  = BigInteger.fromString(dmq1_hex, 16);
     var coeff_bi = BigInteger.fromString(coeff_hex, 16);
 
+    console.log("N", n_bi.toString(10));
+    console.log("D", d_bi.toString(10));
+
     var n_arr     = codecs.decode("HEX", n_hex);
     var e_arr     = codecs.decode("HEX", e_hex);
     var d_arr     = codecs.decode("HEX", d_hex);
@@ -132,8 +135,92 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
 
       });
 
-      it('have a bit length', function() {
+      it('should have a bit length', function() {
         console.warn(new RSAKey(n_hex, e_hex).bitLength());
+      });
+
+      it('should parse a X.509 public key', function() {
+        var pem = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDOts8BH8RmOgTvQ1ffZS3LJc+j'
+                + 'N7ENpprojn+4wqKeZtVfH2nc2ofOfu/HF16In/7dRyYTXCBLNFzYn+8XerMC58zR'
+                + 'Z4H6cp0vs23JDeHMDklJiGz6potfAEtY7GsYPByE7KpHpr4o4Bovo15vJ1DQF6N5'
+                + 'DxKsh3kTuc39wVcy7QIDAQAB';
+        var der = codecs.decode('BASE64', pem);
+        var key = RSAKey.parsePublic(der);
+
+        var n = codecs.encode('HEX', key.n.toUint8Array());
+
+        expect(n,             "N").to.equal('00' + n_hex);
+        expect(key.e,         "E").to.equal(0x10001);
+        expect(key.d,         "D").not.to.exist;
+        expect(key.p,         "P").not.to.exist;
+        expect(key.q,         "Q").not.to.exist;
+        expect(key.dmp1,   "DMP1").not.to.exist;
+        expect(key.dmq1,   "DMQ1").not.to.exist;
+        expect(key.coeff, "COEFF").not.to.exist;
+
+      });
+
+      it('should parse a PKCS#8 private key', function() {
+        var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
+                + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'
+                + '7xd6swLnzNFngfpynS+zbckN4cwOSUmIbPqmi18AS1jsaxg8HITsqkemvijgGi+j'
+                + 'Xm8nUNAXo3kPEqyHeRO5zf3BVzLtAgMBAAECgYBHH4UH2PtFRQ8vl5cjaPehnwfb'
+                + 'G61SihFglK8DTgyPvcgKa4+MCrCRbwFnGfZPweT6E6HZJWiDF6gebKDiDjiK11Nx'
+                + 'hHgLj/gyPwae/ujtl8ylL1t9HYNdOTJDXJRELaSaIc0f5y7M271ZI+yLaxjsAE8E'
+                + 'TXnEktzseZMHqZkZ7QJBAP2QHgfdq0p2HZ2yLihxgp7nRJlW5uqlKzLksGB5N83v'
+                + 'Y+6oq663xECeAIBZx+yT4oMPyFSyvXV3Qg4LQPGPWhsCQQDQs2vcmTeH7gH71ojF'
+                + 'T3K3x1KfcsIPYlbx7fr+i/l0GuX/RmDIKfNKahDmiF4TDiKkVbIbhaMFOrGpOSWv'
+                + 'G/eXAkEAqW5zoq3sl4T1pTo6vaubrLK8k/oNsx1LEGbftJdLQsCD9iWfEtCYwtTR'
+                + 'YPKdNOhco1cYdgA5uRRHfzrl2oP/oQJBAIows9QfM/DyvSeHV4rm33wnJGNl9m9/'
+                + 'WzjYrqDMCIJDqVWNwVnoxSrZ7pTnaPtPGcsc31Fv/JDi227E41n+t8MCQQD1vsBU'
+                + 'K8MdSX1FtHjvqc2jg+hqin5Ed3xBA2n+Rc2wdvgfye45MlJD/qZMMtwb4ai+FkYv'
+                + 'pUjvYB0w5xWZvFoP';
+        var der = codecs.decode('BASE64', pem);
+        var key = RSAKey.parsePrivate(der);
+
+        var n     = codecs.encode('HEX', key.n.toUint8Array());
+        var d     = codecs.encode('HEX', key.d.toUint8Array());
+        var p     = codecs.encode('HEX', key.p.toUint8Array());
+        var q     = codecs.encode('HEX', key.q.toUint8Array());
+        var dmp1  = codecs.encode('HEX', key.dmp1.toUint8Array());
+        var dmq1  = codecs.encode('HEX', key.dmq1.toUint8Array());
+        var coeff = codecs.encode('HEX', key.coeff.toUint8Array());
+
+        expect(n,         "N").to.equal('00' + n_hex);
+        expect(key.e,     "E").to.equal(0x10001);
+        expect(d,         "D").to.equal(       d_hex); // positive!
+        expect(p,         "P").to.equal('00' + p_hex);
+        expect(q,         "Q").to.equal('00' + q_hex);
+        expect(dmp1,   "DMP1").to.equal('00' + dmp1_hex);
+        expect(dmq1,   "DMQ1").to.equal('00' + dmq1_hex);
+        expect(coeff, "COEFF").to.equal('00' + coeff_hex);
+
+      });
+
+      it('should parse a PKCS#8 private key with no public exponent', function() {
+        // Made in Java using only modulus and private exponent via KeyFactory...
+        var pem = 'MIIBNgIBADANBgkqhkiG9w0BAQEFAASCASAwggEcAgEAAoGBAM62zwEfxGY6BO9D'
+                + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'
+                + '7xd6swLnzNFngfpynS+zbckN4cwOSUmIbPqmi18AS1jsaxg8HITsqkemvijgGi+j'
+                + 'Xm8nUNAXo3kPEqyHeRO5zf3BVzLtAgEAAoGARx+FB9j7RUUPL5eXI2j3oZ8H2xut'
+                + 'UooRYJSvA04Mj73ICmuPjAqwkW8BZxn2T8Hk+hOh2SVogxeoHmyg4g44itdTcYR4'
+                + 'C4/4Mj8Gnv7o7ZfMpS9bfR2DXTkyQ1yURC2kmiHNH+cuzNu9WSPsi2sY7ABPBE15'
+                + 'xJLc7HmTB6mZGe0CAQACAQACAQACAQACAQA=';
+        var der = codecs.decode('BASE64', pem);
+        var key = RSAKey.parsePrivate(der);
+
+        var n     = codecs.encode('HEX', key.n.toUint8Array());
+        var d     = codecs.encode('HEX', key.d.toUint8Array());
+
+        expect(n,             "N").to.equal('00' + n_hex);
+        expect(key.e,         "E").not.to.exist;
+        expect(d,             "D").to.equal(d_hex); // positive!
+        expect(key.p,         "P").not.to.exist;
+        expect(key.q,         "Q").not.to.exist;
+        expect(key.dmp1,   "DMP1").not.to.exist;
+        expect(key.dmq1,   "DMQ1").not.to.exist;
+        expect(key.coeff, "COEFF").not.to.exist;
+
       });
 
     });
