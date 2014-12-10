@@ -23,10 +23,6 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
   var lock = {};
   function BigInteger(clock) {
     if (clock !== lock) throw new Error("Create using static methods");
-    // if(a != null)
-    //   if("number" == typeof a) this.fromNumber(a,b,c);
-    //   else if(b == null && "string" != typeof a) this.fromString(a,256);
-    //   else this.fromString(a,b);
   }
 
   // return new, unset BigInteger
@@ -1143,6 +1139,11 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
 
   /* ======================================================================== */
 
+  // (public) return the number of bytes in "this"
+  function bnByteLength() {
+    return (this.bitLength()>>3)+1;
+  }
+
   // (protected) push bytes in array
   function bnpToBytes(r) {
     var i = this.t;
@@ -1169,13 +1170,38 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
   }
 
   // (public) convert to bigendian byte array
-  function bnToByteArray() {
-    return this.toBytes(new Array((this.bitLength()>>3)+1));
+  function bnToByteArray(array) {
+    var length = this.byteLength();
+
+    /* No array, create and return */
+    if (! array) return this.toBytes(new Array(length));
+
+    /* Must be an Array or Uint8Array (be liberal) */
+    if ((Array.isArray(array)) && (array.length >= length)) {
+      this.toBytes(array);
+      return length;
+    } else if ((array instanceof Uint8Array) && (array.length >= length)) {
+      this.toBytes(array);
+      return length;
+    } else {
+      throw new Error("Argument must be an Array of at least " + length + " bytes");
+    }
   }
 
   // (public) convert to bigendian uint8 byte array
-  function bnToUint8Array() {
-    return this.toBytes(new Uint8Array((this.bitLength()>>3)+1));
+  function bnToUint8Array(array) {
+    var length = this.byteLength();
+
+    /* No array, create and return */
+    if (!array) return this.toBytes(new Uint8Array(length));
+
+    /* Must be a Uint8Array */
+    if ((array instanceof Uint8Array) && (array.length >= length)) {
+      this.toBytes(array);
+      return length;
+    } else {
+      throw new Error("Argument must be a Uint8Array of at least " + length + " bytes");
+    }
   }
 
 
@@ -1265,7 +1291,8 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
     /* From "jsbn2.js", public JSBN-specific extension (enumerable) */
     "square":             { configurable: false, enumerable: true,  value: bnSquare             },
 
-    /* Locally modified */
+    /* Locally modified/added */
+    "byteLength":         { configurable: false, enumerable: true,  value: bnByteLength         },
     "toBytes":            { configurable: false, enumerable: false, value: bnpToBytes           },
     "toByteArray":        { configurable: false, enumerable: true,  value: bnToByteArray        },
     "toUint8Array":       { configurable: false, enumerable: true,  value: bnToUint8Array       },
