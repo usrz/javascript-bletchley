@@ -1,9 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/paddings/I2OSPPadder', ['bletchley/blocks/Receiver'], function(Receiver) {
+Esquire.define('bletchley/paddings/I2OSPPadder', ['bletchley/blocks/Forwarder'], function(Forwarder) {
 
     function I2OSPPadder(receiver, keySize) {
-      if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver");
       if ((typeof(keySize) !== 'number') || (keySize < 1))
         throw new Error("Key size must be at least 1 bytes");
 
@@ -20,25 +19,25 @@ Esquire.define('bletchley/paddings/I2OSPPadder', ['bletchley/blocks/Receiver'], 
             for (var i = 0; i < offset; i ++) {
               if (message[i] != 0) throw new Error("Message too big (max " + keySize + " bytes)");
             }
-            return receiver.push(message.subarray(offset), last);
+            return this.$next(message.subarray(offset), last);
           }
 
           /* Precisely correct size, push unchanged */
-          if (message.length == keySize) return receiver.push(message, last);
+          if (message.length == keySize) return this.$next(message, last);
 
           /* Message must be padded with zeroes */
           var offset = keySize - message.length;
           buffer.set(zeroes.subarray(0, offset));
           buffer.set(message, offset);
-          return receiver.push(buffer, last);
+          return this.$next(buffer, last);
 
         }}
       });
 
-      Receiver.call(this);
+      Forwarder.call(this, receiver);
     }
 
-    I2OSPPadder.prototype = Object.create(Receiver.prototype);
+    I2OSPPadder.prototype = Object.create(Forwarder.prototype);
     I2OSPPadder.prototype.constructor = I2OSPPadder;
 
     return I2OSPPadder;

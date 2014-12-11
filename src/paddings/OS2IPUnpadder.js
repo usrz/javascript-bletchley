@@ -1,12 +1,11 @@
 'use strict';
 
-Esquire.define('bletchley/paddings/OS2IPUnpadder', ['bletchley/blocks/Receiver'], function(Receiver) {
+Esquire.define('bletchley/paddings/OS2IPUnpadder', ['bletchley/blocks/Forwarder'], function(Forwarder) {
 
     /* Shared single "zero" */
     var zero = new Uint8Array(1);
 
     function OS2IPUnpadder(receiver, keySize) {
-      if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver");
       if ((typeof(keySize) !== 'number') || (keySize < 1))
         throw new Error("Key size must be at least 1 bytes");
 
@@ -24,34 +23,34 @@ Esquire.define('bletchley/paddings/OS2IPUnpadder', ['bletchley/blocks/Receiver']
           }
 
           /* All leding zeroes? */
-          if (offset == keySize) return receiver.push(zero, last);
+          if (offset == keySize) return this.$next(zero, last);
 
           /* If the message starts with a zero... */
           if (offset > 0) {
             if ((message[offset] & 128) != 0) {
               /* If the highest bit is 1 leave one zero (non-negative) */
-              return receiver.push(message.subarray(offset -1), last);
+              return this.$next(message.subarray(offset -1), last);
             } else {
               /* If the highest bit is 0 just trim at length */
-              return receiver.push(message.subarray(offset), last);
+              return this.$next(message.subarray(offset), last);
             }
           }
 
           /* The offset is zero, we MIGHT have to copy */
           if ((message[0] & 128) != 0) {
             buffer.set(message, 1);
-            return receiver.push(buffer, last);
+            return this.$next(buffer, last);
           }
 
           /* No chance it can be negative... */
-          return receiver.push(message, last);
+          return this.$next(message, last);
         }}
       });
 
-      Receiver.call(this);
+      Forwarder.call(this, receiver);
     }
 
-    OS2IPUnpadder.prototype = Object.create(Receiver.prototype);
+    OS2IPUnpadder.prototype = Object.create(Forwarder.prototype);
     OS2IPUnpadder.prototype.constructor = OS2IPUnpadder;
 
     return OS2IPUnpadder;

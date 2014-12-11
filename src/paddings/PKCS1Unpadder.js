@@ -1,9 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/paddings/PKCS1Unpadder', ['bletchley/blocks/Receiver'], function(Receiver) {
+Esquire.define('bletchley/paddings/PKCS1Unpadder', ['bletchley/blocks/Forwarder'], function(Forwarder) {
 
     function PKCS1Unpadder(receiver, keySize) {
-      if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver");
       if ((typeof(keySize) !== 'number') || (keySize < 12))
         throw new Error("Key size must be at least 12 bytes");
 
@@ -14,17 +13,17 @@ Esquire.define('bletchley/paddings/PKCS1Unpadder', ['bletchley/blocks/Receiver']
           if (message[1] != 2) throw new Error("Invalid message block type");
           for (var i = 2; i < message.length; i ++) {
             if (message[i] == 0) {
-              return receiver.push(message.subarray(i + 1), last);
+              return this.$next(message.subarray(i + 1), last);
             }
           }
           throw new Error("Message delimiter not found");
         }}
       });
 
-      Receiver.call(this);
+      Forwarder.call(this, receiver);
     }
 
-    PKCS1Unpadder.prototype = Object.create(Receiver.prototype);
+    PKCS1Unpadder.prototype = Object.create(Forwarder.prototype);
     PKCS1Unpadder.prototype.constructor = PKCS1Unpadder;
 
     return PKCS1Unpadder;

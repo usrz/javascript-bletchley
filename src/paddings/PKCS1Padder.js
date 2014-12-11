@@ -1,10 +1,9 @@
 'use strict';
 
-Esquire.define('bletchley/paddings/PKCS1Padder', ['bletchley/blocks/Receiver', 'bletchley/utils/Random'],
-  function(Receiver, Random) {
+Esquire.define('bletchley/paddings/PKCS1Padder', ['bletchley/blocks/Forwarder', 'bletchley/utils/Random'],
+  function(Forwarder, Random) {
 
     function PKCS1Padder(receiver, random, keySize) {
-      if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
       if ((typeof(keySize) !== 'number') || (keySize < 12))
         throw new Error("Key size must be at least 12 bytes");
@@ -44,14 +43,14 @@ Esquire.define('bletchley/paddings/PKCS1Padder', ['bletchley/blocks/Receiver', '
             }
           }
           /* Push off the padded block */
-          return receiver.push(buffer, last);
+          return this.$next(buffer, last);
         }}
       });
 
-      Receiver.call(this);
+      Forwarder.call(this, receiver);
     }
 
-    PKCS1Padder.prototype = Object.create(Receiver.prototype);
+    PKCS1Padder.prototype = Object.create(Forwarder.prototype);
     PKCS1Padder.prototype.constructor = PKCS1Padder;
 
     return PKCS1Padder;
