@@ -6,8 +6,9 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
                                   'bletchley/paddings/PKCS1Padder',
                                   'bletchley/paddings/PKCS1Unpadder',
                                   'bletchley/paddings/I2OSPPadder',
-                                  'bletchley/paddings/OS2IPUnpadder' ],
-  function(Random, Codecs, Accumulator, PKCS1Padder, PKCS1Unpadder, I2OSPPadder, OS2IPUnpadder) {
+                                  'bletchley/paddings/OS2IPUnpadder',
+                                  'bletchley/paddings/OAEPPadder' ],
+  function(Random, Codecs, Accumulator, PKCS1Padder, PKCS1Unpadder, I2OSPPadder, OS2IPUnpadder, OAEPPadder) {
 
     var random = new Random();
     var codecs = new Codecs();
@@ -366,8 +367,34 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
               pad.push(buf);
             }).to.throw("Message too big (max 128 bytes)");
           })
-
         });
+
+        /* ================================================================== */
+
+        function OAEPTestVectorRandom() {
+          // this works with SHA1
+          var buf = codecs.decode('HEX', 'aafd12f659cae63489b479e5076ddec2f06cb58f');
+          var pos = 0;
+          this.next = function() {
+            if (pos < buf.length) return buf[pos ++];
+            throw new Error("Exhausted!");
+          }
+        }
+
+        OAEPTestVectorRandom.prototype = Object.create(Random.prototype);
+        OAEPTestVectorRandom.prototype.constructor = OAEPTestVectorRandom;
+
+        var x = codecs.decode('HEX', 'd4 36 e9 95 69 fd 32 a7 c8 a0 5b bc 90 d3 2c 49'.replace(/\s*/g, ''));
+
+        describe.only("OAEP", function() {
+
+          it('should pad the OAEP test vector', function() {
+            var acc = new Accumulator();
+            var pad = new OAEPPadder(acc, new OAEPTestVectorRandom(), 128);
+            pad.push(x);
+          })
+        });
+
       });
     }
   }

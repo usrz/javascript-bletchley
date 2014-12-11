@@ -3,8 +3,11 @@
 Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
                                    'bletchley/ciphers/RSAKey',
                                    'bletchley/codecs/Codecs',
-                                   'bletchley/utils/Random' ],
-  function(RSACipher, RSAKey, Codecs, Random) {
+                                   'bletchley/utils/Random',
+                                   'test/rsa/pkcs1Vectors',
+                                   'test/rsa/oaepVectors',
+                                   'test/FakeRandom' ],
+  function(RSACipher, RSAKey, Codecs, Random, pkcs1Vectors, oaepVectors, FakeRandom) {
 
     var codecs = new Codecs();
     var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
@@ -94,6 +97,40 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             expect(dec.length).to.equal(buf.length);
             expect(dec).to.deep.equal(buf);
           }
+        });
+
+        /* Test vectors for PKCS#1 */
+        describe("PKCS#1 v1.5", function() {
+          for (var i in pkcs1Vectors) (function(suite) {
+            var n = codecs.decode('HEX', suite.key.n);
+            var e = codecs.decode('HEX', suite.key.e);
+            var d = codecs.decode('HEX', suite.key.d);
+            var key = new RSAKey(n, e, d);
+
+            describe(suite.name, function() {
+              for (var j in suite.vectors) (function(vector, key) {
+                it(vector.name, function() {
+
+                  /* New fake random and RSA */
+                  var rnd = new FakeRandom(vector.rnd);
+                  var rsa = new RSACipher(key, rnd);
+
+                  /* Parse out message and encrypted */
+                  var msg = codecs.decode('HEX', vector.msg);
+                  var enc = codecs.decode('HEX', vector.enc);
+
+                  /* Decrypt first */
+                  var dec = rsa.decrypt(enc);
+                  expect(dec).to.deep.equal(msg);
+
+                  /* Encrypt then */
+                  var out = rsa.encrypt(msg);
+                  expect(out).to.deep.equal(enc);
+
+                });
+              })(suite.vectors[j], key);
+            });
+          })(pkcs1Vectors[i]);
         });
 
       })
