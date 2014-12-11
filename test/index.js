@@ -10,6 +10,7 @@ esquire([ 'test/BigInteger',
           'test/RSAKey',
           'test/random',
           'test/blocks',
+          'test/paddings',
 
           'bletchley/codecs/Codecs',
           'bletchley/hashes/Hashes',
@@ -26,7 +27,7 @@ esquire([ 'test/BigInteger',
           'test/hmacs',
           'test/kdfs' ],
 
-  function(testBigInteger, testRSAKey, testRandom, testBlocks,
+  function(testBigInteger, testRSAKey, testRandom, testBlocks, testPaddings,
            Codecs, Hashes, HMACs, KDFs,
            Crypto, workerCrypto, subtleWrapper, crypto,
            testCodecs, testHashes, testHMACs, testKDFs) {
@@ -39,6 +40,7 @@ esquire([ 'test/BigInteger',
       testRSAKey();
       testRandom();
       testBlocks();
+      testPaddings();
     });
 
     describe("Helpers implementation", function() {
