@@ -43,11 +43,32 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
       throw new Error("Invalid RSA key: E or D must be specified");
     }
 
+    /* We must have a modulus N */
+    if (n == null) {
+      if ((p == null) && (q == null)) {
+        throw new Error("Invalid RSA key: N or P and Q must be specified");
+      } else {
+        n = p.multiply(q);
+      }
+    }
+
+    /*
+     * Calculate bit length and block size
+     * The BigInteger.byteLength() function does a different calculation:
+     *
+     *   (bitLength() >> 3 ) + 1
+     *
+     * Here, we don't want to prepend a 0 byte if the first bit in the first
+     * byte is "1", as we don't work with negative integers...
+     */
+    var bitLength = n.bitLength();
+    var blockSize = (bitLength + 7) >> 3;
+
+    /* Our properties */
     Object.defineProperties(this, {
-      'n': { enumerable: true, configurable: false, get: function() {
-        if (n != null) return n;
-        return n = p.multiply(q);
-      }},
+      'bitLength': { enumerable: true, configurable: false, value: bitLength },
+      'blockSize': { enumerable: true, configurable: false, value: blockSize },
+      'n': { enumerable: true, configurable: false, value: n },
       'e': { enumerable: true, configurable: false, value: e },
       'd': { enumerable: true, configurable: false, value: d },
       'p': { enumerable: true, configurable: false, get: function() {
@@ -79,9 +100,6 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
         if (this.p == null) return null;
         if (this.q == null) return null;
         return coeff = this.q.modInverse(this.p);
-      }},
-      'bitLength': { enumerable: false, configurable: false, value: function() {
-        return this.n.bitLength();
       }}
     });
   }

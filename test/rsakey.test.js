@@ -133,7 +133,9 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
       });
 
       it('should have a bit length', function() {
-        expect(new RSAKey(n_hex, e_hex).bitLength()).to.equal(1024);
+        var key = new RSAKey(n_hex, e_hex)
+        expect(key.bitLength).to.equal(1024);
+        expect(key.blockSize).to.equal(128);
       });
 
       it('should parse a X.509 public key', function() {
