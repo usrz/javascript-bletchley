@@ -8,8 +8,15 @@ Esquire.define('bletchley/blocks/Accumulator', ['bletchley/blocks/Receiver'], fu
 
     this.push = function(buffer, last) {
       /* No need to clone */
-      if (last) buffers.push(buffer);
-      else {
+      if (last) {
+        if (buffers.size == 0) {
+          var clone = new Uint8Array(buffer.length);
+          clone.set(buffer);
+          return clone;
+        } else {
+          buffers.push(buffer);
+        }
+      } else {
         /* Clone the buffer, and remember it */
         var clone = new Uint8Array(buffer.length);
         clone.set(buffer);
