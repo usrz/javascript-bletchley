@@ -195,8 +195,6 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
         });
 
 
-
-
         /* ================================================================== */
         /* OTHER INTERNAL PADDINGS (not in Paddings class)                    */
         /* ================================================================== */

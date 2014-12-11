@@ -41,7 +41,7 @@ esquire([ 'test/BigInteger',
       // testRSAKey();
       // testRandom();
       // testBlocks();
-      // testPaddings();
+      testPaddings();
       testRSACipher();
     });
 

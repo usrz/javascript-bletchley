@@ -3,13 +3,16 @@
 Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
                                    'bletchley/ciphers/RSAKey',
                                    'bletchley/codecs/Codecs',
+                                   'bletchley/paddings/Paddings',
                                    'bletchley/utils/Random',
                                    'test/rsa/pkcs1Vectors',
                                    'test/rsa/oaepVectors',
                                    'test/FakeRandom' ],
-  function(RSACipher, RSAKey, Codecs, Random, pkcs1Vectors, oaepVectors, FakeRandom) {
+  function(RSACipher, RSAKey, Codecs, Paddings, Random, pkcs1Vectors, oaepVectors, FakeRandom) {
 
     var codecs = new Codecs();
+    var paddings = new Paddings();
+
     var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
             + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'
             + '7xd6swLnzNFngfpynS+zbckN4cwOSUmIbPqmi18AS1jsaxg8HITsqkemvijgGi+j'
@@ -27,10 +30,14 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
     var der = codecs.decode('BASE64', pem);
     var key = RSAKey.parsePrivate(der);
     var rnd = new Random();
-    var rsa = new RSACipher(key, rnd);
+
+    var pkcs1 = paddings.$helper("PKCS1");
 
     return function() {
-      describe("RSA Cipher", function() {
+      describe("RSA/PKCS1 Cipher", function() {
+
+        var rsa = new RSACipher(key, pkcs1, rnd);
+
         it('should decrypt a short string', function() {
           // echo -n 'abc' | openssl rsautl -inkey foo.key -encrypt | base64
           var buf = codecs.decode('BASE64', 'QwlnoX3G6XZSwitf2VCUlVQpDB37ajH/kDQCUAOAer3TrRErKl37zKGHJeaK7PsiBLeNZCYLwNHk0lMwRnjGcSKhrZlFI0t9onybn1U6JuCR3aQL9NOlVLbCE2VUUfaTAS0jTc1n8AEG5BSpkL0wK6T4zjvH/BYkBUAkPh8ot1M=');
@@ -98,6 +105,9 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             expect(dec).to.deep.equal(buf);
           }
         });
+      })
+
+      describe("RSA test vectors", function() {
 
         /* Test vectors for PKCS#1 */
         describe("PKCS#1 v1.5", function() {
@@ -113,7 +123,7 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
 
                   /* New fake random and RSA */
                   var rnd = new FakeRandom(vector.rnd);
-                  var rsa = new RSACipher(key, rnd);
+                  var rsa = new RSACipher(key, pkcs1, rnd);
 
                   /* Parse out message and encrypted */
                   var msg = codecs.decode('HEX', vector.msg);
@@ -132,8 +142,7 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             });
           })(pkcs1Vectors[i]);
         });
-
-      })
+      });
     }
   }
 );

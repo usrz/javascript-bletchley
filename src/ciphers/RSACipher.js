@@ -10,13 +10,12 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
                                                 'bletchley/blocks/Chunker',
                                                 'bletchley/blocks/Forwarder',
                                                 'bletchley/ciphers/RSAKey',
-                                                'bletchley/paddings/PKCS1Padder',
-                                                'bletchley/paddings/PKCS1Unpadder',
+                                                'bletchley/paddings/Padding',
                                                 'bletchley/paddings/I2OSPPadder',
                                                 'bletchley/paddings/OS2IPUnpadder',
                                                 'bletchley/utils/BigInteger',
                                                 'bletchley/utils/Random' ],
-  function(Accumulator, Chunker, Forwarder, RSAKey, PKCS1Padder, PKCS1Unpadder, I2OSPPadder, OS2IPUnpadder, BigInteger, Random) {
+  function(Accumulator, Chunker, Forwarder, RSAKey, Padding, I2OSPPadder, OS2IPUnpadder, BigInteger, Random) {
 
     function RSAEncipher(receiver, key) {
       if (key.e == null) throw new Error("Key lacks public exponent");
@@ -35,6 +34,8 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
     RSAEncipher.prototype = Object.create(Forwarder.prototype);
     RSAEncipher.prototype.constructor = RSAEncipher;
 
+    /* ======================================================================= */
+
     function RSADecipher(receiver, key) {
       if (key.d == null) throw new Error("Key lacks private exponent");
       this.push = function(message, last) {
@@ -52,8 +53,11 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
     RSADecipher.prototype = Object.create(Forwarder.prototype);
     RSADecipher.prototype.constructor = RSADecipher;
 
-    function RSACipher(key, random) {
+    /* ======================================================================= */
+
+    function RSACipher(key, padding, random) {
       if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
+      if (!(padding instanceof Padding)) throw new Error("Invalid Padding");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
 
       var blockSize = key.blockSize;
@@ -68,9 +72,9 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
         var rsaEncipher = new RSAEncipher(i2ospPadder, key);
         // we can avoid OS2IP padding here, as encipher will use the number,
         // and PKCS1 blocks always start with 0x00 0x02 (so, positive integer)
-        var pkcs1Padder = new PKCS1Padder(rsaEncipher, random, blockSize);
+        var padder = padding.pad(rsaEncipher, random, blockSize);
         // chunk up into blockSize - 11 elements (see encypher above)
-        var chunker = new Chunker(pkcs1Padder, pkcs1Padder.blockSize);
+        var chunker = new Chunker(padder, padder.blockSize);
 
         // do it!
         var result = chunker.push(data, true);
@@ -82,9 +86,9 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
         // again, bottom to top!
         var accumulator = new Accumulator();
         // remove the randomness from the block, and check it
-        var pkcs1Unpadder = new PKCS1Unpadder(accumulator, blockSize);
+        var unpadder = padding.unpad(accumulator, random, blockSize);
         // now we want a blockSize array, it will start with 0x00 0x02
-        var i2ospPadder = new I2OSPPadder(pkcs1Unpadder, blockSize);
+        var i2ospPadder = new I2OSPPadder(unpadder, blockSize);
         // the magic of RSA:  (message ^ key.d) mod key.n
         var rsaDecipher = new RSADecipher(i2ospPadder, key);
         // os2ip guarantees we have a positive integer
