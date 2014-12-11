@@ -3,8 +3,8 @@
 Esquire.define('bletchley/paddings/I2OSPPadder', ['bletchley/blocks/Forwarder'], function(Forwarder) {
 
     function I2OSPPadder(receiver, keySize) {
-      if ((typeof(keySize) !== 'number') || (keySize < 1))
-        throw new Error("Key size must be at least 1 bytes");
+      if (typeof(keySize) !== 'number') throw new Error("Key size must be a number");
+      if (keySize < 32) throw new Error("Key size must be at least 32 (256 bit)");
 
       /* Zeroes and buffer */
       var zeroes = new Uint8Array(keySize);

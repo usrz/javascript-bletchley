@@ -5,8 +5,8 @@ Esquire.define('bletchley/paddings/PKCS1Padder', ['bletchley/blocks/Forwarder', 
 
     function PKCS1Padder(receiver, random, keySize) {
       if (!(random instanceof Random)) throw new Error("Invalid Random");
-      if ((typeof(keySize) !== 'number') || (keySize < 12))
-        throw new Error("Key size must be at least 12 bytes");
+      if (typeof(keySize) !== 'number') throw new Error("Key size must be a number");
+      if (keySize < 32) throw new Error("Key size must be at least 32 (256 bit)");
 
       /* Buffer for whole output (full block size) */
       var buffer = new Uint8Array(keySize);
