@@ -57,7 +57,6 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
       if (!(random instanceof Random)) throw new Error("Invalid Random");
 
       var blockSize = key.blockSize;
-      console.log("BLOCKSIZE", blockSize);
 
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
       this.encrypt = function(data) {
