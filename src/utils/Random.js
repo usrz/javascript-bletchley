@@ -76,22 +76,22 @@ Esquire.define('bletchley/utils/Random', [ 'bletchley/utils/BoundClass',
           S[i] = S[j];
           S[j] = t;
           return S[(t + S[i]) & 255];
-        }},
-        "nextBytes": { enumerable: true, configurable: true, value: function(size) {
-          var array;
+        // }},
+        // "nextBytes": { enumerable: true, configurable: true, value: function(size) {
+        //   var array;
 
-          if (typeof(size) === 'number') {
-            if (size < 1) throw new RangeError("Size must be a positive integer");
-            var array = new Uint8Array(size);
-          } else if (size instanceof Uint8Array) {
-            array = size;
-          } else {
-            throw new TypeError("Parameter must be a number or Uint8Array");
-          }
+        //   if (typeof(size) === 'number') {
+        //     if (size < 1) throw new RangeError("Size must be a positive integer");
+        //     var array = new Uint8Array(size);
+        //   } else if (size instanceof Uint8Array) {
+        //     array = size;
+        //   } else {
+        //     throw new TypeError("Parameter must be a number or Uint8Array");
+        //   }
 
-          size = array.length;
-          for (var i = 0; i < size; i ++) array[i] = this.next();
-          return array;
+        //   size = array.length;
+        //   for (var i = 0; i < size; i ++) array[i] = this.next();
+        //   return array;
         }}
       });
 
@@ -106,6 +106,23 @@ Esquire.define('bletchley/utils/Random', [ 'bletchley/utils/BoundClass',
 
     Random.prototype = Object.create(BoundClass.prototype);
     Random.prototype.constructor = Random;
+
+    Random.prototype.nextBytes = function(size) {
+      var array;
+
+      if (typeof(size) === 'number') {
+        if (size < 1) throw new RangeError("Size must be a positive integer");
+        var array = new Uint8Array(size);
+      } else if (size instanceof Uint8Array) {
+        array = size;
+      } else {
+        throw new TypeError("Parameter must be a number or Uint8Array");
+      }
+
+      size = array.length;
+      for (var i = 0; i < size; i ++) array[i] = this.next();
+      return array;
+  };
 
     return Random;
 
