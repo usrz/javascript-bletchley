@@ -1,14 +1,16 @@
 'use strict';
 
 Esquire.define('bletchley/paddings/Paddings', [ 'bletchley/utils/HelperFactory',
-                                                'bletchley/paddings/PKCS1Padding' ],
+                                                'bletchley/paddings/PKCS1Padding',
+                                                'bletchley/paddings/OAEPPadding' ],
 
-  function(HelperFactory, PKCS1Padding) {
+  function(HelperFactory, PKCS1Padding, OAEPPadding) {
 
     var pkcs1 = new PKCS1Padding();
+    var oaep = new OAEPPadding();
 
     function Paddings() {
-      HelperFactory.call(this, [ pkcs1 ]);
+      HelperFactory.call(this, [ pkcs1, oaep ]);
     }
 
     Paddings.prototype = Object.create(HelperFactory.prototype);

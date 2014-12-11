@@ -6,9 +6,8 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
                                   'bletchley/paddings/Paddings',
                                   'bletchley/paddings/I2OSPPadder',
                                   'bletchley/paddings/OS2IPUnpadder',
-                                  'bletchley/paddings/OAEPPadder',
                                   'test/FakeRandom' ],
-  function(Random, Codecs, Accumulator, Paddings, I2OSPPadder, OS2IPUnpadder, OAEPPadder, FakeRandom) {
+  function(Random, Codecs, Accumulator, Paddings, I2OSPPadder, OS2IPUnpadder, FakeRandom) {
 
     var random = new Random();
     var codecs = new Codecs();
@@ -181,12 +180,13 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
 
         describe("OAEP", function() {
 
-          it.skip('should pad the OAEP test vector', function() {
+          it.only('should pad the OAEP test vector', function() {
             var res = codecs.decode('HEX', 'eb7a19ace9e3006350e329504b45e2ca82310b26dcd87d5c68f1eea8f55267c31b2e8bb4251f84d7e0b2c04626f5aff93edcfb25c9c2b3ff8ae10e839a2ddb4cdcfe4ff47728b4a1b7c1362baad29ab48d2869d5024121435811591be392f982fb3e87d095aeb40448db972f3ac14f7bc275195281ce32d2f1b76d4d353e2d');
             var buf = codecs.decode('HEX', 'd436e99569fd32a7c8a05bbc90d32c49');
             var rnd = new FakeRandom('aafd12f659cae63489b479e5076ddec2f06cb58f');
             var acc = new Accumulator();
-            var pad = new OAEPPadder(acc, rnd, 128);
+
+            var pad = paddings.pad('OAEP', acc, rnd, 128);
 
             var out = pad.push(buf, true);
             expect(out).to.be.instanceof(Uint8Array);
