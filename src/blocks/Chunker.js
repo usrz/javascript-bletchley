@@ -1,9 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/blocks/Chunker', ['bletchley/blocks/Receiver'], function(Receiver) {
+Esquire.define('bletchley/blocks/Chunker', ['bletchley/blocks/Forwarder'], function(Forwarder) {
 
   function Chunker(receiver, blockSize) {
-    if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver");
     if ((typeof(blockSize) !== 'number') || (blockSize < 1))
       throw new Error("Block size must be at least 1 bytes");
 
@@ -38,21 +37,23 @@ Esquire.define('bletchley/blocks/Chunker', ['bletchley/blocks/Receiver'], functi
         /* If we have a full block, compute it */
         if (pos >= blockSize) {
           var l = last && (dpos >= data.length);
-          result = receiver.push(buff, l);
+          result = this.$next(buff, l);
           pos = 0;
         }
       }
 
       /* If this is the last message, flush whatever we have */
-      if (last && pos > 0) {
-        result = receiver.push(buff.subarray(0, pos), true);
+      if (last && (pos > 0 || len == 0)) {
+        result = this.$next(buff.subarray(0, pos), true);
       }
 
       return result;
     }
+
+    Forwarder.call(this, receiver);
   }
 
-  Chunker.prototype = Object.create(Receiver.prototype);
+  Chunker.prototype = Object.create(Forwarder.prototype);
   Chunker.prototype.constructor = Chunker;
 
   return Chunker;
