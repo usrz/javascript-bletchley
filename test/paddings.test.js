@@ -3,15 +3,16 @@
 Esquire.define('test/paddings', [ 'bletchley/utils/Random',
                                   'bletchley/codecs/Codecs',
                                   'bletchley/blocks/Accumulator',
-                                  'bletchley/paddings/PKCS1Padder',
-                                  'bletchley/paddings/PKCS1Unpadder',
+                                  'bletchley/paddings/Paddings',
                                   'bletchley/paddings/I2OSPPadder',
                                   'bletchley/paddings/OS2IPUnpadder',
-                                  'bletchley/paddings/OAEPPadder' ],
-  function(Random, Codecs, Accumulator, PKCS1Padder, PKCS1Unpadder, I2OSPPadder, OS2IPUnpadder, OAEPPadder) {
+                                  'bletchley/paddings/OAEPPadder',
+                                  'test/FakeRandom' ],
+  function(Random, Codecs, Accumulator, Paddings, I2OSPPadder, OS2IPUnpadder, OAEPPadder, FakeRandom) {
 
     var random = new Random();
     var codecs = new Codecs();
+    var paddings = new Paddings();
 
     return function() {
       describe("Paddings", function() {
@@ -20,7 +21,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should pad and unpad a block", function() {
             var buf = random.nextBytes(64);
             var acc = new Accumulator();
-            var pad = new PKCS1Padder(acc, random, 128);
+            var pad = paddings.pad('PKCS1', acc, random, 128);
 
             expect(pad.blockSize).to.equal(117);
 
@@ -37,7 +38,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
             }
 
             /* Unpad and check */
-            res = new PKCS1Unpadder(acc, 128).push(res, true);
+            res = paddings.unpad('PKCS1', acc, null, 128).push(res, true);
             expect(res).to.be.instanceof(Uint8Array);
             expect(res.length).to.be.equal(64);
             expect(res).to.deep.equal(buf);
@@ -46,7 +47,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should pad and unpad an empty block", function() {
             var buf = new Uint8Array();
             var acc = new Accumulator();
-            var pad = new PKCS1Padder(acc, random, 128);
+            var pad = paddings.pad('PKCS1', acc, random, 128);
 
             var res = pad.push(buf, true);
 
@@ -60,7 +61,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
             }
 
             /* Unpad and check */
-            res = new PKCS1Unpadder(acc, 128).push(res, true);
+            res = paddings.unpad('PKCS1', acc, null, 128).push(res, true);
             expect(res).to.be.instanceof(Uint8Array);
             expect(res.length).to.be.equal(0);
             expect(res).to.deep.equal(buf);
@@ -69,7 +70,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should pad and unpad an block full of zeroes", function() {
             var buf = new Uint8Array(64); // all zeroes
             var acc = new Accumulator();
-            var pad = new PKCS1Padder(acc, random, 128);
+            var pad = paddings.pad('PKCS1', acc, random, 128);
 
             var res = pad.push(buf, true);
 
@@ -84,7 +85,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
             }
 
             /* Unpad and check */
-            res = new PKCS1Unpadder(acc, 128).push(res, true);
+            res = paddings.unpad('PKCS1', acc, null, 128).push(res, true);
             expect(res).to.be.instanceof(Uint8Array);
             expect(res.length).to.be.equal(64);
             expect(res).to.deep.equal(buf);
@@ -92,7 +93,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
 
           it("should pad a full block", function() {
             var acc = new Accumulator();
-            var pad = new PKCS1Padder(acc, random, 128);
+            var pad = paddings.pad('PKCS1', acc, random, 128);
             var buf = random.nextBytes(pad.blockSize);
 
             var res = pad.push(buf, true);
@@ -107,7 +108,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
             }
 
             /* Unpad and check */
-            res = new PKCS1Unpadder(acc, 128).push(res, true);
+            res = paddings.unpad('PKCS1', acc, null, 128).push(res, true);
             expect(res).to.be.instanceof(Uint8Array);
             expect(res.length).to.be.equal(pad.blockSize);
             expect(res).to.deep.equal(buf);
@@ -118,7 +119,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should not pad an oversized block", function() {
             expect(function() {
               var acc = new Accumulator();
-              var pad = new PKCS1Padder(acc, random, 128);
+              var pad = paddings.pad('PKCS1', acc, random, 128);
               var buf = random.nextBytes(pad.blockSize + 1);
               pad.push(buf);
             }).to.throw("Message too big (max 117 bytes)");
@@ -127,7 +128,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should not unpad an oversized block", function() {
             expect(function() {
               var acc = new Accumulator();
-              var pad = new PKCS1Unpadder(acc, 128);
+              var pad = paddings.unpad('PKCS1', acc, null, 128);
               var buf = random.nextBytes(129);
               pad.push(buf);
             }).to.throw("Message must have the same length as key");
@@ -136,7 +137,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should not unpad an undersized block", function() {
             expect(function() {
               var acc = new Accumulator();
-              var pad = new PKCS1Unpadder(acc, 128);
+              var pad = paddings.unpad('PKCS1', acc, null, 128);
               var buf = random.nextBytes(127);
               pad.push(buf);
             }).to.throw("Message must have the same length as key");
@@ -145,7 +146,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should not unpad an illegal block", function() {
             expect(function() {
               var acc = new Accumulator();
-              var pad = new PKCS1Unpadder(acc, 128);
+              var pad = paddings.unpad('PKCS1', acc, null, 128);
               var buf = random.nextBytes(128);
               buf[0] = 1; // make sure we have a wrong leading zero
               pad.push(buf);
@@ -155,7 +156,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should not unpad a block of type different from two", function() {
             expect(function() {
               var acc = new Accumulator();
-              var pad = new PKCS1Unpadder(acc, 128);
+              var pad = paddings.unpad('PKCS1', acc, null, 128);
               var buf = random.nextBytes(128);
               buf[0] = 0; // make sure we have a leading zero
               buf[1] = 1; // wrong block type 1
@@ -166,7 +167,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           it("should not unpad a block without a delimiter", function() {
             expect(function() {
               var acc = new Accumulator();
-              var pad = new PKCS1Unpadder(acc, 128);
+              var pad = paddings.unpad('PKCS1', acc, null, 128);
               var buf = new Uint8Array(128);
               buf[0] = 0; // make sure we have a leading zero
               buf[1] = 2; // wrong block type 1
@@ -176,6 +177,28 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
           })
         });
 
+        /* ================================================================== */
+
+        describe("OAEP", function() {
+
+          it.skip('should pad the OAEP test vector', function() {
+            var res = codecs.decode('HEX', 'eb7a19ace9e3006350e329504b45e2ca82310b26dcd87d5c68f1eea8f55267c31b2e8bb4251f84d7e0b2c04626f5aff93edcfb25c9c2b3ff8ae10e839a2ddb4cdcfe4ff47728b4a1b7c1362baad29ab48d2869d5024121435811591be392f982fb3e87d095aeb40448db972f3ac14f7bc275195281ce32d2f1b76d4d353e2d');
+            var buf = codecs.decode('HEX', 'd436e99569fd32a7c8a05bbc90d32c49');
+            var rnd = new FakeRandom('aafd12f659cae63489b479e5076ddec2f06cb58f');
+            var acc = new Accumulator();
+            var pad = new OAEPPadder(acc, rnd, 128);
+
+            var out = pad.push(buf, true);
+            expect(out).to.be.instanceof(Uint8Array);
+            expect(out).to.deep.equal(res);
+          })
+        });
+
+
+
+
+        /* ================================================================== */
+        /* OTHER INTERNAL PADDINGS (not in Paddings class)                    */
         /* ================================================================== */
 
         describe("I2OSP", function() {
@@ -366,32 +389,6 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
 
               pad.push(buf);
             }).to.throw("Message too big (max 128 bytes)");
-          })
-        });
-
-        /* ================================================================== */
-
-        function OAEPTestVectorRandom() {
-          // this works with SHA1
-          var buf = codecs.decode('HEX', 'aafd12f659cae63489b479e5076ddec2f06cb58f');
-          var pos = 0;
-          this.next = function() {
-            if (pos < buf.length) return buf[pos ++];
-            throw new Error("Exhausted!");
-          }
-        }
-
-        OAEPTestVectorRandom.prototype = Object.create(Random.prototype);
-        OAEPTestVectorRandom.prototype.constructor = OAEPTestVectorRandom;
-
-        var x = codecs.decode('HEX', 'd4 36 e9 95 69 fd 32 a7 c8 a0 5b bc 90 d3 2c 49'.replace(/\s*/g, ''));
-
-        describe.only("OAEP", function() {
-
-          it('should pad the OAEP test vector', function() {
-            var acc = new Accumulator();
-            var pad = new OAEPPadder(acc, new OAEPTestVectorRandom(), 128);
-            pad.push(x);
           })
         });
 
