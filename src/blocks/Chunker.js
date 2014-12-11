@@ -2,7 +2,10 @@
 
 Esquire.define('bletchley/blocks/Chunker', ['bletchley/blocks/Receiver'], function(Receiver) {
 
-  function Chunker(blockSize, receiver) {
+  function Chunker(receiver, blockSize) {
+    if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver");
+    if ((typeof(blockSize) !== 'number') || (blockSize < 1))
+      throw new Error("Block size must be at least 1 bytes");
 
     var buff = new Uint8Array(blockSize);
     var pos = 0;

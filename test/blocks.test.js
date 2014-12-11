@@ -2,9 +2,10 @@
 
 Esquire.define('test/blocks', [ 'bletchley/utils/Random',
                                 'bletchley/codecs/Codecs',
+                                'bletchley/blocks/Receiver',
                                 'bletchley/blocks/Accumulator',
                                 'bletchley/blocks/Chunker' ],
-  function(Random, Codecs, Accumulator, Chunker) {
+  function(Random, Codecs, Receiver, Accumulator, Chunker) {
 
     var random = new Random();
     var codecs = new Codecs();
@@ -20,6 +21,8 @@ Esquire.define('test/blocks', [ 'bletchley/utils/Random',
         }
       }
     };
+    Forwarder.prototype = Object.create(Receiver.prototype);
+    Forwarder.prototype.constructor = Forwarder;
 
     /* Send random data */
     function pushRandom(receiver, callback) {
@@ -68,7 +71,7 @@ Esquire.define('test/blocks', [ 'bletchley/utils/Random',
         it("should chunk and accumulate", function() {
           var accumulator = new Accumulator();
           var forwarder   = new Forwarder(accumulator);
-          var chunker     = new Chunker(64, forwarder);
+          var chunker     = new Chunker(forwarder, 64);
 
           pushRandom(chunker, function(expected, result) {
 
@@ -92,7 +95,7 @@ Esquire.define('test/blocks', [ 'bletchley/utils/Random',
 
           var accumulator = new Accumulator();
           var forwarder   = new Forwarder(accumulator);
-          var chunker     = new Chunker(length, forwarder);
+          var chunker     = new Chunker(forwarder, length);
 
           var expected = random.nextBytes(length);
 
