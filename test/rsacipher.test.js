@@ -89,6 +89,21 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             expect(dec.length).to.equal(0);
           });
 
+          it('should encrypt and decrypt a random block with a random key', function() {
+            var xkey = RSAKey.generate(rnd, 1024);
+            var xrsa = new RSACipher(xkey, pkcs1, rnd);
+
+            var buf = rnd.nextBytes(64);
+            var enc = xrsa.encrypt(buf);
+            expect(enc).to.be.instanceof(Uint8Array);
+            expect(enc.length).to.equal(128);
+
+            var dec = xrsa.decrypt(enc);
+            expect(dec).to.be.instanceof(Uint8Array);
+            expect(dec.length).to.equal(buf.length);
+            expect(dec).to.deep.equal(buf);
+          });
+
           it('should encrypt and decrypt at various lengths', function() {
             this.timeout(10000); // this will take time...
             for (var i = 1; i < 117; i ++) {
@@ -159,6 +174,21 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             var dec = rsa.decrypt(enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(0);
+          });
+
+          it('should encrypt and decrypt a random block with a random key', function() {
+            var xkey = RSAKey.generate(rnd, 1024);
+            var xrsa = new RSACipher(xkey, oaep, rnd);
+
+            var buf = rnd.nextBytes(64);
+            var enc = xrsa.encrypt(buf);
+            expect(enc).to.be.instanceof(Uint8Array);
+            expect(enc.length).to.equal(128);
+
+            var dec = xrsa.decrypt(enc);
+            expect(dec).to.be.instanceof(Uint8Array);
+            expect(dec.length).to.equal(buf.length);
+            expect(dec).to.deep.equal(buf);
           });
 
           it('should encrypt and decrypt at various lengths', function() {

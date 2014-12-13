@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigInteger', 'bletchley/codecs/Codecs'], function(RSAKey, BigInteger, Codecs) {
+Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigInteger', 'bletchley/codecs/Codecs', 'bletchley/utils/Random'], function(RSAKey, BigInteger, Codecs, Random) {
 
   return function() {
     var codecs = new Codecs();
@@ -221,6 +221,41 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
         expect(key.coeff, "COEFF").not.to.exist;
 
       });
+
+      it('should generate a simple 1024 bits key', function() {
+        var key = RSAKey.generate(new Random(), 1024);
+
+        expect(key).to.be.instanceof(RSAKey);
+
+        expect(key.n,         "N").to.be.instanceof(BigInteger);
+        expect(key.e,         "E").to.be.equal(0x10001);
+        expect(key.d,         "D").to.be.instanceof(BigInteger);
+        expect(key.p,         "P").to.be.instanceof(BigInteger);
+        expect(key.q,         "Q").to.be.instanceof(BigInteger);
+        expect(key.dmp1,   "DMP1").to.be.instanceof(BigInteger);
+        expect(key.dmq1,   "DMQ1").to.be.instanceof(BigInteger);
+        expect(key.coeff, "COEFF").to.be.instanceof(BigInteger);
+
+        expect(key.blockSize, "key size").to.be.equal(128);
+      });
+
+      it('should generate a simple 512 bits key with 3 as public exponent', function() {
+        var key = RSAKey.generate(new Random(), 512, 3);
+
+        expect(key).to.be.instanceof(RSAKey);
+
+        expect(key.n,         "N").to.be.instanceof(BigInteger);
+        expect(key.e,         "E").to.be.equal(3);
+        expect(key.d,         "D").to.be.instanceof(BigInteger);
+        expect(key.p,         "P").to.be.instanceof(BigInteger);
+        expect(key.q,         "Q").to.be.instanceof(BigInteger);
+        expect(key.dmp1,   "DMP1").to.be.instanceof(BigInteger);
+        expect(key.dmq1,   "DMQ1").to.be.instanceof(BigInteger);
+        expect(key.coeff, "COEFF").to.be.instanceof(BigInteger);
+
+        expect(key.blockSize, "key size").to.be.equal(64);
+      });
+
 
     });
   }
