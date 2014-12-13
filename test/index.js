@@ -12,6 +12,7 @@ esquire([ 'test/BigInteger',
           'test/blocks',
           'test/paddings',
           'test/rsacipher',
+          'test/rsavectors',
 
           'bletchley/codecs/Codecs',
           'bletchley/hashes/Hashes',
@@ -28,7 +29,7 @@ esquire([ 'test/BigInteger',
           'test/hmacs',
           'test/kdfs' ],
 
-  function(testBigInteger, testRSAKey, testRandom, testBlocks, testPaddings, testRSACipher,
+  function(testBigInteger, testRSAKey, testRandom, testBlocks, testPaddings, testRSACipher, testRSAVectors,
            Codecs, Hashes, HMACs, KDFs,
            Crypto, workerCrypto, subtleWrapper, crypto,
            testCodecs, testHashes, testHMACs, testKDFs) {
@@ -37,51 +38,52 @@ esquire([ 'test/BigInteger',
     it('init', function(){});
 
     describe("Basic tests", function() {
-      // testBigInteger();
-      // testRSAKey();
-      // testRandom();
-      // testBlocks();
+      testBigInteger();
+      testRSAKey();
+      testRandom();
+      testBlocks();
       testPaddings();
       testRSACipher();
+      testRSAVectors();
     });
 
-    // describe("Helpers implementation", function() {
-    //   testCodecs(new Codecs(), false);
-    //   testHashes(new Hashes(), false);
-    //   testHMACs(new HMACs(), false);
-    //   testKDFs(new KDFs(), false);
-    // });
+    describe("Helpers implementation", function() {
+      testCodecs(new Codecs(), false);
+      testHashes(new Hashes(), false);
+      testHMACs(new HMACs(), false);
+      testKDFs(new KDFs(), false);
+    });
 
-    // describe("Synchronous crypto implementation", function() {
-    //   var syncCrypto = new Crypto();
-    //   testRandom(syncCrypto, false);
-    //   testCodecs(syncCrypto, false);
-    //   testHashes(syncCrypto, false);
-    //   testHMACs(syncCrypto, false);
-    //   testKDFs(syncCrypto, false);
-    // });
+    describe("Synchronous crypto implementation", function() {
+      var syncCrypto = new Crypto();
+      testRandom(syncCrypto, false);
+      testCodecs(syncCrypto, false);
+      testHashes(syncCrypto, false);
+      testHMACs(syncCrypto, false);
+      testKDFs(syncCrypto, false);
+    });
 
-    // describe("Worker crypto implementation", function() {
-    //   testRandom(workerCrypto, true);
-    //   testCodecs(workerCrypto, true);
-    //   testHashes(workerCrypto, true);
-    //   testHMACs(workerCrypto, true);
-    //   testKDFs(workerCrypto, true);
-    // });
+    describe("Worker crypto implementation", function() {
+      testRandom(workerCrypto, true);
+      testCodecs(workerCrypto, true);
+      testHashes(workerCrypto, true);
+      testHMACs(workerCrypto, true);
+      testKDFs(workerCrypto, true);
+    });
 
-    // /* Wrapper around a mock, don't test what we don't have to */
-    // if (subtleWrapper) describe("Subtle crypto implementation", function() {
-    //   testHashes(subtleWrapper, true);
-    //   testHMACs(subtleWrapper, true);
-    // });
+    /* Wrapper around a mock, don't test what we don't have to */
+    if (subtleWrapper) describe("Subtle crypto implementation", function() {
+      testHashes(subtleWrapper, true);
+      testHMACs(subtleWrapper, true);
+    });
 
-    // describe("Default crypto implementation", function() {
-    //   testRandom(crypto, true);
-    //   testCodecs(crypto, true);
-    //   testHashes(crypto, true);
-    //   testHMACs(crypto, true);
-    //   testKDFs(crypto, true);
-    // });
+    describe("Default crypto implementation", function() {
+      testRandom(crypto, true);
+      testCodecs(crypto, true);
+      testHashes(crypto, true);
+      testHMACs(crypto, true);
+      testKDFs(crypto, true);
+    });
 
   }
 );

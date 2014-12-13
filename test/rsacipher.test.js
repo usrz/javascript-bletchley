@@ -4,11 +4,8 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
                                    'bletchley/ciphers/RSAKey',
                                    'bletchley/codecs/Codecs',
                                    'bletchley/paddings/Paddings',
-                                   'bletchley/utils/Random',
-                                   'test/rsa/pkcs1Vectors',
-                                   'test/rsa/oaepVectors',
-                                   'test/FakeRandom' ],
-  function(RSACipher, RSAKey, Codecs, Paddings, Random, pkcs1Vectors, oaepVectors, FakeRandom) {
+                                   'bletchley/utils/Random' ],
+  function(RSACipher, RSAKey, Codecs, Paddings, Random) {
 
     var codecs = new Codecs();
     var paddings = new Paddings();
@@ -35,158 +32,152 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
     var oaep = paddings.$helper("OAEP");
 
     return function() {
-      describe("RSA/PKCS1 Cipher", function() {
+      describe("RSA cipher", function() {
 
-        var rsa = new RSACipher(key, pkcs1, rnd);
+        describe("PKCS#1", function() {
+          var rsa = new RSACipher(key, pkcs1, rnd);
 
-        it('should decrypt a short string', function() {
-          // echo -n 'abc' | openssl rsautl -inkey foo.key -encrypt | base64
-          var buf = codecs.decode('BASE64', 'QwlnoX3G6XZSwitf2VCUlVQpDB37ajH/kDQCUAOAer3TrRErKl37zKGHJeaK7PsiBLeNZCYLwNHk0lMwRnjGcSKhrZlFI0t9onybn1U6JuCR3aQL9NOlVLbCE2VUUfaTAS0jTc1n8AEG5BSpkL0wK6T4zjvH/BYkBUAkPh8ot1M=');
+          it('should decrypt a short string', function() {
+            // echo -n 'abc' | openssl rsautl -pkcs -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
+            var buf = codecs.decode('BASE64', 'QwlnoX3G6XZSwitf2VCUlVQpDB37ajH/kDQCUAOAer3TrRErKl37zKGHJeaK7PsiBLeNZCYLwNHk0lMwRnjGcSKhrZlFI0t9onybn1U6JuCR3aQL9NOlVLbCE2VUUfaTAS0jTc1n8AEG5BSpkL0wK6T4zjvH/BYkBUAkPh8ot1M=');
 
-          var out = rsa.decrypt(buf);
-          expect(out).to.be.instanceof(Uint8Array);
-          expect(out.length).to.equal(3);
-          expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
-        })
+            var out = rsa.decrypt(buf);
+            expect(out).to.be.instanceof(Uint8Array);
+            expect(out.length).to.equal(3);
+            expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
+          })
 
-        it('should decrypt a whole block', function() {
-          // echo -n 'aaaa...117 times...' | openssl rsautl -inkey foo.key -encrypt | base64
-          var buf = codecs.decode('BASE64', 'G6gkBINMfiPoLtmyLvOAps789G2XaCmHE2R84GGOUlKUFGIpkZHvwZrTHwH4UqbJxBLh1pCusYMHIAxIMRRuf5bZQuJieX2o4nB1IonRoWsSHHNEqAJLMCOhWoFhLAbjvJJWUo9Y60rf4q31NdNBsB59avgPBRmIC5P7iVUEyYc=');
+          it('should decrypt a whole block', function() {
+            // echo -n 'aaaa...117 times...' | openssl rsautl -pkcs -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
+            var buf = codecs.decode('BASE64', 'G6gkBINMfiPoLtmyLvOAps789G2XaCmHE2R84GGOUlKUFGIpkZHvwZrTHwH4UqbJxBLh1pCusYMHIAxIMRRuf5bZQuJieX2o4nB1IonRoWsSHHNEqAJLMCOhWoFhLAbjvJJWUo9Y60rf4q31NdNBsB59avgPBRmIC5P7iVUEyYc=');
 
-          var out = rsa.decrypt(buf);
-          expect(out).to.be.instanceof(Uint8Array);
-          expect(out.length).to.equal(117);
-          for (var i = 0; i < out.length; i ++) {
-            expect(out[i]).to.equal(0x61);
-          }
-        })
+            var out = rsa.decrypt(buf);
+            expect(out).to.be.instanceof(Uint8Array);
+            expect(out.length).to.equal(117);
+            for (var i = 0; i < out.length; i ++) {
+              expect(out[i]).to.equal(0x61);
+            }
+          })
 
-        it('should encrypt and decrypt a short known string', function() {
-          var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
-
-          var enc = rsa.encrypt(buf);
-          expect(enc).to.be.instanceof(Uint8Array);
-          expect(enc.length).to.equal(128);
-
-          // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
-          // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
-
-          var dec = rsa.decrypt(enc);
-          expect(dec).to.be.instanceof(Uint8Array);
-          expect(dec.length).to.equal(4);
-          expect(dec).to.deep.equal(buf);
-        });
-
-        it('should encrypt and decrypt an empty array', function() {
-
-          var enc = rsa.encrypt(new Uint8Array());
-          expect(enc).to.be.instanceof(Uint8Array);
-          expect(enc.length).to.equal(128);
-
-          // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
-          // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
-
-          var dec = rsa.decrypt(enc);
-          expect(dec).to.be.instanceof(Uint8Array);
-          expect(dec.length).to.equal(0);
-        });
-
-        it.skip('should encrypt and decrypt at various lengths', function() {
-          this.timeout(10000); // this will take time...
-          for (var i = 1; i < 117; i ++) {
-            var buf = rnd.nextBytes(i);
+          it('should encrypt and decrypt a short known string', function() {
+            var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
 
             var enc = rsa.encrypt(buf);
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
+            // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
+            // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
+
             var dec = rsa.decrypt(enc);
             expect(dec).to.be.instanceof(Uint8Array);
-            expect(dec.length).to.equal(buf.length);
+            expect(dec.length).to.equal(4);
             expect(dec).to.deep.equal(buf);
-          }
-        });
-      })
+          });
 
-      describe("RSA test vectors", function() {
-        function qdescribe(){};
-        qdescribe("PKCS#1 v1.5", function() {
-          for (var i in pkcs1Vectors) (function(suite) {
-            var n = codecs.decode('HEX', suite.key.n);
-            var e = codecs.decode('HEX', suite.key.e);
-            var d = codecs.decode('HEX', suite.key.d);
-            var key = new RSAKey(n, e, d);
+          it('should encrypt and decrypt an empty array', function() {
 
-            describe(suite.name, function() {
-              for (var j in suite.vectors) (function(vector, key) {
-                it(vector.name, function() {
+            var enc = rsa.encrypt(new Uint8Array());
+            expect(enc).to.be.instanceof(Uint8Array);
+            expect(enc.length).to.equal(128);
 
-                  /* New fake random and RSA */
-                  var rnd = new FakeRandom(vector.rnd);
-                  var rsa = new RSACipher(key, pkcs1, rnd);
+            // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
+            // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
 
-                  /* Parse out message and encrypted */
-                  var msg = codecs.decode('HEX', vector.msg);
-                  var enc = codecs.decode('HEX', vector.enc);
+            var dec = rsa.decrypt(enc);
+            expect(dec).to.be.instanceof(Uint8Array);
+            expect(dec.length).to.equal(0);
+          });
 
-                  /* Decrypt first */
-                  var dec = rsa.decrypt(enc);
-                  expect(dec).to.deep.equal(msg);
+          it('should encrypt and decrypt at various lengths', function() {
+            this.timeout(10000); // this will take time...
+            for (var i = 1; i < 117; i ++) {
+              var buf = rnd.nextBytes(i);
 
-                  /* Encrypt then */
-                  var out = rsa.encrypt(msg);
-                  expect(out).to.deep.equal(enc);
+              var enc = rsa.encrypt(buf);
+              expect(enc).to.be.instanceof(Uint8Array);
+              expect(enc.length).to.equal(128);
 
-                });
-              })(suite.vectors[j], key);
-            });
-          })(pkcs1Vectors[i]);
-        });
+              var dec = rsa.decrypt(enc);
+              expect(dec).to.be.instanceof(Uint8Array);
+              expect(dec.length).to.equal(buf.length);
+              expect(dec).to.deep.equal(buf);
+            }
+          })
+        })
 
         describe("OAEP", function() {
-          for (var i in oaepVectors) (function(suite) {
-            var n = codecs.decode('HEX', suite.key.n);
-            var e = codecs.decode('HEX', suite.key.e);
-            var d = codecs.decode('HEX', suite.key.d);
-            var key = new RSAKey(n, e, d);
+          var rsa = new RSACipher(key, oaep, rnd);
 
-            describe(suite.name, function() {
-              for (var j in suite.vectors) (function(vector, key) {
-                it(vector.name, function() {
+          it('should decrypt a short string', function() {
+            // echo -n 'abc' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
+            var buf = codecs.decode('BASE64', 'x5GWy6Q/mowtDqLV+l6mWVkV/2sWfB7+s1V1Efnh9jx+D5ZDD8wLKfoJA/shMRQmv4j+pF66HQcep2L3A8QVcAF1e+njmBv6W2c9G+H/BTjV7tXfdN/3FpnBYMmOhhiFXWff1WoyXua7i4fLXgL/CAnNeg5WyKZPWf8uqrX2tqg=');
 
-                  /* New fake random and RSA */
-                  var rnd = new FakeRandom(vector.rnd);
-                  var rsa = new RSACipher(key, oaep, rnd);
+            var out = rsa.decrypt(buf);
+            expect(out).to.be.instanceof(Uint8Array);
+            expect(out.length).to.equal(3);
+            expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
+          })
 
-                  /* Parse out message and encrypted */
-                  var msg = codecs.decode('HEX', vector.msg);
-                  var enc = codecs.decode('HEX', vector.enc);
+          it('should decrypt a whole block', function() {
+            // echo -n 'aaaa...86 times...' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
+            var buf = codecs.decode('BASE64', 'E6dPJwgKAPVFGN7CMK4giaEgDmZY+jN0vjyTUo8y57dTsJZcT/jFSsWiHGLMInGhFkaL2RHtEdYd4p80AKwUbOzxc2jnMNMZ8dfrrS9pkb3mnyL0vJ8i7QnrqvZ5QIZKKxKkkDFlchdx1QakFm6jUmOrTJHNxj8Vt4pMzsnV2Vk=');
 
-                  /* Decrypt first */
-                  // var dec = rsa.decrypt(enc);
-                  // expect(dec).to.deep.equal(msg);
+            var out = rsa.decrypt(buf);
+            expect(out).to.be.instanceof(Uint8Array);
+            expect(out.length).to.equal(86);
+            for (var i = 0; i < out.length; i ++) {
+              expect(out[i]).to.equal(0x61);
+            }
+          })
 
-                  /* Encrypt then */
-                  var out = rsa.encrypt(msg);
-                  var oh = codecs.encode('HEX', out);
-                  var eh = codecs.encode('HEX', enc);
-                  // console.log("\nOUT=" + oh + "\n   ~" + eh);
-                  expect(oh).to.deep.equal(eh);
+          it('should encrypt and decrypt a short known string', function() {
+            var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
 
-                  console.warn("DECRYPT");
+            var enc = rsa.encrypt(buf);
+            expect(enc).to.be.instanceof(Uint8Array);
+            expect(enc.length).to.equal(128);
 
-                  /* Decrypt first */
-                  var dec = rsa.decrypt(enc);
-                  expect(dec).to.deep.equal(msg);
+            // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
+            // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
 
+            var dec = rsa.decrypt(enc);
+            expect(dec).to.be.instanceof(Uint8Array);
+            expect(dec.length).to.equal(4);
+            expect(dec).to.deep.equal(buf);
+          });
 
-                });
-              })(suite.vectors[j], key);
-            });
-          })(oaepVectors[i]);
-        });
+          it('should encrypt and decrypt an empty array', function() {
 
-      });
+            var enc = rsa.encrypt(new Uint8Array());
+            expect(enc).to.be.instanceof(Uint8Array);
+            expect(enc.length).to.equal(128);
+
+            // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
+            // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
+
+            var dec = rsa.decrypt(enc);
+            expect(dec).to.be.instanceof(Uint8Array);
+            expect(dec.length).to.equal(0);
+          });
+
+          it('should encrypt and decrypt at various lengths', function() {
+            this.timeout(10000); // this will take time...
+            for (var i = 1; i < 86; i ++) {
+              var buf = rnd.nextBytes(i);
+
+              var enc = rsa.encrypt(buf);
+              expect(enc).to.be.instanceof(Uint8Array);
+              expect(enc.length).to.equal(128);
+
+              var dec = rsa.decrypt(enc);
+              expect(dec).to.be.instanceof(Uint8Array);
+              expect(dec.length).to.equal(buf.length);
+              expect(dec).to.deep.equal(buf);
+            }
+          })
+        })
+      })
     }
   }
 );
