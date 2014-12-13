@@ -1129,8 +1129,7 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
     }
     else {
       // new BigInteger(int,RNG)
-      var x = new Array(), t = a&7;
-      x.length = (a>>3)+1;
+      var x = new Uint8Array((a>>3)+1), t = a&7;
       b.nextBytes(x);
       if(t > 0) x[0] &= ((1<<t)-1); else x[0] = 0;
       this.fromString(x,256);
@@ -1311,6 +1310,9 @@ Esquire.define('bletchley/utils/BigInteger', [ '$global/navigator' ], function(n
 
     /* Public "constructors" */
     "fromInt":    { configurable: false, enumerable: true, value: nbv    },
+    "fromNumber": { configurable: false, enumerable: true, value: function(a, b, c) {
+      var r = nbi(); r.fromNumber(a, b, c); return r;
+    }},
     "fromString": { configurable: false, enumerable: true, value: function(s, x) {
       var r = nbi(); r.fromString(s, x); return r;
     }},
