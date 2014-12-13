@@ -16,7 +16,7 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
     function debug(name, array) {
       var str = codecs.encode('HEX', array);
       var arr = str.split(/(?=(?:..)*$)/);
-      console.log(name, array.length, "\n" + arr.join(' '));
+      //console.log(name, array.length, "\n" + arr.join(' '));
     }
 
     /* ====================================================================== */
