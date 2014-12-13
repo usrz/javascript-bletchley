@@ -6,18 +6,10 @@
  * ========================================================================== */
 Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
                                                    'bletchley/blocks/Forwarder',
-                                                   'bletchley/utils/Random',
-                                                   'bletchley/utils/arrays',
                                                    'bletchley/hashes/SHA1',
-                                                   'bletchley/codecs/Codecs' ],
-  function(Padding, Forwarder, Random, arrays, SHA1, Codecs) {
-
-    var codecs = new Codecs();
-    function debug(name, array) {
-      var str = codecs.encode('HEX', array);
-      var arr = str.split(/(?=(?:..)*$)/);
-      //console.log(name, array.length, "\n" + arr.join(' '));
-    }
+                                                   'bletchley/utils/Random',
+                                                   'bletchley/utils/arrays' ],
+  function(Padding, Forwarder, SHA1, Random, arrays) {
 
     /* ====================================================================== */
     /* Keep those as variables for now, we will want to customize them one    */
