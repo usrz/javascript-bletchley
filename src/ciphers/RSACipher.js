@@ -16,44 +16,6 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
   function(Accumulator, Chunker, Forwarder, RSAKey, Padding, BigInteger, Random) {
 
 
-    function I2OSP(receiver, keySize) {
-
-      /* Zeroes and buffer */
-      var zeroes = new Uint8Array(keySize);
-      var buffer = new Uint8Array(keySize);
-
-      Object.defineProperties(this, {
-        "push": { enumerable: true, configurable: false, value: function(message, last) {
-
-          /* Accept messages bigger than keySize if prepended by zeroes */
-          if (message.length > keySize) {
-            var offset = message.length - keySize;
-            for (var i = 0; i < offset; i ++) {
-              if (message[i] != 0) throw new Error("Message too big (max " + keySize + " bytes)");
-            }
-            return this.$next(message.subarray(offset), last);
-          }
-
-          /* Precisely correct size, push unchanged */
-          if (message.length == keySize) return this.$next(message, last);
-
-          /* Message must be padded with zeroes */
-          var offset = keySize - message.length;
-          buffer.set(zeroes.subarray(0, offset));
-          buffer.set(message, offset);
-          return this.$next(buffer, last);
-
-        }}
-      });
-
-      Forwarder.call(this, receiver);
-    }
-
-    I2OSP.prototype = Object.create(Forwarder.prototype);
-    I2OSP.prototype.constructor = I2OSP;
-
-    /* ======================================================================= */
-
     function RSAEncipher(receiver, key) {
       if (key.e == null) throw new Error("Key lacks public exponent");
       this.push = function(message, last) {
@@ -61,9 +23,16 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
         // as most implementations simply refuse to encrypt multiple blocks
         if (!last) throw new Error("Message too big for RSA");
 
-        var x = BigInteger.fromArray(1, message);
+        var x = BigInteger.fromArray(message);
         var r = x.modPowInt(key.e, key.n);
-        return this.$next(r.toUint8Array(), last);
+
+        // Allocating an array here allows us to go without I2OSP
+        var buffer = new Uint8Array(key.blockSize + 1); // always leading zero
+        var offset = buffer.length - r.byteLength();
+        r.toUint8Array(buffer.subarray(offset));
+
+        // Always push the block of the correct size
+        return this.$next(buffer.subarray(1), last);
       }
       Forwarder.call(this, receiver);
     }
@@ -82,7 +51,13 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
 
         var x = BigInteger.fromArray(1, message);
         var r = x.modPow(key.d, key.n);
-        return this.$next(r.toUint8Array(), last);
+
+        var buffer = new Uint8Array(key.blockSize + 1); // always leading zero
+        var offset = buffer.length - r.byteLength();
+        r.toUint8Array(buffer.subarray(offset));
+
+        return this.$next(buffer.subarray(1), last);
+        // return this.$next(r.toUint8Array(), last);
       }
       Forwarder.call(this, receiver);
     }
@@ -101,25 +76,19 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
 
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
       this.encrypt = function(data) {
-        // from bottom to top!
+
+        // accumulate all results...
         var accumulator = new Accumulator();
-        // make sure we have blockSize messages, anything else is wrong
-        var i2osp = new I2OSP(accumulator, blockSize);
 
-        // perform our wonderful RSA: (message ^ key.e) mod key.n
-        var rsaEncipher = new RSAEncipher(i2osp, key);
+        // encipher: this will always push a key.blockSize array, which
+        // basically means we won't have any need for i2osp padding.
+        var cipher = new RSAEncipher(accumulator, key);
 
-        //var os2ipPadder2 = new I2OSPPadder(rsaEncipher, blockSize);
-        // var os2ipPadder2 = rsaEncipher;
+        // padder (PKCS#1 or OAEP) will always return a zero-prefixed array, so
+        // cipher will always interpret it as a positive integer
+        var padder = padding.pad(cipher, random, blockSize);
 
-
-        // we can avoid OS2IP padding here, as encipher will use the number,
-        // and PKCS1 blocks always start with 0x00 0x02 (so, positive integer)
-        var padder = padding.pad(rsaEncipher, random, blockSize);
-
-
-
-        // chunk up into blockSize - 11 elements (see encypher above)
+        // chunk up into padder.blockSize (see encypher comment above)
         var chunker = new Chunker(padder, padder.blockSize);
 
         // do it!
@@ -129,19 +98,20 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
 
       /* RFC 3447, section 7.1.2 (OAEP) and section 7.2.2 (PKCS1) */
       this.decrypt = function(data) {
-        // again, bottom to top!
+
+        // accumulate all results...
         var accumulator = new Accumulator();
-        // remove the randomness from the block, and check it
+
+        // remove the padding from the block
         var unpadder = padding.unpad(accumulator, random, blockSize);
-        // now we want a blockSize array, it will start with 0x00 0x02
-        var i2osp = new I2OSP(unpadder, blockSize);
-        // the magic of RSA:  (message ^ key.d) mod key.n
-        var rsaDecipher = new RSADecipher(i2osp, key);
-        // os2ip guarantees we have a positive integer
-        //var os2ipUnpadder = new OS2IPUnpadder(rsaDecipher, blockSize);
-        //var os2ipUnpadder = rsaDecipher;
-        // chunk up into blockSize (see decypher above)
-        var chunker = new Chunker(rsaDecipher, blockSize);
+
+        // decipher: this will always parse numbers as *POSITIVE* integers
+        // (so no need to prepend zeroes) and push a key.blockSize array, which
+        // basically means we won't have any need for i2osp padding.
+        var cipher = new RSADecipher(unpadder, key);
+
+        // chunk up into key.blockSize (see decypher comments above)
+        var chunker = new Chunker(cipher, blockSize);
 
         // do it!
         var result = chunker.push(data, true);
