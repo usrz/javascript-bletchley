@@ -1,8 +1,7 @@
 'use strict';
 
 Esquire.define('test/rsa/oaepVectors', function() {
-  return
-          [
+  return  [
             {
               "name": "Example 1: A 1024-bit RSA key pair",
               "key": {
