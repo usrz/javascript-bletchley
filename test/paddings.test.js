@@ -313,7 +313,7 @@ Esquire.define('test/paddings', [ 'bletchley/utils/Random',
               var buf = random.nextBytes(128);
               buf[0] = 1; // make sure we have a wrong leading zero
               pad.push(buf);
-            }).to.throw("OAEP padding format error");
+            }).to.throw("Message must have a leading zero");
           })
 
           it("should not unpad an illegal block", function() {
