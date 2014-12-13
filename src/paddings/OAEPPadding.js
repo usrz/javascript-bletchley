@@ -34,25 +34,29 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
     /* SHA1 digest size */
     var hashSize = 20;
 
-    /* MGF1 function */
-    function mgf(Z, l) {
-      var blocks = Math.floor(l / hashSize) + (l % hashSize == 0 ? 0 : 1);
-      var T = new Uint8Array(hashSize * blocks);
-      var C = new Uint8Array(4);
-      var Cv = new DataView(C.buffer);
-      var offset = 0;
+    /* Buffers for MGF function, they can be reused */
+    var C = new Uint8Array(4);
+    var Cv = new DataView(C.buffer);
+    var H = new Uint8Array(hashSize);
 
+    /* MGF1 function expanding Z in T */
+    function mgf(Z, T) {
+      var l = T.length;
 
-      for (var i = 0; i < blocks; i ++) {
+      for (var offset = 0, i = 0; offset < l; i ++, offset += hashSize) {
+        // C will contain our iteration
         Cv.setUint32(0, i, false);
-        hash.reset()
-            .update(Z)
-            .update(C)
-            .digest(T.subarray(offset));
-        offset += hashSize;
+
+        // Hash concat(Z, C) into H
+        hash.reset().update(Z).update(C).digest(H);
+
+        // r => bytes left to write in T
+        var r = l - offset;
+        if (r >= hashSize) T.set(H, offset);
+        else T.set(H.subarray(0, r), offset);
       }
 
-      return T.subarray(0, l);
+      return T;
     }
 
     /* ====================================================================== */
@@ -63,9 +67,23 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
       if (keySize < 64) throw new Error("Key size must be at least 64 (512 bit)");
 
       /* Blocksize and overhead */
-      var overHead = 2 + (2 * hashSize);
-      var blockSize = keySize - overHead;
-      var dbSize = blockSize + hashSize + 1;
+      var blockSize = keySize - (2 + (2 * hashSize));
+
+      /*
+       * OAEP will always pad things to a "keySize" long array as:
+       *
+       * - "0": single zero byte prepended to all output
+       * - maskedSeed: hash.digestLength masked seed
+       * - maskedDB: our masked data block, effectively (keySize-hashLeght-1)
+       *
+       * so, let's get some room to work:
+       *
+       * - buff: storing concat("0", maskedSeed, maskedDB)
+       * - seed: hashSize long buffer for our random seed
+       */
+      var buff = new Uint8Array(keySize);
+      var seed = new Uint8Array(hashSize);
+      var dbSize = keySize - hashSize - 1;
 
       Object.defineProperties(this, {
         "blockSize": { enumerable: true, configurable: false, value: blockSize },
@@ -76,58 +94,36 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
             throw new Error("Message too big (max " + blockSize + " bytes, gotten " + message.length + ")");
           }
 
-          debug("EM", message);
+          /*
+           * Prepare our data block: do not recycle "db" here, as we want
+           * zeroes in there for proper padding of the message
+           */
+          var db = new Uint8Array(dbSize);
+          db.set(pHash);                            // add our encoding parameter hash
+          db[dbSize - message.length - 1] = 1;      // zero padding then add our "1"
+          db.set(message, dbSize - message.length); // add our message
 
-          /* Our buffer for data block and its mask */
-          var buff = new Uint8Array(keySize);
-          var mask = new Uint8Array(keySize);
+          /* Seed hashSize random bytes in our "seed" array */
+          random.nextBytes(seed);
 
-          //db =
+          /* Use MGF to expand our seed to the DB mask, then xor it in place */
+          var maskedDB = mgf(seed, buff.subarray(hashSize + 1));
+          arrays.xorUint8Arrays(db, maskedDB, maskedDB);
 
-          /* Prepare our data block */
-          var DB = new Uint8Array(dbSize);
-          DB.set(pHash);
-          //DB[hashSize + PS.length] = 1;
-          //DB.set(message, hashSize + PS.length + 1);
-          DB[DB.length - message.length - 1] = 1;
-          DB.set(message, DB.length - message.length);
+          /* Use MGF to expand our maskeDB, then xor it in place */
+          var maskedSeed = mgf(maskedDB, buff.subarray(1, hashSize + 1));
+          arrays.xorUint8Arrays(seed, maskedSeed, maskedSeed);
 
-          //console.log("CHECK", DB.length, keySize, blockSize, keySize - DB.length, DB.length - blockSize);
-
-          debug("DB", DB);
-
-          var seed = random.nextBytes(hashSize);
-
-          debug("SEED", seed);
-
-          var dbMask = mgf(seed, DB.length);
-
-          debug("dbMask", dbMask);
-
-          var maskedDB = arrays.xorUint8Arrays(DB, dbMask);
-
-          debug("maskedDB", maskedDB);
-
-          var seedMask = mgf(maskedDB, seed.length);
-
-          debug("seedMask", seedMask);
-
-          var maskedSeed = arrays.xorUint8Arrays(seed, seedMask);
-
-          debug("maskedSeed", maskedSeed);
-
-          // The initial byte is always "0" here...
-          var result = new Uint8Array(maskedSeed.length + maskedDB.length + 1);
-          result.set(maskedSeed, 1);
-          result.set(maskedDB, maskedSeed.length + 1);
-
-          // KEYSIZE - 1
-          // console.log("CHECK", result.length, keySize);
-
-          debug("EM", result);
-          //console.log("EM0", result[0] > 127);
-
-          return this.$next(result, last);
+          /*
+           * By the power of subarrays, we now have our "temp" array containing
+           * precisely the concatenation of (maskedSeed, maskedDB) at offset 1.
+           *
+           * Just make sure we correctly set the "0" byte at the beginning, just
+           * in ase somewhere else something went wrong and we're recycling the
+           * buffer space...
+           */
+          buff[0] = 0;
+          return this.$next(buff, last);
         }}
       });
 
@@ -143,41 +139,38 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
       if (typeof(keySize) !== 'number') throw new Error("Key size must be a number");
       if (keySize < 64) throw new Error("Key size must be at least 64 (512 bit)");
 
-      /* Blocksize and overhead */
-      var overHead = 2 + (2 * hashSize);
-      var blockSize = keySize - overHead;
-      var dbSize = blockSize + hashSize + 1;
+      /* We can reuse some buffers */
+      var seed = new Uint8Array(hashSize);
+      var dbSize = keySize - hashSize - 1;
+      var db = new Uint8Array(dbSize);
 
       Object.defineProperties(this, {
         "push":      { enumerable: true, configurable: false, value: function(message, last) {
           if (message.length != keySize) throw new Error("Message must have the same length as key");
+          if (message[0] != 0) throw new Error("Message must have a leading zero");
 
-          debug("EM", message);
+          /* Extract our masked seed and DB from the message */
           var maskedSeed = message.subarray(1, hashSize + 1);
           var maskedDB = message.subarray(hashSize + 1);
 
-          debug("maskedSeed", maskedSeed);
-          debug("maskedDB", maskedDB);
+          /* Expand the masked DB to calulate the seed mask, and xor in place */
+          mgf(maskedDB, seed);
+          arrays.xorUint8Arrays(maskedSeed, seed, seed);
 
-          var seedMask = mgf(maskedDB, hashSize);
-          debug("seedMask", seedMask);
+          /* Expand our seed, to get the DB mask, and xor it in place */
+          mgf(seed, db);
+          arrays.xorUint8Arrays(maskedDB, db, db);
 
-          var seed = arrays.xorUint8Arrays(maskedSeed, seedMask);
-          debug("seed", seed);
+          /* Figure our where in the DB is our last zero from the padding */
+          for (var i = hashSize; (i < dbSize) && (db[i] == 0); i ++);
 
-          var dbMask = mgf(seed, dbSize);
-          debug("dbMask", dbMask);
-
-          var DB = arrays.xorUint8Arrays(maskedDB, dbMask);
-          debug("DB", DB);
-
-          for (var i = hashSize; (i < dbSize) && (DB[i] == 0); i ++);
-          if ((i < dbSize) && (DB[i] == 1)) {
-            debug("message", DB.subarray(i + 1));
-            return this.$next(DB.subarray(i + 1), last);
-          } else {
-            throw new Error("OAEP padding format error");
+          /* Check that we have a "1" after the last zero */
+          if ((i < dbSize) && (db[i] == 1)) {
+            return this.$next(db.subarray(i + 1), last);
           }
+
+          /* Uh, bad OAEP format */
+          throw new Error("OAEP padding format error");
         }
       }});
 
