@@ -11,13 +11,13 @@ esquire([ 'test/BigInteger',
           'test/random',
           'test/blocks',
           'test/paddings',
-          'test/rsacipher',
           'test/rsavectors',
 
           'bletchley/codecs/Codecs',
           'bletchley/hashes/Hashes',
           'bletchley/hmacs/HMACs',
           'bletchley/kdfs/KDFs',
+          'bletchley/ciphers/Ciphers',
 
           'bletchley/crypto/Crypto',
           'test/workerCrypto',
@@ -27,12 +27,18 @@ esquire([ 'test/BigInteger',
           'test/codecs',
           'test/hashes',
           'test/hmacs',
-          'test/kdfs' ],
+          'test/kdfs',
+          'test/rsacipher',
 
-  function(testBigInteger, testRSAKey, testRandom, testBlocks, testPaddings, testRSACipher, testRSAVectors,
-           Codecs, Hashes, HMACs, KDFs,
+          'bletchley/random/SecureRandom' ],
+
+  function(testBigInteger, testRSAKey, testRandom, testBlocks, testPaddings, testRSAVectors,
+           Codecs, Hashes, HMACs, KDFs, Ciphers,
            Crypto, workerCrypto, subtleWrapper, crypto,
-           testCodecs, testHashes, testHMACs, testKDFs) {
+           testCodecs, testHashes, testHMACs, testKDFs, testRSACipher,
+           SecureRandom) {
+
+    var random = new SecureRandom();
 
     /* Log initialization */
     it('init', function(){});
@@ -43,7 +49,6 @@ esquire([ 'test/BigInteger',
       testBlocks();
       testRSAKey();
       testPaddings();
-      testRSACipher();
       testRSAVectors();
     });
 
@@ -52,6 +57,7 @@ esquire([ 'test/BigInteger',
       testHashes(new Hashes(), false);
       testHMACs(new HMACs(), false);
       testKDFs(new KDFs(), false);
+      testRSACipher(new Ciphers(random), false);
     });
 
     describe("Synchronous crypto implementation", function() {
@@ -60,6 +66,7 @@ esquire([ 'test/BigInteger',
       testHashes(syncCrypto, false);
       testHMACs(syncCrypto, false);
       testKDFs(syncCrypto, false);
+      testRSACipher(syncCrypto, false);
     });
 
     describe("Worker crypto implementation", function() {
