@@ -138,7 +138,7 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
         expect(key.blockSize).to.equal(128);
       });
 
-      it('should parse a X.509 public key', function() {
+      it('should parse and re-encode a X.509 public key', function() {
         var pem = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDOts8BH8RmOgTvQ1ffZS3LJc+j'
                 + 'N7ENpprojn+4wqKeZtVfH2nc2ofOfu/HF16In/7dRyYTXCBLNFzYn+8XerMC58zR'
                 + 'Z4H6cp0vs23JDeHMDklJiGz6potfAEtY7GsYPByE7KpHpr4o4Bovo15vJ1DQF6N5'
@@ -157,9 +157,13 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
         expect(key.dmq1,   "DMQ1").not.to.exist;
         expect(key.coeff, "COEFF").not.to.exist;
 
+        /* Encode private key and check */
+        var enc = key.encodePublic();
+        expect(enc).to.be.instanceof(Uint8Array);
+        expect(enc).to.deep.equal(der);
       });
 
-      it('should parse a PKCS#8 private key', function() {
+      it('should parse and re-encode PKCS#8 private key', function() {
         var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
                 + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'
                 + '7xd6swLnzNFngfpynS+zbckN4cwOSUmIbPqmi18AS1jsaxg8HITsqkemvijgGi+j'
@@ -194,9 +198,13 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
         expect(dmq1,   "DMQ1").to.equal('00' + dmq1_hex);
         expect(coeff, "COEFF").to.equal('00' + coeff_hex);
 
+        /* Encode private key and check */
+        var enc = key.encodePrivate();
+        expect(enc).to.be.instanceof(Uint8Array);
+        expect(enc).to.deep.equal(der);
       });
 
-      it('should parse a PKCS#8 private key with no public exponent', function() {
+      it('should parse and re-encode a PKCS#8 private key with no public exponent', function() {
         // Made in Java using only modulus and private exponent via KeyFactory...
         var pem = 'MIIBNgIBADANBgkqhkiG9w0BAQEFAASCASAwggEcAgEAAoGBAM62zwEfxGY6BO9D'
                 + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'
@@ -220,6 +228,56 @@ Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigI
         expect(key.dmq1,   "DMQ1").not.to.exist;
         expect(key.coeff, "COEFF").not.to.exist;
 
+        /* Encode private key and check */
+        var enc = key.encodePrivate();
+        expect(enc).to.be.instanceof(Uint8Array);
+        expect(enc).to.deep.equal(der);
+      });
+
+      it('should generate the correct PCKS#8 format for the RSA test vector key', function() {
+        var n     = BigInteger.fromString('bbf82f090682ce9c2338ac2b9da871f7368d07eed41043a440d6b6f07454f51fb8dfbaaf035c02ab61ea48ceeb6fcd4876ed520d60e1ec4619719d8a5b8b807fafb8e0a3dfc737723ee6b4b7d93a2584ee6a649d060953748834b2454598394ee0aab12d7b61a51f527a9a41f6c1687fe2537298ca2a8f5946f8e5fd091dbdcb', 16)
+        var e     = BigInteger.fromString('11', 16);
+        var d     = BigInteger.fromString('a5dafc5341faf289c4b988db30c1cdf83f31251e0668b42784813801579641b29410b3c7998d6bc465745e5c392669d6870da2c082a939e37fdcb82ec93edac97ff3ad5950accfbc111c76f1a9529444e56aaf68c56c092cd38dc3bef5d20a939926ed4f74a13eddfbe1a1cecc4894af9428c2b7b8883fe4463a4bc85b1cb3c1', 16);
+        var p     = BigInteger.fromString('eecfae81b1b9b3c908810b10a1b5600199eb9f44aef4fda493b81a9e3d84f632124ef0236e5d1e3b7e28fae7aa040a2d5b252176459d1f397541ba2a58fb6599', 16);
+        var q     = BigInteger.fromString('c97fb1f027f453f6341233eaaad1d9353f6c42d08866b1d05a0f2035028b9d869840b41666b42e92ea0da3b43204b5cfce3352524d0416a5a441e700af461503', 16);
+        var dmp1  = BigInteger.fromString('54494ca63eba0337e4e24023fcd69a5aeb07dddc0183a4d0ac9b54b051f2b13ed9490975eab77414ff59c1f7692e9a2e202b38fc910a474174adc93c1f67c981', 16);
+        var dmq1  = BigInteger.fromString('471e0290ff0af0750351b7f878864ca961adbd3a8a7e991c5c0556a94c3146a7f9803f8f6f8ae342e931fd8ae47a220d1b99a495849807fe39f9245a9836da3d', 16);
+        var coeff = BigInteger.fromString('b06c4fdabb6301198d265bdbae9423b380f271f73453885093077fcd39e2119fc98632154f5883b167a967bf402b4e9e2e0f9656e698ea3666edfb25798039f7', 16);
+
+        var hex = '30820275020100300d06092a864886f70d01010105000482025f3082025b02010002818100bbf82f'
+                + '090682ce9c2338ac2b9da871f7368d07eed41043a440d6b6f07454f51fb8dfbaaf035c02ab61ea48'
+                + 'ceeb6fcd4876ed520d60e1ec4619719d8a5b8b807fafb8e0a3dfc737723ee6b4b7d93a2584ee6a64'
+                + '9d060953748834b2454598394ee0aab12d7b61a51f527a9a41f6c1687fe2537298ca2a8f5946f8e5'
+                + 'fd091dbdcb02011102818100a5dafc5341faf289c4b988db30c1cdf83f31251e0668b42784813801'
+                + '579641b29410b3c7998d6bc465745e5c392669d6870da2c082a939e37fdcb82ec93edac97ff3ad59'
+                + '50accfbc111c76f1a9529444e56aaf68c56c092cd38dc3bef5d20a939926ed4f74a13eddfbe1a1ce'
+                + 'cc4894af9428c2b7b8883fe4463a4bc85b1cb3c1024100eecfae81b1b9b3c908810b10a1b5600199'
+                + 'eb9f44aef4fda493b81a9e3d84f632124ef0236e5d1e3b7e28fae7aa040a2d5b252176459d1f3975'
+                + '41ba2a58fb6599024100c97fb1f027f453f6341233eaaad1d9353f6c42d08866b1d05a0f2035028b'
+                + '9d869840b41666b42e92ea0da3b43204b5cfce3352524d0416a5a441e700af461503024054494ca6'
+                + '3eba0337e4e24023fcd69a5aeb07dddc0183a4d0ac9b54b051f2b13ed9490975eab77414ff59c1f7'
+                + '692e9a2e202b38fc910a474174adc93c1f67c9810240471e0290ff0af0750351b7f878864ca961ad'
+                + 'bd3a8a7e991c5c0556a94c3146a7f9803f8f6f8ae342e931fd8ae47a220d1b99a495849807fe39f9'
+                + '245a9836da3d024100b06c4fdabb6301198d265bdbae9423b380f271f73453885093077fcd39e211'
+                + '9fc98632154f5883b167a967bf402b4e9e2e0f9656e698ea3666edfb25798039f7';
+        var der = codecs.decode('HEX', hex);
+
+        // construct only with E, D, P, Q and hope the rest gets calculated...
+        var key = new RSAKey(null, e, d, p, q);
+
+        expect(key.n.equals(n),             "N").to.be.true;
+        expect(key.e,                       "E").to.be.equal(0x11);
+        expect(key.d.equals(d),             "D").to.be.true;
+        expect(key.p.equals(p),             "P").to.be.true;
+        expect(key.q.equals(q),             "Q").to.be.true;
+        expect(key.dmp1.equals(dmp1),    "DMP1").to.be.true;
+        expect(key.dmq1.equals(dmq1),    "DMQ1").to.be.true;
+        expect(key.coeff.equals(coeff), "COEFF").to.be.true;
+
+        // now encode as a PKCS#8 private key
+        var enc = key.encodePrivate();
+        expect(enc).to.be.instanceof(Uint8Array);
+        expect(enc).to.deep.equal(der);
       });
 
       it('should generate a simple 1024 bits key', function() {

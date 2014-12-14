@@ -160,9 +160,16 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
     }
   };
 
-  /* ======================================================================== */
+  /* ======================================================================== *
+   * Some rough ASN.1 DER decoding and encoding utilities: really bare bones! *
+   * ======================================================================== */
+
+  var asn1RSAOID = new Uint8Array([0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01]);
+  var asn1ZERO   = new Uint8Array([0x02, 0x01, 0x00]);
+  var asn1NULL   = new Uint8Array([0x05, 0x00]);
 
   var asn1Buffer = new Uint8Array(4096);
+
   function getASNBigInteger(asn1, field) {
     if (asn1 == null) {
       throw new Error("ASN.1 format error: null field " + field);
@@ -183,6 +190,96 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
     return  BigInteger.fromArray(1, asn1Buffer.subarray(0, length));
   }
 
+  function fillASNBuffer(tag, length, callback) {
+    if (length < 127) {
+      // 02, len, bytes...
+      var buf = new Uint8Array(length + 2);
+      buf[0] = tag;
+      buf[1] = length;
+      callback(buf.subarray(2));
+      return buf;
+
+    } else if (length < 256) {
+      // 02, 0x81, len, bytes...
+      var buf = new Uint8Array(length + 3);
+      buf[0] = tag;
+      buf[1] = 0x81
+      buf[2] = length;
+      callback(buf.subarray(3));
+      return buf;
+
+    } else if (length < 65536) {
+      // 02, 0x82, len[hi], len[lo], bytes...
+      var buf = new Uint8Array(length + 4);
+      buf[0] = tag;
+      buf[1] = 0x82
+      buf[2] = (length >>> 8) & 0xFF;
+      buf[3] = length & 0xFF;
+      callback(buf.subarray(4));
+      return buf;
+
+    } else {
+      throw new Error("Too big, I give up!");
+    }
+  }
+
+  function toASNNumber(number) {
+    /* This might sound strange, but for undefined RSA parameters we return 0 */
+    if (number == null) return asn1ZERO;
+    /* Convert to a BigInteger if necessary */
+    if (typeof(number) === 'number') number = BigInteger.fromInt(number);
+    /* Check the type and process the number */
+    if (number instanceof BigInteger) {
+      if (number.equals(BigInteger.ZERO)) return asn1ZERO;
+      var length = number.byteLength();
+      return fillASNBuffer(0x02, length, function(buffer) {
+        number.toUint8Array(buffer);
+      });
+    }
+    /* Fail miserably */
+    throw new Error("Must specify a number or BigInteger");
+  }
+
+  function toASNSequence() {
+    var length = 0;
+    var members = new Array();
+    for (var i = 0; i < arguments.length; i ++) {
+      if (arguments[i] instanceof Uint8Array) {
+        length += arguments[i].length;
+        members.push(arguments[i]);
+      } else {
+        throw new Error("Array at argument " + (i + 1) + " is not a Uint8Array");
+      }
+    }
+
+    return fillASNBuffer(0x30, length, function(buffer) {
+      var offset = 0;
+      for (var i = 0; i < members.length; i ++) {
+        buffer.set(members[i], offset);
+        offset += members[i].length;
+      }
+    });
+  }
+
+  function toASNBitString(array) {
+    if (array instanceof Uint8Array) {
+      return fillASNBuffer(0x03, array.length + 1, function(buffer) {
+        buffer[0] = 0; // we only deal with octets, so forget "missing" bits...
+        buffer.set(array, 1);
+      });
+    }
+    throw new Error("Array at argument " + (i + 1) + " is not a Uint8Array");
+  }
+
+  function toASNOctetString(array) {
+    if (array instanceof Uint8Array) {
+      return fillASNBuffer(0x04, array.length, function(buffer) {
+        buffer.set(array);
+      });
+    }
+    throw new Error("Array at argument " + (i + 1) + " is not a Uint8Array");
+  }
+
   /* ======================================================================== *
    | Parse PKCS#8 private key from ASN.1 (Lapo is a God)                      |
    | https://polarssl.org/kb/cryptography/asn1-key-structures-in-der-and-pem  |
@@ -196,7 +293,7 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
    |  |     +--> OID = 1.2.840.113549.1.1.1 (RSA encryption)                  |
    |  |     +--> NULL  (pkcs#8 algorithm parameters)                          |
    |  |                                                                       |
-   |  +--> BIT STRING / OCTET STRING                                          |
+   |  +--> OCTET STRING                                                       |
    |        |                                                                 |
    |        +--> SEQUENCE                                                     |
    |              |                                                           |
@@ -258,6 +355,30 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
                       getASNBigInteger(asn1.sub[2].sub[0].sub[8], "COEFF"));
   };
 
+  RSAKey.prototype.encodePrivate = function() {
+    if (this.d == null) throw new Error("No private exponent");
+    return toASNSequence(
+        asn1ZERO,
+        toASNSequence(
+          asn1RSAOID,
+          asn1NULL
+        ),
+        toASNOctetString(
+          toASNSequence(
+            asn1ZERO,
+            toASNNumber(this.n),
+            toASNNumber(this.e),
+            toASNNumber(this.d),
+            toASNNumber(this.p),
+            toASNNumber(this.q),
+            toASNNumber(this.dmp1),
+            toASNNumber(this.dmq1),
+            toASNNumber(this.coeff)
+          )
+        )
+      );
+  };
+
   /* ======================================================================== *
    | Parse X.509 ("spki") public key from ASN.1 (Lapo is a genius)            |
    | https://polarssl.org/kb/cryptography/asn1-key-structures-in-der-and-pem  |
@@ -269,7 +390,7 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
    |  |     +--> OID = 1.2.840.113549.1.1.1 (RSA encryption)                  |
    |  |     +--> NULL  (pkcs#8 algorithm parameters)                          |
    |  |                                                                       |
-   |  +--> BIT STRING / OCTET STRING                                          |
+   |  +--> BIT STRING                                                         |
    |        |                                                                 |
    |        +--> SEQUENCE                                                     |
    |              |                                                           |
@@ -301,6 +422,22 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
     /* Get a hold on our N and E and create the key */
     return new RSAKey(getASNBigInteger(asn1.sub[1].sub[0].sub[0], "N"),
                       getASNBigInteger(asn1.sub[1].sub[0].sub[1], "E"));
+  };
+
+  RSAKey.prototype.encodePublic = function() {
+    if (this.e == null) throw new Error("No private exponent");
+    return toASNSequence(
+        toASNSequence(
+          asn1RSAOID,
+          asn1NULL
+        ),
+        toASNBitString(
+          toASNSequence(
+            toASNNumber(this.n),
+            toASNNumber(this.e)
+          )
+        )
+      );
   };
 
   return RSAKey;
