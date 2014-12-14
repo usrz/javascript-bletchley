@@ -4,7 +4,7 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
                                    'bletchley/ciphers/RSAKey',
                                    'bletchley/codecs/Codecs',
                                    'bletchley/paddings/Paddings',
-                                   'bletchley/utils/Random' ],
+                                   'bletchley/random/Random' ],
   function(RSACipher, RSAKey, Codecs, Paddings, Random) {
 
     var codecs = new Codecs();

@@ -1,6 +1,6 @@
 Esquire.define('bletchley/paddings/PKCS1Padding', [ 'bletchley/paddings/Padding',
                                                     'bletchley/blocks/Forwarder',
-                                                    'bletchley/utils/Random' ],
+                                                    'bletchley/random/Random' ],
   function(Padding, Forwarder, Random) {
 
     function PKCS1Padder(receiver, random, keySize) {

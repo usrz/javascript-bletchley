@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/blocks', [ 'bletchley/utils/Random',
+Esquire.define('test/blocks', [ 'bletchley/random/Random',
                                 'bletchley/codecs/Codecs',
                                 'bletchley/blocks/Receiver',
                                 'bletchley/blocks/Accumulator',

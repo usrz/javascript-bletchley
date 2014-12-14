@@ -1,7 +1,7 @@
 'use strict';
 
 Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
-                                            'bletchley/utils/Random',
+                                            'bletchley/random/Random',
                                             'bletchley/codecs/Codecs',
                                             'bletchley/hashes/Hashes',
                                             'bletchley/hmacs/HMACs',

@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/random', ['bletchley/utils/Random', 'bletchley/codecs/Codecs'], function(Random, Codecs) {
+Esquire.define('test/random', ['bletchley/random/Random', 'bletchley/codecs/Codecs'], function(Random, Codecs) {
 
   var codecs = new Codecs();
 

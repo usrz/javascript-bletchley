@@ -6,7 +6,7 @@
  * Original source at: http://www-cs-students.stanford.edu/~tjw/jsbn/         *
  * Licensed under BSD: http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE  *
  * ========================================================================== */
-Esquire.define('bletchley/utils/Random', [ 'bletchley/utils/BoundClass',
+Esquire.define('bletchley/random/Random', [ 'bletchley/utils/BoundClass',
                                            'bletchley/utils/arrays',
                                            '$global/crypto' ],
   function(BoundClass, arrays, crypto) {

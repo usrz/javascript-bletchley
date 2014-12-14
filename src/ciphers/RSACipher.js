@@ -12,7 +12,7 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
                                                 'bletchley/ciphers/RSAKey',
                                                 'bletchley/paddings/Padding',
                                                 'bletchley/utils/BigInteger',
-                                                'bletchley/utils/Random' ],
+                                                'bletchley/random/Random' ],
   function(Accumulator, Chunker, Forwarder, RSAKey, Padding, BigInteger, Random) {
 
 

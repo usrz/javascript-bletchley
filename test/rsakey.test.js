@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigInteger', 'bletchley/codecs/Codecs', 'bletchley/utils/Random'], function(RSAKey, BigInteger, Codecs, Random) {
+Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigInteger', 'bletchley/codecs/Codecs', 'bletchley/random/Random'], function(RSAKey, BigInteger, Codecs, Random) {
 
   return function() {
     var codecs = new Codecs();

@@ -7,7 +7,7 @@
 Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
                                                    'bletchley/blocks/Forwarder',
                                                    'bletchley/hashes/SHA1',
-                                                   'bletchley/utils/Random',
+                                                   'bletchley/random/Random',
                                                    'bletchley/utils/arrays' ],
   function(Padding, Forwarder, SHA1, Random, arrays) {
 

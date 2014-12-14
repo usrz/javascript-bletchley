@@ -2,7 +2,7 @@
 
 Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
                                                   'bletchley/crypto/AsyncCrypto',
-                                                  'bletchley/utils/Random',
+                                                  'bletchley/random/Random',
                                                   'rodosha' ],
   function(Promise, AsyncCrypto, Random, rodosha) {
 
@@ -21,11 +21,11 @@ Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
 
     WorkerCrypto.newInstance = function() {
 
-      return rodosha.create('bletchley/crypto/Crypto', 'bletchley/utils/Random', false)
+      return rodosha.create('bletchley/crypto/Crypto', 'bletchley/random/Random', false)
         .then(function(rodosha) {
           return Promise.all([
             rodosha.proxy('bletchley/crypto/Crypto'),
-            rodosha.proxy('bletchley/utils/Random')
+            rodosha.proxy('bletchley/random/Random')
           ]);
 
         }).then(function(result) {

@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/paddings', [ 'bletchley/utils/Random',
+Esquire.define('test/paddings', [ 'bletchley/random/Random',
                                   'bletchley/codecs/Codecs',
                                   'bletchley/blocks/Accumulator',
                                   'bletchley/paddings/Paddings',
