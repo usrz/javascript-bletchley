@@ -21,11 +21,17 @@ function(BoundClass, Helper) {
       var helper = helpers[i];
       if (! (helper instanceof Helper)) throw new Error("Invalid helper " + helper);
 
-      var algorithm = helper.algorithm;
-      if (! algorithm) throw new Error("Unknown algorithm for " + helper);
-
-      algorithms.push(algorithm.toUpperCase());
-      instances[normalize(algorithm)] = helper;
+      var aliases = helper.aliases;
+      for (var j = 0; j < aliases.length; j++) {
+        var algorithm = aliases[j];
+        algorithms.push(algorithm);
+        var normalized = normalize(algorithm);
+        if (instances[normalized]) {
+          throw new Error("Duplicate algorithm " + algorithm + " in " + algorithms);
+        } else {
+          instances[normalize(algorithm)] = helper;
+        }
+      }
     }
 
     /* Our helper getter */
