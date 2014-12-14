@@ -6,7 +6,7 @@ function(BoundClass, Helper) {
 
   function normalize(name) {
     if (typeof(name) !== 'string') throw new Error("Invalid algorithm name '" + name + "'");
-    return name.replace(/[- ]/g,'').toLowerCase();
+    return name.replace(/[-\s]/g,'').toLowerCase();
   }
 
   function HelperFactory(helpers) {
