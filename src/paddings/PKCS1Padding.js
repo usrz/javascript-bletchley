@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/paddings/PKCS1Padding', [ 'bletchley/paddings/Padding',
                                                     'bletchley/blocks/Forwarder',
                                                     'bletchley/random/Random' ],

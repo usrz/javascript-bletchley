@@ -1,3 +1,5 @@
+'use strict';
+
 Esquire.define('bletchley/kdfs/KDFs', [ 'bletchley/utils/HelperFactory',
                                         'bletchley/kdfs/PBKDF2',
                                         'bletchley/kdfs/SCrypt' ],
