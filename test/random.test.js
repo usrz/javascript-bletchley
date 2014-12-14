@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('test/random', ['bletchley/random/Random', 'bletchley/codecs/Codecs'], function(Random, Codecs) {
+Esquire.define('test/random', ['bletchley/random/Arc4Random', 'bletchley/codecs/Codecs'], function(Arc4Random, Codecs) {
 
   var codecs = new Codecs();
 
@@ -21,7 +21,7 @@ Esquire.define('test/random', ['bletchley/random/Random', 'bletchley/codecs/Code
     describe("Random", function() {
 
       it("should generate some non-random data when wrongly initialized", function() {
-        var data = new Random(new Uint8Array(256)).nextBytes(16);
+        var data = new Arc4Random(new Uint8Array(256)).nextBytes(16);
         var hex = codecs.encode("HEX", data);
 
         expect(data).to.be.instanceof(Uint8Array);
@@ -31,7 +31,7 @@ Esquire.define('test/random', ['bletchley/random/Random', 'bletchley/codecs/Code
       });
 
       it("should generate some random data when correctly initialized", function() {
-        var data = new Random().nextBytes(16);
+        var data = new Arc4Random().nextBytes(16);
         var hex = codecs.encode("HEX", data);
 
         expect(data).to.be.instanceof(Uint8Array);
@@ -42,7 +42,7 @@ Esquire.define('test/random', ['bletchley/random/Random', 'bletchley/codecs/Code
 
       it("should not generate empty arrays", function() {
         expect(function() {
-          return new Random().nextBytes(0);
+          return new Arc4Random().nextBytes(0);
         }).to.throw(Error);
       });
 

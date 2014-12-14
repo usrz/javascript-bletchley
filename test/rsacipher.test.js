@@ -4,8 +4,8 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
                                    'bletchley/ciphers/RSAKey',
                                    'bletchley/codecs/Codecs',
                                    'bletchley/paddings/Paddings',
-                                   'bletchley/random/Random' ],
-  function(RSACipher, RSAKey, Codecs, Paddings, Random) {
+                                   'bletchley/random/Arc4Random' ],
+  function(RSACipher, RSAKey, Codecs, Paddings, Arc4Random) {
 
     var codecs = new Codecs();
     var paddings = new Paddings();
@@ -26,7 +26,7 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             + 'pUjvYB0w5xWZvFoP';
     var der = codecs.decode('BASE64', pem);
     var key = RSAKey.parsePrivate(der);
-    var rnd = new Random();
+    var rnd = new Arc4Random();
 
     var pkcs1 = paddings.$helper("PKCS1");
     var oaep = paddings.$helper("OAEP");

@@ -2,11 +2,12 @@
 
 Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
                                             'bletchley/random/Random',
+                                            'bletchley/random/Arc4Random',
                                             'bletchley/codecs/Codecs',
                                             'bletchley/hashes/Hashes',
                                             'bletchley/hmacs/HMACs',
                                             'bletchley/kdfs/KDFs' ],
-  function(arrays, Random, Codecs, Hashes, HMACs, KDFs) {
+  function(arrays, Random, Arc4Random, Codecs, Hashes, HMACs, KDFs) {
 
     return function Crypto(random) {
       var codecs = new Codecs();
@@ -15,7 +16,7 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
       var kdfs = new KDFs();
 
       if (! random) {
-        random = new Random();
+        random = new Arc4Random();
       } else if (!(random instanceof Random)) {
         throw new Error("Must be constructed with a Random instance");
       }
