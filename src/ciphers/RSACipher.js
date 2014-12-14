@@ -130,6 +130,11 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
       Cipher.call(this, algorithms);
     }
 
+    /* ======================================================================= */
+
+    RSACipher.prototype = Object.create(Cipher.prototype);
+    RSACipher.prototype.constructor = RSACipher;
+
     return RSACipher;
   }
 );
