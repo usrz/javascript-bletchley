@@ -21,7 +21,7 @@ Esquire.define('test/random', [ 'bletchley/random/Arc4Random',
             expect(data).to.be.instanceof(Uint8Array);
             expect(data).not.to.be.deep.equal(new Uint8Array(16));
 
-            expect(a4bad.indexOf(hex), "Bad RC4 initialization").to.be.at.least(0);
+            expect(a4bad.indexOf(hex), "Bad Arc4Random initialization").to.be.at.least(0);
           });
 
           it("should generate some random data when correctly initialized", function() {
@@ -31,7 +31,7 @@ Esquire.define('test/random', [ 'bletchley/random/Arc4Random',
             expect(data).to.be.instanceof(Uint8Array);
             expect(data).not.to.be.deep.equal(new Uint8Array(16));
 
-            expect(a4bad.indexOf(hex), "Bad RC4 initialization").to.be.equal(-1);
+            expect(a4bad.indexOf(hex), "Bad Arc4Random initialization").to.be.equal(-1);
           });
 
           it("should not generate empty arrays", function() {

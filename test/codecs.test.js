@@ -6,14 +6,9 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
   return function(crypto, isAsync) {
     var maybeAsync = async(isAsync);
 
-    function isCrypto(crypto) {
-      return (crypto instanceof Crypto || crypto instanceof AsyncCrypto);
-    }
-
     describe("Codecs", function() {
 
       /* Functions must be bound */
-      var stringify = isCrypto(crypto) ? crypto.stringify : arrays.decodeUTF8;
       var encode = crypto.encode;
       var decode = crypto.decode;
 
@@ -39,11 +34,6 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
         expect(crypto).to.be.a('object');
         expect(crypto.encode).to.be.a('function');
         expect(crypto.decode).to.be.a('function');
-        if (isCrypto(crypto)) {
-          expect(crypto.stringify).to.be.a('function');
-        } else {
-          expect(crypto.stringify).not.to.exist;
-        }
       });
 
       promises("should fail encoding with unknown algorithm", function() {
@@ -74,16 +64,6 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
           })
 
         .done();
-      });
-
-      promises("should stringify a known array", function() {
-
-        return maybeAsync(stringify(tokyoArrayBuffer))
-          .then(function(encoded) {
-            expect(encoded).to.be.a('string');
-            expect(encoded).to.equal(tokyoString);
-          }).done();
-
       });
 
       /* ====================================================================== */
@@ -299,10 +279,9 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
             (function(index, decoded, encoded) {
               promises("test " + index, function() {
                 return maybeAsync(decode('BASE-64', encoded))
-                  .then(function(decoded) {
-                    expect(decoded).to.be.instanceof(Uint8Array);
-                    return(stringify(decoded))
-                  }).then(function(string) {
+                  .then(function(array) {
+                    expect(array).to.be.instanceof(Uint8Array);
+                    var string = arrays.decodeUTF8(array);
                     expect(string).to.be.equal(decoded);
                   }).done();
               });
@@ -317,10 +296,9 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
             (function(index, decoded, encoded) {
               promises("test " + index, function() {
                 return maybeAsync(decode('BASE-64', encoded))
-                  .then(function(decoded) {
-                    expect(decoded).to.be.instanceof(Uint8Array);
-                    return(stringify(decoded))
-                  }).then(function(string) {
+                  .then(function(array) {
+                    expect(array).to.be.instanceof(Uint8Array);
+                    var string = arrays.decodeUTF8(array);
                     expect(string).to.be.equal(decoded);
                   }).done();
               });

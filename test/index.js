@@ -24,6 +24,7 @@ esquire([ 'test/BigInteger',
           'test/subtleWrapper',
           'bletchley',
 
+          'test/crypto',
           'test/codecs',
           'test/hashes',
           'test/hmacs',
@@ -35,7 +36,7 @@ esquire([ 'test/BigInteger',
   function(testBigInteger, testRSAKey, testRandom, testBlocks, testPaddings, testRSAVectors,
            Codecs, Hashes, HMACs, KDFs, Ciphers,
            Crypto, workerCrypto, subtleWrapper, crypto,
-           testCodecs, testHashes, testHMACs, testKDFs, testRSACipher,
+           testCrypto, testCodecs, testHashes, testHMACs, testKDFs, testRSACipher,
            SecureRandom) {
 
     var random = new SecureRandom();
@@ -62,6 +63,7 @@ esquire([ 'test/BigInteger',
 
     describe("Synchronous crypto implementation", function() {
       var syncCrypto = new Crypto();
+      testCrypto(syncCrypto, false);
       testCodecs(syncCrypto, false);
       testHashes(syncCrypto, false);
       testHMACs(syncCrypto, false);
@@ -70,6 +72,7 @@ esquire([ 'test/BigInteger',
     });
 
     describe("Worker crypto implementation", function() {
+      testCrypto(workerCrypto, true);
       testCodecs(workerCrypto, true);
       testHashes(workerCrypto, true);
       testHMACs(workerCrypto, true);
@@ -78,11 +81,13 @@ esquire([ 'test/BigInteger',
 
     /* Wrapper around a mock, don't test what we don't have to */
     if (subtleWrapper) describe("Subtle crypto implementation", function() {
+      testCrypto(subtleWrapper, true);
       testHashes(subtleWrapper, true);
       testHMACs(subtleWrapper, true);
     });
 
     describe("Default crypto implementation", function() {
+      testCrypto(crypto, true);
       testCodecs(crypto, true);
       testHashes(crypto, true);
       testHMACs(crypto, true);
