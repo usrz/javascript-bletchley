@@ -6,14 +6,15 @@
  * Original source at: http://www-cs-students.stanford.edu/~tjw/jsbn/         *
  * Licensed under BSD: http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE  *
  * ========================================================================== */
-Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
+Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
+                                                'bletchley/ciphers/RSAKey',
+                                                'bletchley/blocks/Accumulator',
                                                 'bletchley/blocks/Chunker',
                                                 'bletchley/blocks/Forwarder',
-                                                'bletchley/ciphers/RSAKey',
                                                 'bletchley/paddings/Padding',
                                                 'bletchley/utils/BigInteger',
                                                 'bletchley/random/Random' ],
-  function(Accumulator, Chunker, Forwarder, RSAKey, Padding, BigInteger, Random) {
+  function(Cipher, RSAKey, Accumulator, Chunker, Forwarder, Padding, BigInteger, Random) {
 
 
     function RSAEncipher(receiver, key) {
@@ -71,6 +72,13 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
       if (!(padding instanceof Padding)) throw new Error("Invalid Padding");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
 
+      var algorithms = [];
+      for (var i = 0; i < padding.$aliases.length; i ++) {
+        algorithms.push("RSA/"      + padding.$aliases[i]); // preferred
+        algorithms.push("RSA/NONE/" + padding.$aliases[i]); // "NO" block mode
+        algorithms.push("RSA/ECB/"  + padding.$aliases[i]); // be like Java
+      }
+
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
       this.encrypt = function(key, data) {
         if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
@@ -118,6 +126,8 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
         var result = chunker.push(data, true);
         return result;
       }
+
+      Cipher.call(this, algorithms);
     }
 
     return RSACipher;
