@@ -29,7 +29,7 @@ esquire([ 'test/BigInteger',
           'test/hashes',
           'test/hmacs',
           'test/kdfs',
-          'test/rsacipher',
+          'test/cipher/rsa',
 
           'bletchley/random/SecureRandom' ],
 

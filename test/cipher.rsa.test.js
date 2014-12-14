@@ -1,9 +1,9 @@
 'use strict';
 
-Esquire.define('test/rsacipher', [ 'test/async',
-                                   'bletchley/codecs',
-                                   'bletchley/ciphers/RSAKey',
-                                   'bletchley/random/SecureRandom' ],
+Esquire.define('test/cipher/rsa', [ 'test/async',
+                                    'bletchley/codecs',
+                                    'bletchley/ciphers/RSAKey',
+                                    'bletchley/random/SecureRandom' ],
   function(async, codecs, RSAKey, SecureRandom) {
 
     var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
