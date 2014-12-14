@@ -37,6 +37,8 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/Bou
     AsyncCrypto.prototype.stringify = promise("stringify");
     AsyncCrypto.prototype.encode    = promise("encode");
     AsyncCrypto.prototype.decode    = promise("decode");
+    AsyncCrypto.prototype.encrypt   = promise("encrypt");
+    AsyncCrypto.prototype.decrypt   = promise("decrypt");
     AsyncCrypto.prototype.hash      = promise("hash");
     AsyncCrypto.prototype.hmac      = promise("hmac");
     AsyncCrypto.prototype.kdf       = promise("kdf");

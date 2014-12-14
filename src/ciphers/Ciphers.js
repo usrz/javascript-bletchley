@@ -21,12 +21,12 @@ Esquire.define('bletchley/ciphers/Ciphers', [ 'bletchley/utils/HelperFactory',
     Ciphers.prototype = Object.create(HelperFactory.prototype);
     Ciphers.prototype.constructor = Ciphers;
 
-    Ciphers.prototype.encode = function(algorithm, array) {
-      return this.$helper(algorithm).encode(array);
+    Ciphers.prototype.encrypt = function(algorithm, key, data) {
+      return this.$helper(algorithm).encrypt(key, data);
     };
 
-    Ciphers.prototype.decode = function(algorithm, string) {
-      return this.$helper(algorithm).decode(string);
+    Ciphers.prototype.decrypt = function(algorithm, key, data) {
+      return this.$helper(algorithm).decrypt(key, data);
     };
 
     return Ciphers;

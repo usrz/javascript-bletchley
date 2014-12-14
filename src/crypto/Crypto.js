@@ -27,6 +27,8 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
         "stringify": { enumerable: true, configurable: false, value: arrays.decodeUTF8 },
         "encode":    { enumerable: true, configurable: false, value: codecs.encode     },
         "decode":    { enumerable: true, configurable: false, value: codecs.decode     },
+        "encrypt":   { enumerable: true, configurable: false, value: ciphers.encrypt   },
+        "decrypt":   { enumerable: true, configurable: false, value: ciphers.decrypt   },
         "hash":      { enumerable: true, configurable: false, value: hashes.hash       },
         "hmac":      { enumerable: true, configurable: false, value: hmacs.hmac        },
         "kdf":       { enumerable: true, configurable: false, value: kdfs.kdf          }
