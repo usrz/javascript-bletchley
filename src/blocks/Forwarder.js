@@ -1,8 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/blocks/Forwarder', ['bletchley/blocks/Receiver', 'bletchley/codecs/Codecs'], function(Receiver, Codecs) {
-
-  var codecs = new Codecs();
+Esquire.define('bletchley/blocks/Forwarder', ['bletchley/blocks/Receiver'], function(Receiver) {
 
   function Forwarder(receiver) {
     if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver: " + receiver);
@@ -11,8 +9,6 @@ Esquire.define('bletchley/blocks/Forwarder', ['bletchley/blocks/Receiver', 'blet
       configurable: false,
       enumerable: false,
       value: function(message, last) {
-        // var name = Object.getPrototypeOf(this).constructor.name;
-        // console.log(name, message.length, codecs.encode('HEX', message));
         return receiver.push(message, last);
       }
     });
