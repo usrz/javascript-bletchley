@@ -35,13 +35,13 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
       describe("RSA cipher", function() {
 
         describe("PKCS#1", function() {
-          var rsa = new RSACipher(key, pkcs1, rnd);
+          var rsa = new RSACipher(pkcs1, rnd);
 
           it('should decrypt a short string', function() {
             // echo -n 'abc' | openssl rsautl -pkcs -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
             var buf = codecs.decode('BASE64', 'QwlnoX3G6XZSwitf2VCUlVQpDB37ajH/kDQCUAOAer3TrRErKl37zKGHJeaK7PsiBLeNZCYLwNHk0lMwRnjGcSKhrZlFI0t9onybn1U6JuCR3aQL9NOlVLbCE2VUUfaTAS0jTc1n8AEG5BSpkL0wK6T4zjvH/BYkBUAkPh8ot1M=');
 
-            var out = rsa.decrypt(buf);
+            var out = rsa.decrypt(key, buf);
             expect(out).to.be.instanceof(Uint8Array);
             expect(out.length).to.equal(3);
             expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
@@ -51,7 +51,7 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             // echo -n 'aaaa...117 times...' | openssl rsautl -pkcs -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
             var buf = codecs.decode('BASE64', 'G6gkBINMfiPoLtmyLvOAps789G2XaCmHE2R84GGOUlKUFGIpkZHvwZrTHwH4UqbJxBLh1pCusYMHIAxIMRRuf5bZQuJieX2o4nB1IonRoWsSHHNEqAJLMCOhWoFhLAbjvJJWUo9Y60rf4q31NdNBsB59avgPBRmIC5P7iVUEyYc=');
 
-            var out = rsa.decrypt(buf);
+            var out = rsa.decrypt(key, buf);
             expect(out).to.be.instanceof(Uint8Array);
             expect(out.length).to.equal(117);
             for (var i = 0; i < out.length; i ++) {
@@ -62,14 +62,14 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
           it('should encrypt and decrypt a short known string', function() {
             var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
 
-            var enc = rsa.encrypt(buf);
+            var enc = rsa.encrypt(key, buf);
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
             // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
             // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
 
-            var dec = rsa.decrypt(enc);
+            var dec = rsa.decrypt(key, enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(4);
             expect(dec).to.deep.equal(buf);
@@ -77,28 +77,28 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
 
           it('should encrypt and decrypt an empty array', function() {
 
-            var enc = rsa.encrypt(new Uint8Array());
+            var enc = rsa.encrypt(key, new Uint8Array());
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
             // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
             // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
 
-            var dec = rsa.decrypt(enc);
+            var dec = rsa.decrypt(key, enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(0);
           });
 
           it('should encrypt and decrypt a random block with a random key', function() {
             var xkey = RSAKey.generate(rnd, 1024);
-            var xrsa = new RSACipher(xkey, pkcs1, rnd);
+            var xrsa = new RSACipher(pkcs1, rnd);
 
             var buf = rnd.nextBytes(64);
-            var enc = xrsa.encrypt(buf);
+            var enc = xrsa.encrypt(xkey, buf);
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
-            var dec = xrsa.decrypt(enc);
+            var dec = xrsa.decrypt(xkey, enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(buf.length);
             expect(dec).to.deep.equal(buf);
@@ -109,11 +109,11 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             for (var i = 1; i < 117; i ++) {
               var buf = rnd.nextBytes(i);
 
-              var enc = rsa.encrypt(buf);
+              var enc = rsa.encrypt(key, buf);
               expect(enc).to.be.instanceof(Uint8Array);
               expect(enc.length).to.equal(128);
 
-              var dec = rsa.decrypt(enc);
+              var dec = rsa.decrypt(key, enc);
               expect(dec).to.be.instanceof(Uint8Array);
               expect(dec.length).to.equal(buf.length);
               expect(dec).to.deep.equal(buf);
@@ -122,13 +122,13 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
         })
 
         describe("OAEP", function() {
-          var rsa = new RSACipher(key, oaep, rnd);
+          var rsa = new RSACipher(oaep, rnd);
 
           it('should decrypt a short string', function() {
             // echo -n 'abc' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
             var buf = codecs.decode('BASE64', 'x5GWy6Q/mowtDqLV+l6mWVkV/2sWfB7+s1V1Efnh9jx+D5ZDD8wLKfoJA/shMRQmv4j+pF66HQcep2L3A8QVcAF1e+njmBv6W2c9G+H/BTjV7tXfdN/3FpnBYMmOhhiFXWff1WoyXua7i4fLXgL/CAnNeg5WyKZPWf8uqrX2tqg=');
 
-            var out = rsa.decrypt(buf);
+            var out = rsa.decrypt(key, buf);
             expect(out).to.be.instanceof(Uint8Array);
             expect(out.length).to.equal(3);
             expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
@@ -138,7 +138,7 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             // echo -n 'aaaa...86 times...' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
             var buf = codecs.decode('BASE64', 'E6dPJwgKAPVFGN7CMK4giaEgDmZY+jN0vjyTUo8y57dTsJZcT/jFSsWiHGLMInGhFkaL2RHtEdYd4p80AKwUbOzxc2jnMNMZ8dfrrS9pkb3mnyL0vJ8i7QnrqvZ5QIZKKxKkkDFlchdx1QakFm6jUmOrTJHNxj8Vt4pMzsnV2Vk=');
 
-            var out = rsa.decrypt(buf);
+            var out = rsa.decrypt(key, buf);
             expect(out).to.be.instanceof(Uint8Array);
             expect(out.length).to.equal(86);
             for (var i = 0; i < out.length; i ++) {
@@ -149,14 +149,14 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
           it('should encrypt and decrypt a short known string', function() {
             var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
 
-            var enc = rsa.encrypt(buf);
+            var enc = rsa.encrypt(key, buf);
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
             // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
             // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
 
-            var dec = rsa.decrypt(enc);
+            var dec = rsa.decrypt(key, enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(4);
             expect(dec).to.deep.equal(buf);
@@ -164,28 +164,28 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
 
           it('should encrypt and decrypt an empty array', function() {
 
-            var enc = rsa.encrypt(new Uint8Array());
+            var enc = rsa.encrypt(key, new Uint8Array());
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
             // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
             // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
 
-            var dec = rsa.decrypt(enc);
+            var dec = rsa.decrypt(key, enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(0);
           });
 
           it('should encrypt and decrypt a random block with a random key', function() {
             var xkey = RSAKey.generate(rnd, 1024);
-            var xrsa = new RSACipher(xkey, oaep, rnd);
+            var xrsa = new RSACipher(oaep, rnd);
 
             var buf = rnd.nextBytes(64);
-            var enc = xrsa.encrypt(buf);
+            var enc = xrsa.encrypt(xkey, buf);
             expect(enc).to.be.instanceof(Uint8Array);
             expect(enc.length).to.equal(128);
 
-            var dec = xrsa.decrypt(enc);
+            var dec = xrsa.decrypt(xkey, enc);
             expect(dec).to.be.instanceof(Uint8Array);
             expect(dec.length).to.equal(buf.length);
             expect(dec).to.deep.equal(buf);
@@ -196,11 +196,11 @@ Esquire.define('test/rsacipher', [ 'bletchley/ciphers/RSACipher',
             for (var i = 1; i < 86; i ++) {
               var buf = rnd.nextBytes(i);
 
-              var enc = rsa.encrypt(buf);
+              var enc = rsa.encrypt(key, buf);
               expect(enc).to.be.instanceof(Uint8Array);
               expect(enc.length).to.equal(128);
 
-              var dec = rsa.decrypt(enc);
+              var dec = rsa.decrypt(key, enc);
               expect(dec).to.be.instanceof(Uint8Array);
               expect(dec.length).to.equal(buf.length);
               expect(dec).to.deep.equal(buf);

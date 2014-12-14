@@ -67,15 +67,14 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
 
     /* ======================================================================= */
 
-    function RSACipher(key, padding, random) {
-      if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
+    function RSACipher(padding, random) {
       if (!(padding instanceof Padding)) throw new Error("Invalid Padding");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
 
-      var blockSize = key.blockSize;
-
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
-      this.encrypt = function(data) {
+      this.encrypt = function(key, data) {
+        if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
+        var blockSize = key.blockSize;
 
         // accumulate all results...
         var accumulator = new Accumulator();
@@ -97,7 +96,9 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/blocks/Accumulator',
       }
 
       /* RFC 3447, section 7.1.2 (OAEP) and section 7.2.2 (PKCS1) */
-      this.decrypt = function(data) {
+      this.decrypt = function(key, data) {
+        if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
+        var blockSize = key.blockSize;
 
         // accumulate all results...
         var accumulator = new Accumulator();

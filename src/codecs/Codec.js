@@ -1,8 +1,7 @@
 'use strict';
 
-Esquire.define('bletchley/codecs/Codec', ['bletchley/utils/Helper',
-                                          'bletchley/utils/arrays'],
-  function(Helper, arrays) {
+Esquire.define('bletchley/codecs/Codec', [ 'bletchley/utils/Helper' ],
+  function(Helper) {
 
     function Codec(name) {
       Helper.call(this, name);

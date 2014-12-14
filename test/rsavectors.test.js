@@ -31,18 +31,18 @@ Esquire.define('test/rsavectors', [ 'bletchley/ciphers/RSACipher',
 
                   /* New fake random and RSA */
                   var rnd = new FakeRandom(vector.rnd);
-                  var rsa = new RSACipher(key, pkcs1, rnd);
+                  var rsa = new RSACipher(pkcs1, rnd);
 
                   /* Parse out message and encrypted */
                   var msg = codecs.decode('HEX', vector.msg);
                   var enc = codecs.decode('HEX', vector.enc);
 
                   /* Decrypt first */
-                  var dec = rsa.decrypt(enc);
+                  var dec = rsa.decrypt(key, enc);
                   expect(dec).to.deep.equal(msg);
 
                   /* Encrypt then */
-                  var out = rsa.encrypt(msg);
+                  var out = rsa.encrypt(key, msg);
                   expect(out).to.deep.equal(enc);
 
                 });
@@ -64,18 +64,18 @@ Esquire.define('test/rsavectors', [ 'bletchley/ciphers/RSACipher',
 
                   /* New fake random and RSA */
                   var rnd = new FakeRandom(vector.rnd);
-                  var rsa = new RSACipher(key, oaep, rnd);
+                  var rsa = new RSACipher(oaep, rnd);
 
                   /* Parse out message and encrypted */
                   var msg = codecs.decode('HEX', vector.msg);
                   var enc = codecs.decode('HEX', vector.enc);
 
                   /* Decrypt first */
-                  var dec = rsa.decrypt(enc);
+                  var dec = rsa.decrypt(key, enc);
                   expect(dec).to.deep.equal(msg);
 
                   /* Encrypt then */
-                  var out = rsa.encrypt(msg);
+                  var out = rsa.encrypt(key, msg);
                   var oh = codecs.encode('HEX', out);
                   var eh = codecs.encode('HEX', enc);
                   expect(oh).to.deep.equal(eh);
