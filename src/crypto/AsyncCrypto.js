@@ -1,6 +1,10 @@
 'use strict';
 
-Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/BoundClass'], function(Promise, BoundClass) {
+Esquire.define('bletchley/crypto/AsyncCrypto', [ '$promise',
+                                                 'bletchley/utils/BoundClass',
+                                                 'bletchley/utils/arrays',
+                                                 'bletchley/codecs' ],
+  function(Promise, BoundClass, arrays, codecs) {
 
     function promise(functionName) {
 
@@ -27,6 +31,12 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/Bou
 
       Object.defineProperty(this, "$crypto", { enumerable: false, configurable: false, value: crypto });
 
+      Object.defineProperties(this, {
+        "stringify": { enumerable: true, configurable: true, value: arrays.decodeUTF8 },
+        "encode":    { enumerable: true, configurable: true, value: codecs.encode     },
+        "decode":    { enumerable: true, configurable: true, value: codecs.decode     },
+      });
+
       /* Bind and lock our functions */
       BoundClass.call(this);
     };
@@ -35,9 +45,6 @@ Esquire.define('bletchley/crypto/AsyncCrypto', ['$promise', 'bletchley/utils/Bou
     AsyncCrypto.prototype.constructor = AsyncCrypto;
 
     AsyncCrypto.prototype.random    = promise("random");
-    AsyncCrypto.prototype.stringify = promise("stringify");
-    AsyncCrypto.prototype.encode    = promise("encode");
-    AsyncCrypto.prototype.decode    = promise("decode");
     AsyncCrypto.prototype.encrypt   = promise("encrypt");
     AsyncCrypto.prototype.decrypt   = promise("decrypt");
     AsyncCrypto.prototype.hash      = promise("hash");

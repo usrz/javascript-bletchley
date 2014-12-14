@@ -81,7 +81,6 @@ esquire([ 'test/BigInteger',
 
     /* Wrapper around a mock, don't test what we don't have to */
     if (subtleWrapper) describe("Subtle crypto implementation", function() {
-      testCrypto(subtleWrapper, true);
       testHashes(subtleWrapper, true);
       testHMACs(subtleWrapper, true);
     });

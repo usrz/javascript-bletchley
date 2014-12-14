@@ -1,10 +1,8 @@
 'use strict';
 
-Esquire.define('test/BigInteger', ['bletchley/utils/BigInteger', 'bletchley/codecs/Codecs'], function(BigInteger, Codecs) {
+Esquire.define('test/BigInteger', ['bletchley/utils/BigInteger', 'bletchley/codecs'], function(BigInteger, codecs) {
 
   return function() {
-    var codecs = new Codecs();
-
     describe("Big Integers", function() {
 
       it('should correctly construct a BigInteger with negative bit', function() {

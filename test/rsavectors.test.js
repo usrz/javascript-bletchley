@@ -2,14 +2,13 @@
 
 Esquire.define('test/rsavectors', [ 'bletchley/ciphers/RSACipher',
                                     'bletchley/ciphers/RSAKey',
-                                    'bletchley/codecs/Codecs',
+                                    'bletchley/codecs',
                                     'bletchley/paddings/Paddings',
                                     'test/rsa/pkcs1Vectors',
                                     'test/rsa/oaepVectors',
                                     'test/FakeRandom' ],
-  function(RSACipher, RSAKey, Codecs, Paddings, pkcs1Vectors, oaepVectors, FakeRandom) {
+  function(RSACipher, RSAKey, codecs, Paddings, pkcs1Vectors, oaepVectors, FakeRandom) {
 
-    var codecs = new Codecs();
     var paddings = new Paddings();
     var pkcs1 = paddings.$helper("PKCS1");
     var oaep = paddings.$helper("OAEP");

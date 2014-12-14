@@ -3,8 +3,8 @@
 Esquire.define('test/codecs', ['test/async', 'test/binary', 'bletchley/crypto/Crypto', 'bletchley/crypto/AsyncCrypto', 'bletchley/utils/arrays'],
 function(async, binary, Crypto, AsyncCrypto, arrays) {
 
-  return function(crypto, isAsync) {
-    var maybeAsync = async(isAsync);
+  return function(crypto) {
+    var maybeAsync = async(false);
 
     describe("Codecs", function() {
 

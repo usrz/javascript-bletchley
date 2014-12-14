@@ -1,8 +1,6 @@
 'use strict';
 
-Esquire.define('test/FakeRandom', ['bletchley/random/Random', 'bletchley/codecs/Codecs'], function(Random, Codecs) {
-
-  var codecs = new Codecs();
+Esquire.define('test/FakeRandom', ['bletchley/random/Random', 'bletchley/codecs'], function(Random, codecs) {
 
   function FakeRandom(hex) {
     var buf = codecs.decode('HEX', hex);

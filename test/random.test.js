@@ -2,11 +2,10 @@
 
 Esquire.define('test/random', [ 'bletchley/random/Arc4Random',
                                 'bletchley/random/SecureRandom',
-                                'bletchley/codecs/Codecs',
+                                'bletchley/codecs',
                                 'test/badrandom' ],
-  function(Arc4Random, SecureRandom, Codecs, badrandom) {
+  function(Arc4Random, SecureRandom, codecs, badrandom) {
 
-    var codecs = new Codecs();
     var a4bad = badrandom.a4bad;
     var srbad = badrandom.srbad;
 

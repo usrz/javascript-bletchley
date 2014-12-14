@@ -1,14 +1,13 @@
 'use strict';
 
 Esquire.define('test/blocks', [ 'bletchley/random/SecureRandom',
-                                'bletchley/codecs/Codecs',
                                 'bletchley/blocks/Receiver',
                                 'bletchley/blocks/Accumulator',
-                                'bletchley/blocks/Chunker' ],
-  function(SecureRandom, Codecs, Receiver, Accumulator, Chunker) {
+                                'bletchley/blocks/Chunker',
+                                'bletchley/codecs' ],
+  function(SecureRandom, Receiver, Accumulator, Chunker, codecs) {
 
     var random = new SecureRandom();
-    var codecs = new Codecs();
 
     /* Forward and keep track of calls */
     function Forwarder(receiver) {

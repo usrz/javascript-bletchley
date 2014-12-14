@@ -1,8 +1,6 @@
 'use strict';
 
-Esquire.define('test/crypto', ['test/async', 'bletchley/codecs/Codecs', 'test/badrandom'], function(async, Codecs, badrandom) {
-
-  var codecs = new Codecs();
+Esquire.define('test/crypto', ['test/async', 'bletchley/codecs', 'test/badrandom'], function(async, codecs, badrandom) {
 
   /* String for 'Tokyo' in Japanese */
   var tokyoString = "\u6771\u4EAC";
@@ -35,15 +33,10 @@ Esquire.define('test/crypto', ['test/async', 'bletchley/codecs/Codecs', 'test/ba
         expect(crypto.kdf).to.be.a('function');
       });
 
-      promises("should stringify a known array", function() {
-        return maybeAsync(stringify(tokyoUint8Array))
-
-        .then(function(encoded) {
-          expect(encoded).to.be.a('string');
-          expect(encoded).to.equal(tokyoString);
-        })
-
-        .done();
+      it("should stringify a known array", function() {
+        var encoded = stringify(tokyoUint8Array);
+        expect(encoded).to.be.a('string');
+        expect(encoded).to.equal(tokyoString);
       });
 
       promises("should return some random data", function() {

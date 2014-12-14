@@ -1,12 +1,10 @@
 'use strict';
 
 Esquire.define('test/rsacipher', [ 'test/async',
+                                   'bletchley/codecs',
                                    'bletchley/ciphers/RSAKey',
-                                   'bletchley/codecs/Codecs',
                                    'bletchley/random/SecureRandom' ],
-  function(async, RSAKey, Codecs, SecureRandom) {
-
-    var codecs = new Codecs();
+  function(async, codecs, RSAKey, SecureRandom) {
 
     var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
             + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'

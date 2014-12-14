@@ -1,8 +1,6 @@
 'use strict';
 
-Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs/Codecs'], function(async, Codecs) {
-
-  var codecs = new Codecs();
+Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, codecs) {
 
   return function(crypto, isAsync) {
     var maybeAsync = async(isAsync);
