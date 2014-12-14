@@ -176,7 +176,7 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
     /* ====================================================================== */
 
     function OAEPPadding() {
-      Padding.call(this, "OAEP");
+      Padding.call(this, [ "OAEP", "OAEPPadding", "OAEPWithSHA1AndMGF1Padding" ]);
     }
 
     OAEPPadding.prototype = Object.create(Padding.prototype);
