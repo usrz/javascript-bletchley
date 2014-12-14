@@ -62,6 +62,7 @@ Esquire.define('bletchley/random/SecureRandom', [ 'bletchley/random/Random',
 
       "nextBytes": { enumerable: true, configurable: true, value: function(size) {
         var array = Random.$array(size);
+        size = array.length;
 
         /* Proceed in blocks */
         var offset = 0;

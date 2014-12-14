@@ -75,6 +75,7 @@ Esquire.define('bletchley/random/Random', ['bletchley/utils/BoundClass',
 
     Random.prototype.nextBytes = function(size) {
       var array = Random.$array(size);
+      size = array.length;
       for (var i = 0; i < size; i ++) array[i] = this.next();
       return array;
     };
