@@ -1,13 +1,13 @@
 'use strict';
 
-Esquire.define('test/paddings', [ 'bletchley/random/Arc4Random',
+Esquire.define('test/paddings', [ 'bletchley/random/SecureRandom',
                                   'bletchley/codecs/Codecs',
                                   'bletchley/blocks/Accumulator',
                                   'bletchley/paddings/Paddings',
                                   'test/FakeRandom' ],
-  function(Arc4Random, Codecs, Accumulator, Paddings, FakeRandom) {
+  function(SecureRandom, Codecs, Accumulator, Paddings, FakeRandom) {
 
-    var random = new Arc4Random();
+    var random = new SecureRandom();
     var codecs = new Codecs();
     var paddings = new Paddings();
 

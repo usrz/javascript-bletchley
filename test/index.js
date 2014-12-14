@@ -39,9 +39,9 @@ esquire([ 'test/BigInteger',
 
     describe("Basic tests", function() {
       testBigInteger();
-      testRSAKey();
       testRandom();
       testBlocks();
+      testRSAKey();
       testPaddings();
       testRSACipher();
       testRSAVectors();
@@ -56,7 +56,6 @@ esquire([ 'test/BigInteger',
 
     describe("Synchronous crypto implementation", function() {
       var syncCrypto = new Crypto();
-      testRandom(syncCrypto, false);
       testCodecs(syncCrypto, false);
       testHashes(syncCrypto, false);
       testHMACs(syncCrypto, false);
@@ -64,7 +63,6 @@ esquire([ 'test/BigInteger',
     });
 
     describe("Worker crypto implementation", function() {
-      testRandom(workerCrypto, true);
       testCodecs(workerCrypto, true);
       testHashes(workerCrypto, true);
       testHMACs(workerCrypto, true);
@@ -78,7 +76,6 @@ esquire([ 'test/BigInteger',
     });
 
     describe("Default crypto implementation", function() {
-      testRandom(crypto, true);
       testCodecs(crypto, true);
       testHashes(crypto, true);
       testHMACs(crypto, true);

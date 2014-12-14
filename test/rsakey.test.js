@@ -1,10 +1,10 @@
 'use strict';
 
-Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigInteger', 'bletchley/codecs/Codecs', 'bletchley/random/Arc4Random'], function(RSAKey, BigInteger, Codecs, Arc4Random) {
+Esquire.define('test/RSAKey', ['bletchley/ciphers/RSAKey', 'bletchley/utils/BigInteger', 'bletchley/codecs/Codecs', 'bletchley/random/SecureRandom'], function(RSAKey, BigInteger, Codecs, SecureRandom) {
 
   return function() {
     var codecs = new Codecs();
-    var random = new Arc4Random();
+    var random = new SecureRandom();
 
     var n_hex     = 'ceb6cf011fc4663a04ef4357df652dcb25cfa337b10da69ae88e7fb8c2a29e66d55f1f69dcda87ce7eefc7175e889ffedd4726135c204b345cd89fef177ab302e7ccd16781fa729d2fb36dc90de1cc0e4949886cfaa68b5f004b58ec6b183c1c84ecaa47a6be28e01a2fa35e6f2750d017a3790f12ac877913b9cdfdc15732ed';
     var e_hex     = '010001';

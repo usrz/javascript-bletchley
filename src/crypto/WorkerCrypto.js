@@ -2,11 +2,11 @@
 
 Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
                                                   'bletchley/crypto/AsyncCrypto',
-                                                  'bletchley/random/Arc4Random',
+                                                  'bletchley/random/SecureRandom',
                                                   'rodosha' ],
-  function(Promise, AsyncCrypto, Arc4Random, rodosha) {
+  function(Promise, AsyncCrypto, SecureRandom, rodosha) {
 
-    var internalRandom = new Arc4Random();
+    var internalRandom = new SecureRandom();
 
     function WorkerCrypto(proxy) {
       if (proxy && proxy['!$proxyId$!']) {
@@ -22,12 +22,12 @@ Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
     WorkerCrypto.newInstance = function() {
 
       return rodosha.create('bletchley/crypto/Crypto',
-                            'bletchley/random/Arc4Random',
+                            'bletchley/random/SecureRandom',
                             false)
         .then(function(rodosha) {
           return Promise.all([
             rodosha.proxy('bletchley/crypto/Crypto'),
-            rodosha.proxy('bletchley/random/Arc4Random')
+            rodosha.proxy('bletchley/random/SecureRandom')
           ]);
 
         }).then(function(result) {
