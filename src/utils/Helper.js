@@ -12,7 +12,7 @@ Esquire.define('bletchley/utils/Helper', ['bletchley/utils/BoundClass'], functio
     } else if (Array.isArray(algorithm)) {
       for (var i = 0; i < algorithm.length; i ++) {
         var alias = algorithm[i];
-        if (typeof(algorithm) !== 'string') throw new Error("Algorithm alias must be a string");
+        if (typeof(alias) !== 'string') throw new Error("Algorithm alias must be a string");
         if (alias.length > 0) aliases.push(alias.toUpperCase());
       }
     } else {
@@ -28,8 +28,8 @@ Esquire.define('bletchley/utils/Helper', ['bletchley/utils/BoundClass'], functio
 
     /* Our properties */
     Object.defineProperties(this, {
-      "algorithm": { configurable: false, enumerable: true, value: algorithm },
-      "aliases":   { configurable: false, enumerable: true, value: aliases   }
+      "$algorithm": { configurable: false, enumerable: false, value: algorithm },
+      "$aliases":   { configurable: false, enumerable: false, value: aliases   }
     });
 
     /* Bind and lock functions */

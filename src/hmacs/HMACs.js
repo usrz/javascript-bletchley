@@ -8,10 +8,9 @@ Esquire.define('bletchley/hmacs/HMACs', [ 'bletchley/utils/HelperFactory',
     function HMACs() {
       var hmacs = [];
       var hashes = new Hashes();
-      var algorithms = hashes.$algorithms;
-      for (var i in algorithms) {
-        var hash = new hashes.$helper(algorithms[i]);
-        hmacs.push(new HMAC(hash));
+      var helpers = hashes.$helpers;
+      for (var i in helpers) {
+        hmacs.push(new HMAC(helpers[i]));
       }
 
       HelperFactory.call(this, hmacs);

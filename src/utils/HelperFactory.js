@@ -17,11 +17,13 @@ function(BoundClass, Helper) {
     if (!helpers.length) throw new Error("No helpers specified");
 
     /* Process helpers */
+    var helpersClone = [];
     for (var i in helpers) {
       var helper = helpers[i];
       if (! (helper instanceof Helper)) throw new Error("Invalid helper " + helper);
+      helpersClone.push(helper);
 
-      var aliases = helper.aliases;
+      var aliases = helper.$aliases;
       for (var j = 0; j < aliases.length; j++) {
         var algorithm = aliases[j];
         algorithms.push(algorithm);
@@ -41,6 +43,11 @@ function(BoundClass, Helper) {
         enumerable: false,
         configurable: false,
         value: Object.freeze(algorithms)
+      },
+      "$helpers": {
+        enumerable: false,
+        configurable: false,
+        value: Object.freeze(helpersClone)
       },
       "$helper": {
         enumerable: false,
