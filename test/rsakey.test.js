@@ -140,7 +140,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
         it('should have a bit length', function() {
           var key = new RSAKey(n_hex, e_hex)
           expect(key.bitLength).to.equal(1024);
-          expect(key.blockSize).to.equal(128);
+          expect(key.byteLength).to.equal(128);
         });
 
         it('should parse and re-encode a X.509 public key', function() {
@@ -163,7 +163,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
           expect(key.coeff, "COEFF").not.to.exist;
 
           /* Encode private key and check */
-          var enc = key.encodePublic();
+          var enc = key.export('spki');
           expect(enc).to.be.instanceof(Uint8Array);
           expect(enc).to.deep.equal(der);
         });
@@ -204,7 +204,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
           expect(coeff, "COEFF").to.equal('00' + coeff_hex);
 
           /* Encode private key and check */
-          var enc = key.encodePrivate();
+          var enc = key.export('pkcs8');
           expect(enc).to.be.instanceof(Uint8Array);
           expect(enc).to.deep.equal(der);
         });
@@ -234,7 +234,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
           expect(key.coeff, "COEFF").not.to.exist;
 
           /* Encode private key and check */
-          var enc = key.encodePrivate();
+          var enc = key.export('pkcs8');
           expect(enc).to.be.instanceof(Uint8Array);
           expect(enc).to.deep.equal(der);
         });
@@ -280,7 +280,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
           expect(key.coeff.equals(coeff), "COEFF").to.be.true;
 
           // now encode as a PKCS#8 private key
-          var enc = key.encodePrivate();
+          var enc = key.export('pkcs8');
           expect(enc).to.be.instanceof(Uint8Array);
           expect(enc).to.deep.equal(der);
         });
@@ -299,7 +299,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
           expect(key.dmq1,   "DMQ1").to.be.instanceof(BigInteger);
           expect(key.coeff, "COEFF").to.be.instanceof(BigInteger);
 
-          expect(key.blockSize, "key size").to.be.equal(128);
+          expect(key.byteLength, "key size").to.be.equal(128);
         });
 
         it('should generate a simple 512 bits key with 3 as public exponent', function() {
@@ -316,7 +316,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
           expect(key.dmq1,   "DMQ1").to.be.instanceof(BigInteger);
           expect(key.coeff, "COEFF").to.be.instanceof(BigInteger);
 
-          expect(key.blockSize, "key size").to.be.equal(64);
+          expect(key.byteLength, "key size").to.be.equal(64);
         });
 
 

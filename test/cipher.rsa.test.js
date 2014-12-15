@@ -23,10 +23,10 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
             + 'pUjvYB0w5xWZvFoP';
     var der = codecs.decode('BASE64', pem);
     var rnd = new SecureRandom();
-    var key = new RSAKeyFactory(rnd).importKey(der);
 
     return function(crypto, isAsync) {
       var maybeAsync = async(isAsync);
+      var key = crypto.importKey('RSA', der);
 
       describe("RSA cipher", function() {
 
@@ -104,7 +104,7 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
           promises('should encrypt and decrypt a random block with a random key', function() {
 
             // TODO: keygen in Crypto!
-            var xkey = new RSAKeyFactory(rnd).generateKey(1024);
+            var xkey = crypto.generateKey('RSA', 1024);
 
             var buf = rnd.nextBytes(64);
             return maybeAsync(crypto.encrypt('RSA/PKCS1', xkey, buf))
@@ -200,7 +200,7 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
 
           promises('should encrypt and decrypt a random block with a random key', function() {
             // TODO: keygen in Crypto!
-            var xkey = new RSAKeyFactory(rnd).generateKey(1024);
+            var xkey = crypto.generateKey('RSA', 1024);
 
             var buf = rnd.nextBytes(64);
             return maybeAsync(crypto.encrypt('RSA/OAEP', xkey, buf))
