@@ -149,7 +149,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
                   + 'Z4H6cp0vs23JDeHMDklJiGz6potfAEtY7GsYPByE7KpHpr4o4Bovo15vJ1DQF6N5'
                   + 'DxKsh3kTuc39wVcy7QIDAQAB';
           var der = codecs.decode('BASE64', pem);
-          var key = RSAKey.parsePublic(der);
+          var key = new RSAKeyFactory(random).importKey(der);
 
           var n = codecs.encode('HEX', key.n.toUint8Array());
 
@@ -184,7 +184,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
                   + 'K8MdSX1FtHjvqc2jg+hqin5Ed3xBA2n+Rc2wdvgfye45MlJD/qZMMtwb4ai+FkYv'
                   + 'pUjvYB0w5xWZvFoP';
           var der = codecs.decode('BASE64', pem);
-          var key = RSAKey.parsePrivate(der);
+          var key = new RSAKeyFactory(random).importKey(der);
 
           var n     = codecs.encode('HEX', key.n.toUint8Array());
           var d     = codecs.encode('HEX', key.d.toUint8Array());
@@ -219,7 +219,7 @@ Esquire.define('test/RSAKey', [ 'bletchley/keys/RSAKey',
                   + 'C4/4Mj8Gnv7o7ZfMpS9bfR2DXTkyQ1yURC2kmiHNH+cuzNu9WSPsi2sY7ABPBE15'
                   + 'xJLc7HmTB6mZGe0CAQACAQACAQACAQACAQA=';
           var der = codecs.decode('BASE64', pem);
-          var key = RSAKey.parsePrivate(der);
+          var key = new RSAKeyFactory(random).importKey(der);
 
           var n     = codecs.encode('HEX', key.n.toUint8Array());
           var d     = codecs.encode('HEX', key.d.toUint8Array());

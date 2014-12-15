@@ -105,34 +105,12 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/uti
   }
 
   /* ======================================================================== *
-   * Some rough ASN.1 DER decoding and encoding utilities: really bare bones! *
+   * Some rough ASN.1 DER encoding utilities: really bare bones!              *
    * ======================================================================== */
 
   var asn1RSAOID = new Uint8Array([0x06, 0x09, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01]);
   var asn1ZERO   = new Uint8Array([0x02, 0x01, 0x00]);
   var asn1NULL   = new Uint8Array([0x05, 0x00]);
-
-  var asn1Buffer = new Uint8Array(4096);
-
-  function getASNBigInteger(asn1, field) {
-    if (asn1 == null) {
-      throw new Error("ASN.1 format error: null field " + field);
-    }
-
-    var type = asn1.typeName();
-    if (type == "NULL") return null;
-    if (type != "INTEGER") {
-      throw new Error("ASN.1 format error: invalid type '" + type + "' for field " + field);
-    }
-
-    var length = asn1.toUint8Array(asn1Buffer);
-
-    /* Zero length (odd) and an integer "0" could mean field not available */
-    if ((length == 0) || ((length == 1) && (asn1Buffer[0] == 0))) return null;
-
-    /* Keep only the bytes we need and return the number */
-    return  BigInteger.fromArray(1, asn1Buffer.subarray(0, length));
-  }
 
   function fillASNBuffer(tag, length, callback) {
     if (length < 127) {
@@ -225,7 +203,7 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/uti
   }
 
   /* ======================================================================== *
-   | Parse PKCS#8 private key from ASN.1 (Lapo is a God)                      |
+   | PKCS#8 (subtle crypto's "pkcs8") private key in ASN.1                    |
    | https://polarssl.org/kb/cryptography/asn1-key-structures-in-der-and-pem  |
    |                                                                          |
    | SEQUENCE                                                                 |
@@ -253,52 +231,6 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/uti
    |                                                                          |
    * ======================================================================== */
 
-  RSAKey.parsePrivate = function(array) {
-    var asn1 = ASN1.decode(arrays.toUint8Array(array));
-
-    /* Basic container */
-    if (asn1.typeName() != "SEQUENCE") throw new Error("ASN.1 format error: 1");
-    if (asn1.sub.length < 3)           throw new Error("ASN.1 format error: 2");
-
-    /* Version */
-    if (asn1.sub[0].typeName() != "INTEGER") throw new Error("ASN.1 format error: 3");
-    if (asn1.sub[0].content() != "0")        throw new Error("ASN.1 format error: Unknown X.509 version");
-
-    /* Alogrithm OID and parameters sequence */
-    if (asn1.sub[1].typeName() != "SEQUENCE") throw new Error("ASN.1 format error: 4");
-    if (asn1.sub[1].sub.length < 1)           throw new Error("ASN.1 format error: 5");
-
-    /* Validate the OID of our algorithm */
-    if (asn1.sub[1].sub[0].typeName() != "OBJECT_IDENTIFIER")   throw new Error("ASN.1 format error: 5");
-    if (asn1.sub[1].sub[0].content() != "1.2.840.113549.1.1.1") throw new Error("ASN.1 format error: Not an RSA key");
-
-    // /* Get the sub-sequence parsed from the BIT STRING / OCTET STRING */
-    if (asn1.sub[2].sub.length != 1)                 throw new Error("ASN.1 format error: 6");
-    if (asn1.sub[2].sub[0].typeName() != "SEQUENCE") throw new Error("ASN.1 format error: 7");
-    if (asn1.sub[2].sub[0].sub.length < 3)           throw new Error("ASN.1 format error: 8");
-    if (asn1.sub[2].sub[0].sub[0].content() != "0")  throw new Error("ASN.1 format error: Unknown RSA key version");
-
-    /* Check our types */
-    if (asn1.sub[2].sub[0].sub[1].typeName() != "INTEGER") throw new Error("ASN.1 format error: N");
-    if (asn1.sub[2].sub[0].sub[2].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[3].typeName() != "INTEGER") throw new Error("ASN.1 format error: D");
-    if (asn1.sub[2].sub[0].sub[4].typeName() != "INTEGER") throw new Error("ASN.1 format error: P");
-    if (asn1.sub[2].sub[0].sub[5].typeName() != "INTEGER") throw new Error("ASN.1 format error: Q");
-    if (asn1.sub[2].sub[0].sub[6].typeName() != "INTEGER") throw new Error("ASN.1 format error: DMP1");
-    if (asn1.sub[2].sub[0].sub[7].typeName() != "INTEGER") throw new Error("ASN.1 format error: DMQ1");
-    if (asn1.sub[2].sub[0].sub[8].typeName() != "INTEGER") throw new Error("ASN.1 format error: COEFF");
-
-    /* Get a hold on our N, E, P, Q, DMP1, DMQ1 and COEFF and create the key */
-    return new RSAKey(getASNBigInteger(asn1.sub[2].sub[0].sub[1], "N"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[2], "E"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[3], "D"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[4], "P"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[5], "Q"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[6], "DMP1"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[7], "DMQ1"),
-                      getASNBigInteger(asn1.sub[2].sub[0].sub[8], "COEFF"));
-  };
-
   RSAKey.prototype.encodePrivate = function() {
     if (this.d == null) throw new Error("No private exponent");
     return toASNSequence(
@@ -324,7 +256,7 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/uti
   };
 
   /* ======================================================================== *
-   | Parse X.509 ("spki") public key from ASN.1 (Lapo is a genius)            |
+   | X.509 (subtle crypto's "spki") public key in ASN.1                       |
    | https://polarssl.org/kb/cryptography/asn1-key-structures-in-der-and-pem  |
    |                                                                          |
    | SEQUENCE                                                                 |
@@ -342,31 +274,6 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/uti
    |              +--> INTEGER = ..small.. (E)                                |
    |                                                                          |
    * ======================================================================== */
-
-  RSAKey.parsePublic = function(array) {
-    var asn1 = ASN1.decode(arrays.toUint8Array(array));
-
-    /* Basic container */
-    if (asn1.typeName() != "SEQUENCE") throw new Error("ASN.1 format error: 1");
-    if (asn1.sub.length < 2)           throw new Error("ASN.1 format error: 2");
-
-    /* Alogrithm OID and parameters sequence */
-    if (asn1.sub[0].typeName() != "SEQUENCE") throw new Error("ASN.1 format error: 3");
-    if (asn1.sub[0].sub.length < 1)           throw new Error("ASN.1 format error: 4");
-
-    /* Validate the OID of our algorithm */
-    if (asn1.sub[0].sub[0].typeName() != "OBJECT_IDENTIFIER")   throw new Error("ASN.1 format error: 5");
-    if (asn1.sub[0].sub[0].content() != "1.2.840.113549.1.1.1") throw new Error("ASN.1 format error: Not an RSA key");
-
-    /* Get the sub-sequence parsed from the BIT STRING / OCTET STRING */
-    if (asn1.sub[1].sub.length != 1)                 throw new Error("ASN.1 format error: 6");
-    if (asn1.sub[1].sub[0].typeName() != "SEQUENCE") throw new Error("ASN.1 format error: 7");
-    if (asn1.sub[1].sub[0].sub.length < 2)           throw new Error("ASN.1 format error: 8");
-
-    /* Get a hold on our N and E and create the key */
-    return new RSAKey(getASNBigInteger(asn1.sub[1].sub[0].sub[0], "N"),
-                      getASNBigInteger(asn1.sub[1].sub[0].sub[1], "E"));
-  };
 
   RSAKey.prototype.encodePublic = function() {
     if (this.e == null) throw new Error("No private exponent");

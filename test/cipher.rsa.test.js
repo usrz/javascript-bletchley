@@ -22,8 +22,8 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
             + 'K8MdSX1FtHjvqc2jg+hqin5Ed3xBA2n+Rc2wdvgfye45MlJD/qZMMtwb4ai+FkYv'
             + 'pUjvYB0w5xWZvFoP';
     var der = codecs.decode('BASE64', pem);
-    var key = RSAKey.parsePrivate(der);
     var rnd = new SecureRandom();
+    var key = new RSAKeyFactory(rnd).importKey(der);
 
     return function(crypto, isAsync) {
       var maybeAsync = async(isAsync);

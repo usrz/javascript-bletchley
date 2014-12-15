@@ -10,7 +10,7 @@ Esquire.define('bletchley/keys/KeyFactory', [ 'bletchley/utils/Helper' ], functi
   KeyFactory.prototype.constructor = KeyFactory;
 
   KeyFactory.prototype.generateKey = function(bits, params) { throw new Error("KeyFactory 'generateKey' not implemented") }
-  KeyFactory.prototype.importKey   = function(bits, params) { throw new Error("KeyFactory 'importKey' not implemented") }
+  KeyFactory.prototype.importKey   = function(data) { throw new Error("KeyFactory 'importKey' not implemented") }
 
   return KeyFactory;
 
