@@ -1,0 +1,96 @@
+'use strict';
+
+Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/blocks/Receiver',
+                                              'bletchley/random/Random',
+                                              'bletchley/keys/RSAKeyFactory',
+                                              'bletchley/utils/HelperFactory' ],
+  function(Receiver, Random, RSAKeyFactory, HelperFactory) {
+
+    /* ====================================================================== */
+
+    /* Wrapper for encipher/decipher */
+    function CipherForwarder(receiver) {
+      if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver: " + receiver);
+
+      Object.defineProperties(this, {
+        push: { enumerable: true, configurable: false, value: function(message, last) {
+          return receiver.push(message, last);
+        }}
+      });
+
+      Receiver.call(this, receiver);
+    }
+
+    CipherForwarder.prototype = Object.create(Receiver.prototype);
+    CipherForwarder.prototype.constructor = CipherForwarder;
+
+    /* ====================================================================== */
+
+    /* Wrapper for key */
+    function Key(key, exportable) {
+      if (! key) throw new Error("No key");
+
+      Object.defineProperties(this, {
+
+        'algorithm':  { enumerable: true, configurable: false, value: key.algorithm },
+        'bitLength':  { enumerable: true, configurable: false, value: key.bitLength  },
+        'byteLength': { enumerable: true, configurable: false, value: key.byteLength },
+
+        'export': { enumerable: true, configurable: false, value: function(format) {
+          if (exportable) return key.export(format);
+          throw new Error("Key not exportable");
+        }},
+
+        'encipher': { enumerable: true, configurable: false, value: function(receiver) {
+          return new CipherForwarder(key.encipher(receiver));
+        }},
+
+        'decipher': { enumerable: true, configurable: false, value: function(receiver) {
+          return new CipherForwarder(key.decipher(receiver));
+        }},
+
+      });
+    };
+
+    /* ====================================================================== */
+
+    function KeyManager(random) {
+      if (!(random instanceof Random)) throw new Error("Invalid Random");
+
+      /* Our key factories */
+      var rsaKeyFactory = new RSAKeyFactory(random);
+
+      /* Our properties */
+      Object.defineProperties(this, {
+
+        generateKey: { enumerable: true, configurable: true, value: function(algorithm, bits, params) {
+          var key = this.$helper(algorithm).generateKey(bits, params);
+          var exportable = true; // default, export generated keys
+          if (params && params.hasOwnProperty(exportable)) {
+            exportable = params.exportable && true || false;
+          }
+          return new Key(key, exportable);
+        }},
+
+        importKey: { enumerable: true, configurable: true, value: function(algorithm, data, params) {
+          var key = this.$helper(algorithm).importKey(data, params);
+          var exportable = true; // default, do not export imported keys
+          if (params && params.hasOwnProperty(exportable)) {
+            exportable = params.exportable && true || false;
+          }
+          return new Key(key, exportable);
+        }}
+
+      });
+
+      /* Helpers */
+      HelperFactory.call(this, [ rsaKeyFactory ]);
+    }
+
+    KeyManager.prototype = Object.create(HelperFactory.prototype);
+    KeyManager.prototype.constructor = KeyManager;
+
+    return KeyManager;
+
+  }
+);

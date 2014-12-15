@@ -221,8 +221,8 @@ Esquire.define('bletchley/keys/RSAKeyFactory', [ 'bletchley/keys/KeyFactory',
         return generate(random, bits, e);
       }
 
-      this.importKey = function(array) {
-        var asn1 = ASN1.decode(arrays.toUint8Array(array));
+      this.importKey = function(data, params) {
+        var asn1 = ASN1.decode(arrays.toUint8Array(data));
 
         if (asn1.typeName() != "SEQUENCE") throw new Error("ASN.1 format error: expected SEQUENCE instead of " + asn1.typeName());
         if (asn1.sub.length < 2)           throw new Error("ASN.1 format error: expected SEQUENCE of at least 2 members");

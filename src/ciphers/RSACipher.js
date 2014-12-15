@@ -16,58 +16,6 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
                                                 'bletchley/random/Random' ],
   function(Cipher, RSAKey, Accumulator, Chunker, Forwarder, Padding, BigInteger, Random) {
 
-
-    function RSAEncipher(receiver, key) {
-      if (key.e == null) throw new Error("Key lacks public exponent");
-      this.push = function(message, last) {
-        // we could go in ECB mode and process many blocks, but for now fail
-        // as most implementations simply refuse to encrypt multiple blocks
-        if (!last) throw new Error("Message too big for RSA");
-
-        var x = BigInteger.fromArray(message);
-        var r = x.modPowInt(key.e, key.n);
-
-        // Allocating an array here allows us to go without I2OSP
-        var buffer = new Uint8Array(key.blockSize + 1); // always leading zero
-        var offset = buffer.length - r.byteLength();
-        r.toUint8Array(buffer.subarray(offset));
-
-        // Always push the block of the correct size
-        return this.$next(buffer.subarray(1), last);
-      }
-      Forwarder.call(this, receiver);
-    }
-
-    RSAEncipher.prototype = Object.create(Forwarder.prototype);
-    RSAEncipher.prototype.constructor = RSAEncipher;
-
-    /* ======================================================================= */
-
-    function RSADecipher(receiver, key) {
-      if (key.d == null) throw new Error("Key lacks private exponent");
-      this.push = function(message, last) {
-        // we could go in ECB mode and process many blocks, but for now fail
-        // as most implementations simply refuse to encrypt multiple blocks
-        if (!last) throw new Error("Message too big for RSA");
-
-        var x = BigInteger.fromArray(1, message);
-        var r = x.modPow(key.d, key.n);
-
-        var buffer = new Uint8Array(key.blockSize + 1); // always leading zero
-        var offset = buffer.length - r.byteLength();
-        r.toUint8Array(buffer.subarray(offset));
-
-        return this.$next(buffer.subarray(1), last);
-        // return this.$next(r.toUint8Array(), last);
-      }
-      Forwarder.call(this, receiver);
-    }
-
-    RSADecipher.prototype = Object.create(Forwarder.prototype);
-    RSADecipher.prototype.constructor = RSADecipher;
-
-    /* ======================================================================= */
-
     function RSACipher(padding, random) {
       if (!(padding instanceof Padding)) throw new Error("Invalid Padding");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
@@ -81,15 +29,15 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
 
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
       this.encrypt = function(key, data) {
-        if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
-        var blockSize = key.blockSize;
+        if (key.algorithm != 'RSA') throw new Error("Invalid RSA key");
+        var blockSize = key.byteLength;
 
         // accumulate all results...
         var accumulator = new Accumulator();
 
         // encipher: this will always push a key.blockSize array, which
         // basically means we won't have any need for i2osp padding.
-        var cipher = new RSAEncipher(accumulator, key);
+        var cipher = key.encipher(accumulator);
 
         // padder (PKCS#1 or OAEP) will always return a zero-prefixed array, so
         // cipher will always interpret it as a positive integer
@@ -105,8 +53,8 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
 
       /* RFC 3447, section 7.1.2 (OAEP) and section 7.2.2 (PKCS1) */
       this.decrypt = function(key, data) {
-        if (!(key instanceof RSAKey)) throw new Error("Invalid RSA key");
-        var blockSize = key.blockSize;
+        if (key.algorithm != 'RSA') throw new Error("Invalid RSA key");
+        var blockSize = key.byteLength;
 
         // accumulate all results...
         var accumulator = new Accumulator();
@@ -117,9 +65,9 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
         // decipher: this will always parse numbers as *POSITIVE* integers
         // (so no need to prepend zeroes) and push a key.blockSize array, which
         // basically means we won't have any need for i2osp padding.
-        var cipher = new RSADecipher(unpadder, key);
+        var cipher = key.decipher(unpadder);
 
-        // chunk up into key.blockSize (see decypher comments above)
+        // chunk up into key.blockSize (see decipher comments above)
         var chunker = new Chunker(cipher, blockSize);
 
         // do it!
