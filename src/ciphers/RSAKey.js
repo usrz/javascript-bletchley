@@ -337,12 +337,12 @@ Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/
     /* Check our types */
     if (asn1.sub[2].sub[0].sub[1].typeName() != "INTEGER") throw new Error("ASN.1 format error: N");
     if (asn1.sub[2].sub[0].sub[2].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[3].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[4].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[5].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[6].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[7].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
-    if (asn1.sub[2].sub[0].sub[8].typeName() != "INTEGER") throw new Error("ASN.1 format error: E");
+    if (asn1.sub[2].sub[0].sub[3].typeName() != "INTEGER") throw new Error("ASN.1 format error: D");
+    if (asn1.sub[2].sub[0].sub[4].typeName() != "INTEGER") throw new Error("ASN.1 format error: P");
+    if (asn1.sub[2].sub[0].sub[5].typeName() != "INTEGER") throw new Error("ASN.1 format error: Q");
+    if (asn1.sub[2].sub[0].sub[6].typeName() != "INTEGER") throw new Error("ASN.1 format error: DMP1");
+    if (asn1.sub[2].sub[0].sub[7].typeName() != "INTEGER") throw new Error("ASN.1 format error: DMQ1");
+    if (asn1.sub[2].sub[0].sub[8].typeName() != "INTEGER") throw new Error("ASN.1 format error: COEFF");
 
     /* Get a hold on our N, E, P, Q, DMP1, DMQ1 and COEFF and create the key */
     return new RSAKey(getASNBigInteger(asn1.sub[2].sub[0].sub[1], "N"),
