@@ -6,6 +6,10 @@ Esquire.define('bletchley/keys/RSAKeyFactory', [ 'bletchley/keys/KeyFactory',
                                                  'bletchley/utils/BigInteger' ],
   function(KeyFactory, RSAKey, Random, BigInteger) {
 
+    /* ====================================================================== *
+     * Key genration from random bits                                         *
+     * ====================================================================== */
+
     function generate(random, bits, e) {
 
       /* Assume E is always Fermat's 4th prime */

@@ -3,8 +3,9 @@
 Esquire.define('test/cipher/rsa', [ 'test/async',
                                     'bletchley/codecs',
                                     'bletchley/keys/RSAKey',
+                                    'bletchley/keys/RSAKeyFactory',
                                     'bletchley/random/SecureRandom' ],
-  function(async, codecs, RSAKey, SecureRandom) {
+  function(async, codecs, RSAKey, RSAKeyFactory, SecureRandom) {
 
     var pem = 'MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAM62zwEfxGY6BO9D'
             + 'V99lLcslz6M3sQ2mmuiOf7jCop5m1V8fadzah85+78cXXoif/t1HJhNcIEs0XNif'
@@ -103,7 +104,7 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
           promises('should encrypt and decrypt a random block with a random key', function() {
 
             // TODO: keygen in Crypto!
-            var xkey = RSAKey.generate(rnd, 1024);
+            var xkey = new RSAKeyFactory(rnd).generateKey(1024);
 
             var buf = rnd.nextBytes(64);
             return maybeAsync(crypto.encrypt('RSA/PKCS1', xkey, buf))
@@ -199,7 +200,7 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
 
           promises('should encrypt and decrypt a random block with a random key', function() {
             // TODO: keygen in Crypto!
-            var xkey = RSAKey.generate(rnd, 1024);
+            var xkey = new RSAKeyFactory(rnd).generateKey(1024);
 
             var buf = rnd.nextBytes(64);
             return maybeAsync(crypto.encrypt('RSA/OAEP', xkey, buf))
