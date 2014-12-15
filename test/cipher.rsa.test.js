@@ -2,7 +2,7 @@
 
 Esquire.define('test/cipher/rsa', [ 'test/async',
                                     'bletchley/codecs',
-                                    'bletchley/ciphers/RSAKey',
+                                    'bletchley/keys/RSAKey',
                                     'bletchley/random/SecureRandom' ],
   function(async, codecs, RSAKey, SecureRandom) {
 

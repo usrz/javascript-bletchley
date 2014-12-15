@@ -1,6 +1,6 @@
 'use strict';
 
-Esquire.define('bletchley/ciphers/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/utils/BigInteger', 'bletchley/utils/arrays' ], function(ASN1, BigInteger, arrays) {
+Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/ASN1', 'bletchley/utils/BigInteger', 'bletchley/utils/arrays' ], function(ASN1, BigInteger, arrays) {
 
   function parseBigInt(x) {
     if (x == null) return null;

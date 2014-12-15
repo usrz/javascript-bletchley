@@ -7,7 +7,7 @@
  * Licensed under BSD: http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE  *
  * ========================================================================== */
 Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
-                                                'bletchley/ciphers/RSAKey',
+                                                'bletchley/keys/RSAKey',
                                                 'bletchley/blocks/Accumulator',
                                                 'bletchley/blocks/Chunker',
                                                 'bletchley/blocks/Forwarder',

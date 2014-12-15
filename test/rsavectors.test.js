@@ -1,7 +1,7 @@
 'use strict';
 
 Esquire.define('test/rsavectors', [ 'bletchley/ciphers/RSACipher',
-                                    'bletchley/ciphers/RSAKey',
+                                    'bletchley/keys/RSAKey',
                                     'bletchley/codecs',
                                     'bletchley/paddings/Paddings',
                                     'test/rsa/pkcs1Vectors',
