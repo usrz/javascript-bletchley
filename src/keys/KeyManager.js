@@ -74,7 +74,7 @@ Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/blocks/Receiver',
 
         importKey: { enumerable: true, configurable: true, value: function(algorithm, data, params) {
           var key = this.$helper(algorithm).importKey(data, params);
-          var exportable = true; // default, do not export imported keys
+          var exportable = false; // default, do not export imported keys
           if (params && params.hasOwnProperty(exportable)) {
             exportable = params.exportable && true || false;
           }
