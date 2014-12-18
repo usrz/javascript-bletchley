@@ -1,13 +1,10 @@
 'use strict';
 
-Esquire.define('bletchley/utils/Helper', ['bletchley/utils/BoundClass'], function(BoundClass) {
+Esquire.define('bletchley/utils/Helper', ['bletchley/utils/classes'], function(classes) {
 
   function Helper() {
-    BoundClass.call(this);
+    classes.bind(this);
   }
-
-  Helper.prototype = Object.create(BoundClass.prototype);
-  Helper.prototype.constructor = Helper;
 
   return Helper;
 

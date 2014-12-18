@@ -2,7 +2,7 @@
 
 Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
                                             'bletchley/codecs',
-                                            'bletchley/utils/BoundClass',
+                                            'bletchley/utils/classes',
                                             'bletchley/random/Random',
                                             'bletchley/random/SecureRandom',
                                             'bletchley/ciphers/Ciphers',
@@ -10,7 +10,7 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
                                             'bletchley/hashes/Hashes',
                                             'bletchley/hmacs/HMACs',
                                             'bletchley/kdfs/KDFs' ],
-  function(arrays, codecs, BoundClass, Random, SecureRandom, Ciphers, KeyManager, Hashes, HMACs, KDFs) {
+  function(arrays, codecs, classes, Random, SecureRandom, Ciphers, KeyManager, Hashes, HMACs, KDFs) {
 
     return function Crypto(random) {
       if (! random) {
@@ -43,7 +43,7 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
         "kdf":         { enumerable: true, configurable: true, value: kdfs.kdf          }
       });
 
-      BoundClass.call(this);
+      classes.bind(this);
     };
 
   }

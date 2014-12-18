@@ -1,8 +1,8 @@
 'use strict';
 
-Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/BoundClass',
+Esquire.define('bletchley/utils/HelperFactory', [ 'bletchley/utils/classes',
                                                   'bletchley/utils/Helper' ],
-function(BoundClass, Helper) {
+function(classes, Helper) {
 
   function normalize(name) {
     if (!name) throw new Error("Algorithm name not specified");
@@ -44,12 +44,10 @@ function(BoundClass, Helper) {
     });
 
     /* Bind and lock functions */
-    BoundClass.call(this);
+    classes.bind(this);
   }
 
-  HelperFactory.prototype = Object.create(BoundClass.prototype);
-  HelperFactory.prototype.constructor = HelperFactory;
-
+  /* Return our class */
   return HelperFactory;
 
 });

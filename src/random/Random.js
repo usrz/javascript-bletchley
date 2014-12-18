@@ -6,13 +6,13 @@
  * Original source at: http://www-cs-students.stanford.edu/~tjw/jsbn/         *
  * Licensed under BSD: http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE  *
  * ========================================================================== */
-Esquire.define('bletchley/random/Random', ['bletchley/utils/BoundClass',
+Esquire.define('bletchley/random/Random', ['bletchley/utils/classes',
                                            'bletchley/utils/arrays',
                                            '$global/crypto'],
-  function(BoundClass, arrays, crypto) {
+  function(classes, arrays, crypto) {
 
     function Random() {
-      BoundClass.call(this);
+      classes.bind(this);
     }
 
     Object.defineProperties(Random, {
@@ -65,9 +65,6 @@ Esquire.define('bletchley/random/Random', ['bletchley/utils/BoundClass',
     });
 
     /* ====================================================================== */
-
-    Random.prototype = Object.create(BoundClass.prototype);
-    Random.prototype.constructor = Random;
 
     Random.prototype.next = function() {
       throw new Error("Random not implemented");

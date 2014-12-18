@@ -1,10 +1,10 @@
 'use strict';
 
 Esquire.define('bletchley/crypto/AsyncCrypto', [ '$promise',
-                                                 'bletchley/utils/BoundClass',
+                                                 'bletchley/utils/classes',
                                                  'bletchley/utils/arrays',
                                                  'bletchley/codecs' ],
-  function(Promise, BoundClass, arrays, codecs) {
+  function(Promise, classes, arrays, codecs) {
 
     function promise(functionName) {
 
@@ -39,11 +39,8 @@ Esquire.define('bletchley/crypto/AsyncCrypto', [ '$promise',
       });
 
       /* Bind and lock our functions */
-      BoundClass.call(this);
+      classes.bind(this);
     };
-
-    AsyncCrypto.prototype = Object.create(BoundClass.prototype);
-    AsyncCrypto.prototype.constructor = AsyncCrypto;
 
     AsyncCrypto.prototype.random    = promise("random");
 
@@ -57,6 +54,7 @@ Esquire.define('bletchley/crypto/AsyncCrypto', [ '$promise',
     AsyncCrypto.prototype.hmac      = promise("hmac");
     AsyncCrypto.prototype.kdf       = promise("kdf");
 
+    /* Return our class */
     return AsyncCrypto;
   }
 );
