@@ -9,6 +9,16 @@ Esquire.define('bletchley/crypto/WorkerCrypto', [ '$promise',
     var internalRandom = new SecureRandom();
 
     function WorkerCrypto(proxy) {
+
+      /* Generated and imported keys are proxied! */
+      this.generateKey = function(algorithm, bits, params) {
+        return proxy.generateKey(algorithm, bits, params).asProxy();
+      }
+
+      this.importKey = function(algorithm, data, params) {
+        return proxy.importKey(algorithm, data, params).asProxy();
+      }
+
       if (proxy && proxy['!$proxyId$!']) {
         AsyncCrypto.call(this, proxy);
       } else {
