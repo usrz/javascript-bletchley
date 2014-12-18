@@ -290,7 +290,7 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
               .done();
             });
 
-            promises('should encrypt and decrypt a random block with a random key', function() {
+            promises.only('should encrypt and decrypt a random block with a random key', function() {
               // TODO: keygen in Crypto!
               var xkey = crypto.generateKey('RSA', 1024);
 

@@ -17,7 +17,7 @@ Esquire.define('bletchley/keys/RSAKeyFactory', [ 'bletchley/keys/KeyFactory',
       /* Assume E is always Fermat's 4th prime */
       if (!e) e = BigInteger.fromInt(0x10001);
       else if (typeof(e) === 'number') e = BigInteger.fromInt(e);
-      else throw new Error("Public exponent must be a number");
+      else if (!(e instanceof BigInteger)) throw new Error("Public exponent must be a number");
 
       /* Cowardly refuse to generate keys smaller than 512 bits (OEAP) */
       if (typeof(bits) !== 'number') throw new Error("Key size must be a number");
@@ -214,9 +214,9 @@ Esquire.define('bletchley/keys/RSAKeyFactory', [ 'bletchley/keys/KeyFactory',
     /* ====================================================================== */
 
     function RSAKeyFactory(random) {
-      if (!(random instanceof Random)) throw new Error("Invalid Random");
 
       this.generateKey = function(bits, params) {
+        if (!(random instanceof Random)) throw new Error("Invalid Random");
         var e = (params && params.e);
         return generate(random, bits, e);
       }

@@ -35,11 +35,17 @@ Esquire.define('test/subtleWrapper', [ 'bletchley/crypto/SubtleCrypto',
 
     /* A fake crypto marking tests as skipped for specific cases */
     function SkippingCrypto() {
-      this.random    = function() { throw new Error("Do not call") }
-      this.stringify = function() { throw new Error("Do not call") }
-      this.encode    = function() { throw new Error("Do not call") }
-      this.decode    = function() { throw new Error("Do not call") }
-      this.kdf       = function() { throw new Error("Do not call") }
+      this.random      = function() { throw new Error("Do not call") }
+      this.stringify   = function() { throw new Error("Do not call") }
+      this.encode      = function() { throw new Error("Do not call") }
+      this.decode      = function() { throw new Error("Do not call") }
+      this.kdf         = function() { throw new Error("Do not call") }
+
+      this.importKey   = function() { throw new Error("Do not call") }
+      this.generateKey = function() { throw new Error("Do not call") }
+
+      this.encrypt     = function() { throw new Error("Do not call") }
+      this.decrypt     = function() { throw new Error("Do not call") }
 
       this.hash = function() {
 

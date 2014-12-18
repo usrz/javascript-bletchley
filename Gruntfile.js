@@ -11,7 +11,7 @@ module.exports = function(grunt) {
         singleRun: true,
         logLevel: 'INFO'
       },
-      'PhantomJS': { browsers: ['PhantomJS']      },
+      // 'PhantomJS': { browsers: ['PhantomJS']      },
       'Chrome':    { browsers: ['Chrome']         },
       'Firefox':   { browsers: ['Firefox-Crypto'] },
       'Safari':    { browsers: ['Safari']         },
