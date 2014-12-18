@@ -9,8 +9,8 @@ Esquire.define('bletchley/paddings/Padding', [ 'bletchley/utils/Helper' ], funct
     Padding.prototype = Object.create(Helper.prototype);
     Padding.prototype.constructor = Padding;
 
-    Padding.prototype.pad   = function(receiver, random, keySize) { throw new Error("Padding not implemented") }
-    Padding.prototype.unpad = function(receiver, random, keySize) { throw new Error("Padding not implemented") }
+    Padding.prototype.pad   = function(receiver, random, keySize, options) { throw new Error("Padding not implemented") }
+    Padding.prototype.unpad = function(receiver, random, keySize, options) { throw new Error("Padding not implemented") }
 
     return Padding;
 

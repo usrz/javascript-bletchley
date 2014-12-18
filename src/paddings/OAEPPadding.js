@@ -6,33 +6,24 @@
  * ========================================================================== */
 Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
                                                    'bletchley/blocks/Forwarder',
-                                                   'bletchley/hashes/SHA1',
+                                                   'bletchley/hashes/Hashes',
                                                    'bletchley/random/Random',
                                                    'bletchley/utils/arrays' ],
-  function(Padding, Forwarder, SHA1, Random, arrays) {
+  function(Padding, Forwarder, Hashes, Random, arrays) {
 
-    /* ====================================================================== */
-    /* Keep those as variables for now, we will want to customize them one    */
-    /* day by allowing to specify MGF, hash, and encoding parameter           */
-    /* ====================================================================== */
+    /* Hashes and empty label */
+    var hashes = new Hashes();
+    var emptyLabel = new Uint8Array();
+    var defaultHash = hashes.$helper("SHA1");
 
-    /* SHA1 as hash */
-    var hash = new SHA1();
-
-    /* SHA1 of zero-lenght array */
-    var pHash = new Uint8Array([0xda, 0x39, 0xa3, 0xee, 0x5e, 0x6b, 0x4b, 0x0d, 0x32, 0x55,
-                                0xbf, 0xef, 0x95, 0x60, 0x18, 0x90, 0xaf, 0xd8, 0x07, 0x09]);
-
-    /* SHA1 digest size */
-    var hashSize = 20;
-
-    /* Buffers for MGF function, they can be reused */
+    /* Counter buffer for MGF function, they can be reused */
     var C = new Uint8Array(4);
     var Cv = new DataView(C.buffer);
-    var H = new Uint8Array(hashSize);
 
     /* MGF1 function expanding Z in T */
-    function mgf(Z, T) {
+    function mgf(hash, Z, T) {
+      var hashSize = hash.digestSize;
+      var H = new Uint8Array(hashSize);
       var l = T.length;
 
       for (var offset = 0, i = 0; offset < l; i ++, offset += hashSize) {
@@ -53,19 +44,20 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
 
     /* ====================================================================== */
 
-    function OAEPPadder(receiver, random, keySize) {
+    function OAEPPadder(receiver, random, keySize, hash, label) {
       if (!(random instanceof Random)) throw new Error("Invalid Random");
       if (typeof(keySize) !== 'number') throw new Error("Key size must be a number");
       if (keySize < 64) throw new Error("Key size must be at least 64 (512 bit)");
 
       /* Blocksize and overhead */
+      var hashSize = hash.digestSize;
       var blockSize = keySize - (2 + (2 * hashSize));
 
       /*
        * OAEP will always pad things to a "keySize" long array as:
        *
        * - "0": single zero byte prepended to all output
-       * - maskedSeed: hash.digestLength masked seed
+       * - maskedSeed: hash.digestSize masked seed
        * - maskedDB: our masked data block, effectively (keySize-hashLeght-1)
        *
        * so, let's get some room to work:
@@ -91,19 +83,23 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
            * zeroes in there for proper padding of the message
            */
           var db = new Uint8Array(dbSize);
-          db.set(pHash);                            // add our encoding parameter hash
-          db[dbSize - message.length - 1] = 1;      // zero padding then add our "1"
-          db.set(message, dbSize - message.length); // add our message
+
+          /* Start with our label hash */
+          hash.reset().update(label).digest(db.subarray(0, hashSize));
+
+          /* Zero padding, then add our "1" and finally the message */
+          db[dbSize - message.length - 1] = 1;
+          db.set(message, dbSize - message.length);
 
           /* Seed hashSize random bytes in our "seed" array */
           random.nextBytes(seed);
 
           /* Use MGF to expand our seed to the DB mask, then xor it in place */
-          var maskedDB = mgf(seed, buff.subarray(hashSize + 1));
+          var maskedDB = mgf(hash, seed, buff.subarray(hashSize + 1));
           arrays.xorUint8Arrays(db, maskedDB, maskedDB);
 
           /* Use MGF to expand our maskeDB, then xor it in place */
-          var maskedSeed = mgf(maskedDB, buff.subarray(1, hashSize + 1));
+          var maskedSeed = mgf(hash, maskedDB, buff.subarray(1, hashSize + 1));
           arrays.xorUint8Arrays(seed, maskedSeed, maskedSeed);
 
           /*
@@ -127,11 +123,12 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
 
     /* ====================================================================== */
 
-    function OAEPUnpadder(receiver, keySize) {
+    function OAEPUnpadder(receiver, keySize, hash) {
       if (typeof(keySize) !== 'number') throw new Error("Key size must be a number");
       if (keySize < 64) throw new Error("Key size must be at least 64 (512 bit)");
 
       /* We can reuse some buffers */
+      var hashSize = hash.digestSize;
       var seed = new Uint8Array(hashSize);
       var dbSize = keySize - hashSize - 1;
       var db = new Uint8Array(dbSize);
@@ -146,11 +143,11 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
           var maskedDB = message.subarray(hashSize + 1);
 
           /* Expand the masked DB to calulate the seed mask, and xor in place */
-          mgf(maskedDB, seed);
+          mgf(hash, maskedDB, seed);
           arrays.xorUint8Arrays(maskedSeed, seed, seed);
 
           /* Expand our seed, to get the DB mask, and xor it in place */
-          mgf(seed, db);
+          mgf(hash, seed, db);
           arrays.xorUint8Arrays(maskedDB, db, db);
 
           /* Figure our where in the DB is our last zero from the padding */
@@ -176,18 +173,26 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
     /* ====================================================================== */
 
     function OAEPPadding() {
-      Padding.call(this, [ "OAEP", "OAEPPadding", "OAEPWithSHA1AndMGF1Padding" ]);
+      Padding.call(this, "OAEP");
     }
 
     OAEPPadding.prototype = Object.create(Padding.prototype);
     OAEPPadding.prototype.constructor = OAEPPadding;
 
-    OAEPPadding.prototype.pad = function(receiver, random, keySize) {
-      return new OAEPPadder(receiver, random, keySize);
+    OAEPPadding.prototype.pad = function(receiver, random, keySize, options) {
+      var hash = defaultHash;
+      var label = emptyLabel;
+      if (options) {
+        if (options.hash) hash = hashes.$helper(options.hash);
+        if (options.label) label = arrays.toUint8Array(options.label);
+      }
+      return new OAEPPadder(receiver, random, keySize, hash, label);
     };
 
-    OAEPPadding.prototype.unpad = function(receiver, random, keySize) {
-      return new OAEPUnpadder(receiver, keySize);
+    OAEPPadding.prototype.unpad = function(receiver, random, keySize, options) {
+      var hash = defaultHash;
+      if (options && options.hash) hash = hashes.$helper(options.hash);
+      return new OAEPUnpadder(receiver, keySize, hash);
     };
 
     return OAEPPadding;

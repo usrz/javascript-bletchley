@@ -84,7 +84,7 @@ Esquire.define('bletchley/paddings/PKCS1Padding', [ 'bletchley/paddings/Padding'
     /* ====================================================================== */
 
     function PKCS1Padding() {
-      Padding.call(this, [ "PKCS1", "PKCS1Padding" ]);
+      Padding.call(this, "PKCS1");
     }
 
     PKCS1Padding.prototype = Object.create(Padding.prototype);
