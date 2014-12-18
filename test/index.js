@@ -58,7 +58,6 @@ esquire([ 'test/BigInteger',
       testHashes(new Hashes(), false);
       testHMACs(new HMACs(), false);
       testKDFs(new KDFs(), false);
-      testRSACipher(new Ciphers(random), false);
     });
 
     describe("Synchronous crypto implementation", function() {

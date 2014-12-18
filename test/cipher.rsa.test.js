@@ -128,96 +128,190 @@ Esquire.define('test/cipher/rsa', [ 'test/async',
         /* ================================================================== */
 
         describe("OAEP", function() {
+          describe("MGF1 and SHA1", function() {
 
-          promises('should decrypt a short string', function() {
-            // echo -n 'abc' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
-            var buf = codecs.decode('BASE64', 'x5GWy6Q/mowtDqLV+l6mWVkV/2sWfB7+s1V1Efnh9jx+D5ZDD8wLKfoJA/shMRQmv4j+pF66HQcep2L3A8QVcAF1e+njmBv6W2c9G+H/BTjV7tXfdN/3FpnBYMmOhhiFXWff1WoyXua7i4fLXgL/CAnNeg5WyKZPWf8uqrX2tqg=');
+            promises('should decrypt a short string', function() {
+              // echo -n 'abc' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
+              var buf = codecs.decode('BASE64', 'x5GWy6Q/mowtDqLV+l6mWVkV/2sWfB7+s1V1Efnh9jx+D5ZDD8wLKfoJA/shMRQmv4j+pF66HQcep2L3A8QVcAF1e+njmBv6W2c9G+H/BTjV7tXfdN/3FpnBYMmOhhiFXWff1WoyXua7i4fLXgL/CAnNeg5WyKZPWf8uqrX2tqg=');
 
-            return maybeAsync(crypto.decrypt('RSA/OAEP', key, buf))
-            .then(function(out) {
-              expect(out).to.be.instanceof(Uint8Array);
-              expect(out.length).to.equal(3);
-              expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
+              return maybeAsync(crypto.decrypt('RSA/OAEP', key, buf))
+              .then(function(out) {
+                expect(out).to.be.instanceof(Uint8Array);
+                expect(out.length).to.equal(3);
+                expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
+              })
+              .done();
             })
-            .done();
+
+            promises('should decrypt a whole block', function() {
+              // echo -n 'aaaa...86 times...' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
+              var buf = codecs.decode('BASE64', 'E6dPJwgKAPVFGN7CMK4giaEgDmZY+jN0vjyTUo8y57dTsJZcT/jFSsWiHGLMInGhFkaL2RHtEdYd4p80AKwUbOzxc2jnMNMZ8dfrrS9pkb3mnyL0vJ8i7QnrqvZ5QIZKKxKkkDFlchdx1QakFm6jUmOrTJHNxj8Vt4pMzsnV2Vk=');
+
+              return maybeAsync(crypto.decrypt('RSA/OAEP', key, buf))
+              .then(function(out) {
+                expect(out).to.be.instanceof(Uint8Array);
+                expect(out.length).to.equal(86);
+                for (var i = 0; i < out.length; i ++) {
+                  expect(out[i]).to.equal(0x61);
+                }
+              })
+              .done();
+            })
+
+            promises('should encrypt and decrypt a short known string', function() {
+              var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
+
+              return maybeAsync(crypto.encrypt('RSA/OAEP', key, buf))
+
+              .then(function(enc) {
+                // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
+                // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
+                expect(enc).to.be.instanceof(Uint8Array);
+                expect(enc.length).to.equal(128);
+                return crypto.decrypt('RSA/OAEP', key, enc);
+              })
+
+              .then(function(dec) {
+                expect(dec).to.be.instanceof(Uint8Array);
+                expect(dec.length).to.equal(4);
+                expect(dec).to.deep.equal(buf);
+              })
+
+              .done();
+            });
+
+            promises('should encrypt and decrypt an empty array', function() {
+              return maybeAsync(crypto.encrypt('RSA/OAEP', key, new Uint8Array()))
+
+              .then(function(enc) {
+                // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
+                // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
+                expect(enc).to.be.instanceof(Uint8Array);
+                expect(enc.length).to.equal(128);
+                return crypto.decrypt('RSA/OAEP', key, enc);
+              })
+
+              .then(function(dec) {
+                expect(dec).to.be.instanceof(Uint8Array);
+                expect(dec.length).to.equal(0);
+              })
+
+              .done();
+            });
+
+            promises('should encrypt and decrypt a random block with a random key', function() {
+              // TODO: keygen in Crypto!
+              var xkey = crypto.generateKey('RSA', 1024);
+
+              var buf = rnd.nextBytes(64);
+              return maybeAsync(crypto.encrypt('RSA/OAEP', xkey, buf))
+              .then(function(enc) {
+                expect(enc).to.be.instanceof(Uint8Array);
+                expect(enc.length).to.equal(128);
+                return crypto.decrypt('RSA/OAEP', xkey, enc);
+              })
+
+              .then(function(dec) {
+                expect(dec).to.be.instanceof(Uint8Array);
+                expect(dec.length).to.equal(buf.length);
+                expect(dec).to.deep.equal(buf);
+              })
+
+              .done();
+            });
           })
 
-          promises('should decrypt a whole block', function() {
-            // echo -n 'aaaa...86 times...' | openssl rsautl -oaep -inkey ./test/keys/test.priv.openssl.pem -encrypt | base64
-            var buf = codecs.decode('BASE64', 'E6dPJwgKAPVFGN7CMK4giaEgDmZY+jN0vjyTUo8y57dTsJZcT/jFSsWiHGLMInGhFkaL2RHtEdYd4p80AKwUbOzxc2jnMNMZ8dfrrS9pkb3mnyL0vJ8i7QnrqvZ5QIZKKxKkkDFlchdx1QakFm6jUmOrTJHNxj8Vt4pMzsnV2Vk=');
+        /* ================================================================== */
 
-            return maybeAsync(crypto.decrypt('RSA/OAEP', key, buf))
-            .then(function(out) {
-              expect(out).to.be.instanceof(Uint8Array);
-              expect(out.length).to.equal(86);
-              for (var i = 0; i < out.length; i ++) {
-                expect(out[i]).to.equal(0x61);
-              }
+          describe("MGF1 and SHA-256", function() {
+
+            promises('should decrypt a short string', function() {
+              // manually built from "abc": openssl does not support SHA-256 in RSAUTL
+              var buf = codecs.decode('BASE64', "sCJ6+7bMQ0lyG/4S1TUyFOy6C2iV3vvk3DznuvdER/Zw3n4m8Dl7GhqXyaQxmYDaqC5PMIYkDtOfZeWnMnaFjPeNurovRWD3h3JBNmQE3hjY+pzW6NhX6LLfpROojSMgK/liVdoEvCeDYnVUIgrf0P4X3ba4QrCyQIjdkPQOYjA=");
+
+              return maybeAsync(crypto.decrypt('RSA/OAEP', key, buf, {hash: "SHA-256"}))
+              .then(function(out) {
+                expect(out).to.be.instanceof(Uint8Array);
+                expect(out.length).to.equal(3);
+                expect(out).to.deep.equal(new Uint8Array([0x61, 0x62, 0x63]));
+              })
+              .done();
             })
-            .done();
+
+            promises('should decrypt a whole block', function() {
+              // manually built from "aaaa...62 times...": openssl does not support SHA-256 in RSAUTL
+              var buf = codecs.decode('BASE64', "xTtNTDNKm7BjSavigN7T9ttCatx8/6yNDlvp17lq0JeAvdSCin78HcOiMtrdkpxOp59wRAHPLsb6Jim8SMOvmxWw65mtO5oSmHRh/+p6ckbxul5Umum/y5Xep+y732YavSA0A/Q0IEySHCKVbyE+PIFWd2YhMwP7fLLIYwSdrRY=");
+
+              return maybeAsync(crypto.decrypt('RSA/OAEP', key, buf, {hash: "SHA-256"}))
+              .then(function(out) {
+                expect(out).to.be.instanceof(Uint8Array);
+                expect(out.length).to.equal(62);
+                for (var i = 0; i < out.length; i ++) {
+                  expect(out[i]).to.equal(0x61);
+                }
+              })
+              .done();
+            })
+
+            promises('should encrypt and decrypt a short known string', function() {
+              var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
+
+              return maybeAsync(crypto.encrypt('RSA/OAEP', key, buf, {hash: "SHA-256"}))
+
+              .then(function(enc) {
+                expect(enc).to.be.instanceof(Uint8Array);
+                expect(enc.length).to.equal(128);
+                return crypto.decrypt('RSA/OAEP', key, enc, {hash: "SHA-256"});
+              })
+
+              .then(function(dec) {
+                expect(dec).to.be.instanceof(Uint8Array);
+                expect(dec.length).to.equal(4);
+                expect(dec).to.deep.equal(buf);
+              })
+
+              .done();
+            });
+
+            promises('should encrypt and decrypt an empty array', function() {
+              return maybeAsync(crypto.encrypt('RSA/OAEP', key, new Uint8Array(), {hash: "SHA-256"}))
+
+              .then(function(enc) {
+                expect(enc).to.be.instanceof(Uint8Array);
+                expect(enc.length).to.equal(128);
+                return crypto.decrypt('RSA/OAEP', key, enc, {hash: "SHA-256"});
+              })
+
+              .then(function(dec) {
+                expect(dec).to.be.instanceof(Uint8Array);
+                expect(dec.length).to.equal(0);
+              })
+
+              .done();
+            });
+
+            promises('should encrypt and decrypt a random block with a random key', function() {
+              // TODO: keygen in Crypto!
+              var xkey = crypto.generateKey('RSA', 1024);
+
+              var buf = rnd.nextBytes(32);
+              return maybeAsync(crypto.encrypt('RSA/OAEP', xkey, buf, {hash: "SHA-256"}))
+              .then(function(enc) {
+                expect(enc).to.be.instanceof(Uint8Array);
+                expect(enc.length).to.equal(128);
+                return crypto.decrypt('RSA/OAEP', xkey, enc, {hash: "SHA-256"});
+              })
+
+              .then(function(dec) {
+                expect(dec).to.be.instanceof(Uint8Array);
+                expect(dec.length).to.equal(buf.length);
+                expect(dec).to.deep.equal(buf);
+              })
+
+              .done();
+            });
+
           })
-
-          promises('should encrypt and decrypt a short known string', function() {
-            var buf = new Uint8Array([0x61, 0x62, 0x63, 0x0A]);
-
-            return maybeAsync(crypto.encrypt('RSA/OAEP', key, buf))
-
-            .then(function(enc) {
-              // echo '...whatever...' | base64 -D | openssl rsautl -inkey foo.key -decrypt
-              // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
-              expect(enc).to.be.instanceof(Uint8Array);
-              expect(enc.length).to.equal(128);
-              return crypto.decrypt('RSA/OAEP', key, enc);
-            })
-
-            .then(function(dec) {
-              expect(dec).to.be.instanceof(Uint8Array);
-              expect(dec.length).to.equal(4);
-              expect(dec).to.deep.equal(buf);
-            })
-
-            .done();
-          });
-
-          promises('should encrypt and decrypt an empty array', function() {
-            return maybeAsync(crypto.encrypt('RSA/OAEP', key, new Uint8Array()))
-
-            .then(function(enc) {
-              // openssl will cowardly refuse to decrypt a zero-length string, yelding "RSA operation error"
-              // console.warn("echo -n '" + codecs.encode('BASE64', enc) + "'  | base64 -D | openssl rsautl -inkey foo.key -decrypt");
-              expect(enc).to.be.instanceof(Uint8Array);
-              expect(enc.length).to.equal(128);
-              return crypto.decrypt('RSA/OAEP', key, enc);
-            })
-
-            .then(function(dec) {
-              expect(dec).to.be.instanceof(Uint8Array);
-              expect(dec.length).to.equal(0);
-            })
-
-            .done();
-          });
-
-          promises('should encrypt and decrypt a random block with a random key', function() {
-            // TODO: keygen in Crypto!
-            var xkey = crypto.generateKey('RSA', 1024);
-
-            var buf = rnd.nextBytes(64);
-            return maybeAsync(crypto.encrypt('RSA/OAEP', xkey, buf))
-            .then(function(enc) {
-              expect(enc).to.be.instanceof(Uint8Array);
-              expect(enc.length).to.equal(128);
-              return crypto.decrypt('RSA/OAEP', xkey, enc);
-            })
-
-            .then(function(dec) {
-              expect(dec).to.be.instanceof(Uint8Array);
-              expect(dec.length).to.equal(buf.length);
-              expect(dec).to.deep.equal(buf);
-            })
-
-            .done();
-          });
         })
       })
     }
