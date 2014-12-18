@@ -21,9 +21,6 @@ Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/P
     }
   }
 
-  /* Our PBKDF2 instance */
-  var pbkdf2 = new PBKDF2();
-
   /* ======================================================================== */
 
   function scryptROMix(buffer, iterations, parallelization, blockSize) {
@@ -200,7 +197,7 @@ Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/P
    *                           initial and final PBKDF2                       *
    * ======================================================================== */
 
-  function scrypt(password, salt, options) {
+  function scrypt(password, salt, options, kdfs, hash) {
 
     var iterations = options.iterations;
     var blockSize = options.blockSize;
@@ -217,9 +214,9 @@ Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/P
       throw new Error("Block size too large for given parallelization");
 
     /* Initialize our buffer with a single round of PBKDF2 */
-    var buffer = pbkdf2.kdf(password, salt, {
+    var buffer = kdfs.kdf("PBKDF2", password, salt, {
       derivedKeyLength: blockSize * 128 * parallelization,
-      hash: options.hash,
+      hash: options.hash || hash,
       iterations: 1,
     });
 
@@ -227,9 +224,9 @@ Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/P
     scryptROMix(buffer, iterations, parallelization, blockSize);
 
     /* Finalize the result with another PBKDF2 single round */
-    return pbkdf2.kdf(password, buffer, {
+    return kdfs.kdf("PBKDF2", password, buffer, {
       derivedKeyLength: options.derivedKeyLength,
-      hash: options.hash,
+      hash: options.hash || hash,
       iterations: 1
     });
 
@@ -237,18 +234,22 @@ Esquire.define('bletchley/kdfs/SCrypt', ['bletchley/kdfs/KDF', 'bletchley/kdfs/P
 
   /* ======================================================================== */
 
-  function SCrypt() {
+  function SCrypt(kdfs, hash) {
+    if (!kdfs) throw new Error("KDFs instance required");
+    Object.defineProperty(this, "kdf", {
+      configurable: true,
+      enumerable: true,
+      value: function(password, salt, options) {
+        password = arrays.toUint8Array(password);
+        salt = arrays.toUint8Array(salt);
+        return scrypt(password, salt, options, kdfs, hash);
+      }
+    });
     KDF.call(this, "SCRYPT");
   };
 
   SCrypt.prototype = Object.create(KDF.prototype);
   SCrypt.prototype.constructor = SCrypt;
-
-  SCrypt.prototype.kdf = function(password, salt, options) {
-    password = arrays.toUint8Array(password);
-    salt = arrays.toUint8Array(salt);
-    return scrypt(password, salt, options);
-  }
 
   return SCrypt;
 

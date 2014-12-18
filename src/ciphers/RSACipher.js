@@ -12,20 +12,21 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
                                                 'bletchley/blocks/Chunker',
                                                 'bletchley/blocks/Forwarder',
                                                 'bletchley/paddings/Padding',
+                                                'bletchley/paddings/Paddings',
                                                 'bletchley/utils/BigInteger',
                                                 'bletchley/random/Random' ],
-  function(Cipher, RSAKey, Accumulator, Chunker, Forwarder, Padding, BigInteger, Random) {
+  function(Cipher, RSAKey, Accumulator, Chunker, Forwarder, Padding, Paddings, BigInteger, Random) {
+
+    var paddings = new Paddings();
 
     function RSACipher(padding, random) {
       if (!(padding instanceof Padding)) throw new Error("Invalid Padding");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
 
-      var algorithms = [];
-      for (var i = 0; i < padding.$aliases.length; i ++) {
-        algorithms.push("RSA/"      + padding.$aliases[i]); // preferred
-        algorithms.push("RSA/NONE/" + padding.$aliases[i]); // "NO" block mode
-        algorithms.push("RSA/ECB/"  + padding.$aliases[i]); // be like Java
-      }
+      //var algorithms = [];
+      //algorithms.push("RSA/"      + padding.$algorithm); // preferred
+      // algorithms.push("RSA/NONE/" + padding.$algorithm); // "NO" block mode
+      // algorithms.push("RSA/ECB/"  + padding.$algorithm); // be like Java
 
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
       this.encrypt = function(key, data, options) {
@@ -41,7 +42,8 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
 
         // padder (PKCS#1 or OAEP) will always return a zero-prefixed array, so
         // cipher will always interpret it as a positive integer
-        var padder = padding.pad(cipher, random, blockSize, options);
+        var pad = (options && options.padding) || "PKCS1";
+        var padder = paddings.pad(pad, cipher, random, blockSize, options);
 
         // chunk up into padder.blockSize (see encypher comment above)
         var chunker = new Chunker(padder, padder.blockSize);
@@ -60,7 +62,8 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
         var accumulator = new Accumulator();
 
         // remove the padding from the block
-        var unpadder = padding.unpad(accumulator, random, blockSize, options);
+        var pad = (options && options.padding) || "PKCS1";
+        var unpadder = paddings.unpad(pad, accumulator, random, blockSize, options);
 
         // decipher: this will always parse numbers as *POSITIVE* integers
         // (so no need to prepend zeroes) and push a key.blockSize array, which
@@ -75,7 +78,7 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
         return result;
       }
 
-      Cipher.call(this, algorithms);
+      Cipher.call(this, "RSA/" + padding.$algorithm);
     }
 
     /* ======================================================================= */

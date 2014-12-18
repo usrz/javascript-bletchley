@@ -10,13 +10,15 @@ Esquire.define('bletchley/hashes/Hashes', [ 'bletchley/utils/HelperFactory',
   function(HelperFactory, SHA1, SHA224, SHA256, SHA384, SHA512) {
 
     function Hashes() {
-      var sha1   = new SHA1();
-      var sha224 = new SHA224();
-      var sha256 = new SHA256();
-      var sha384 = new SHA384();
-      var sha512 = new SHA512();
-
-      HelperFactory.call(this, [sha1, sha224, sha256, sha384, sha512]);
+      HelperFactory.call(this, function (algorithm) {
+        switch (algorithm) {
+          case "SHA1":   return new SHA1();
+          case "SHA224": return new SHA224();
+          case "SHA256": return new SHA256();
+          case "SHA384": return new SHA384();
+          case "SHA512": return new SHA512();
+        }
+      });
     }
 
     Hashes.prototype = Object.create(HelperFactory.prototype);

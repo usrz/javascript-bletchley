@@ -7,7 +7,12 @@ Esquire.define('bletchley/codecs/Codecs', [ 'bletchley/utils/HelperFactory',
   function(HelperFactory, Base64, HEX) {
 
     function Codecs() {
-      HelperFactory.call(this, [ new Base64(), new HEX() ]);
+      HelperFactory.call(this, function(algorithm) {
+        switch (algorithm) {
+          case 'BASE64': return new Base64();
+          case 'HEX':    return new HEX();
+        }
+      });
     }
 
     Codecs.prototype = Object.create(HelperFactory.prototype);

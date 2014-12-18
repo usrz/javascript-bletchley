@@ -5,15 +5,12 @@ Esquire.define('bletchley/hmacs/HMACs', [ 'bletchley/utils/HelperFactory',
                                           'bletchley/hashes/Hashes' ],
   function(HelperFactory, HMAC, Hashes) {
 
-    function HMACs() {
-      var hmacs = [];
-      var hashes = new Hashes();
-      var helpers = hashes.$helpers;
-      for (var i in helpers) {
-        hmacs.push(new HMAC(helpers[i]));
-      }
+    var hashes = new Hashes();
 
-      HelperFactory.call(this, hmacs);
+    function HMACs() {
+      HelperFactory.call(this, function (algorithm) {
+        return new HMAC(hashes.$helper(algorithm));
+      });
     }
 
     HMACs.prototype = Object.create(HelperFactory.prototype);

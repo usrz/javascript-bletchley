@@ -59,7 +59,7 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/Helper',
         return hash.reset().update(outerKeyPadding).update(innerHash).digest(output);
       };
 
-      Helper.call(this, hash.$aliases);
+      Helper.call(this, "foo");
     };
 
     HMAC.prototype = Object.create(Helper.prototype);

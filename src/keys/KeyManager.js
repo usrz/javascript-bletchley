@@ -1,10 +1,11 @@
 'use strict';
 
-Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/blocks/Receiver',
+Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/ciphers/Ciphers',
+                                              'bletchley/blocks/Receiver',
                                               'bletchley/random/Random',
                                               'bletchley/keys/RSAKeyFactory',
                                               'bletchley/utils/HelperFactory' ],
-  function(Receiver, Random, RSAKeyFactory, HelperFactory) {
+  function(Ciphers, Receiver, Random, RSAKeyFactory, HelperFactory) {
 
     /* ====================================================================== */
 
@@ -57,9 +58,6 @@ Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/blocks/Receiver',
     function KeyManager(random) {
       if (!(random instanceof Random)) throw new Error("Invalid Random");
 
-      /* Our key factories */
-      var rsaKeyFactory = new RSAKeyFactory(random);
-
       /* Our properties */
       Object.defineProperties(this, {
 
@@ -84,7 +82,9 @@ Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/blocks/Receiver',
       });
 
       /* Helpers */
-      HelperFactory.call(this, [ rsaKeyFactory ]);
+      HelperFactory.call(this, function(algorithm) {
+        if (algorithm === 'RSA') return new RSAKeyFactory(random);
+      });
     }
 
     KeyManager.prototype = Object.create(HelperFactory.prototype);

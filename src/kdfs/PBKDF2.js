@@ -1,18 +1,16 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/HMACs', 'bletchley/utils/arrays'], function(KDF, HMACs, arrays) {
+Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/utils/arrays'], function(KDF, arrays) {
 
-  var hmacs = new HMACs();
-
-  function pbkdf2(password, salt, options) {
+  function pbkdf2(password, salt, options, hmacs, hmac) {
 
     /* We *NEED* the number of iterations */
     var iterations = options.iterations;
     if (iterations < 1) throw new Error("Option 'iterations' must be >= 1");
 
     /* We *NEED* a valid HMAC */
-    if (! options.hash) throw new Error("Option 'hash' unspecified");
-    var hmac = hmacs.$helper(options.hash);
+    if (options.hash) hmac = hmacs.$helper(options.hash);
+    if (!hmac) throw new Error("Option 'hash' unspecified");
 
     /* Digest size and derived key length */
     var derivedKeyLength = options.derivedKeyLength || hmac.digestSize;
@@ -58,18 +56,22 @@ Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/hmacs/
 
   };
 
-  function PBKDF2() {
+  function PBKDF2(hmacs, hmac) {
+    if (!hmacs) throw new Error("HMACs instance required");
+    Object.defineProperty(this, "kdf", {
+      configurable: true,
+      enumerable: true,
+      value: function(password, salt, options) {
+        password = arrays.toUint8Array(password);
+        salt = arrays.toUint8Array(salt);
+        return pbkdf2(password, salt, options, hmacs, hmac);
+      }
+    });
     KDF.call(this, "PBKDF2");
   };
 
   PBKDF2.prototype = Object.create(KDF.prototype);
   PBKDF2.prototype.constructor = KDF;
-
-  PBKDF2.prototype.kdf = function(password, salt, options) {
-    password = arrays.toUint8Array(password);
-    salt = arrays.toUint8Array(salt);
-    return pbkdf2(password, salt, options);
-  }
 
   return PBKDF2;
 

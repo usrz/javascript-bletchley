@@ -15,7 +15,19 @@ Esquire.define('bletchley/ciphers/Ciphers', [ 'bletchley/utils/HelperFactory',
       var rsaOaep = new RSACipher(paddings.$helper('OAEP'), random);
       var rsaPkcs = new RSACipher(paddings.$helper('PKCS1'), random);
 
-      HelperFactory.call(this, [ rsaOaep, rsaPkcs ]);
+      HelperFactory.call(this, function (name) {
+
+        /* Parse our algorithm like "RSA/PKCS1" */
+        var algorithm = /([^\/]+)(\/([^\/]+))?/.exec(name);
+
+        /* Get the padding function to associate with the Cipher */
+        var padding = algorithm[3] ? paddings.$helper(algorithm[3]) : null;
+
+        /* KDF Algoritmh */
+        switch (algorithm[1]) {
+          case 'RSA':  return new RSACipher(padding, random);
+        }
+      });
     }
 
     Ciphers.prototype = Object.create(HelperFactory.prototype);

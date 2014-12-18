@@ -10,18 +10,23 @@ Esquire.define('bletchley/paddings/Paddings', [ 'bletchley/utils/HelperFactory',
     var oaep = new OAEPPadding();
 
     function Paddings() {
-      HelperFactory.call(this, [ pkcs1, oaep ]);
+      HelperFactory.call(this, function(algorithm) {
+        switch (algorithm) {
+          case 'PKCS1': return new PKCS1Padding();
+          case 'OAEP':  return new OAEPPadding();
+        }
+      });
     }
 
     Paddings.prototype = Object.create(HelperFactory.prototype);
     Paddings.prototype.constructor = Paddings;
 
-    Paddings.prototype.pad = function(algorithm, receiver, random, keySize) {
-      return this.$helper(algorithm).pad(receiver, random, keySize);
+    Paddings.prototype.pad = function(algorithm, receiver, random, keySize, options) {
+      return this.$helper(algorithm).pad(receiver, random, keySize, options);
     };
 
-    Paddings.prototype.unpad = function(algorithm, receiver, random, keySize) {
-      return this.$helper(algorithm).unpad(receiver, random, keySize);
+    Paddings.prototype.unpad = function(algorithm, receiver, random, keySize, options) {
+      return this.$helper(algorithm).unpad(receiver, random, keySize, options);
     };
 
     return Paddings;
