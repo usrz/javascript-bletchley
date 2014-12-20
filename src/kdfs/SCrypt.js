@@ -248,7 +248,7 @@ Esquire.define('bletchley/kdfs/SCrypt', [ 'bletchley/kdfs/KDF',
           return scrypt(password, salt, options, kdfs, hash);
         }
       });
-      KDF.call(this, "SCRYPT");
+      KDF.call(this);
     };
 
     /* SCrypt extends KDF */

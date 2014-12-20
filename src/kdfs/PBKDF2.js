@@ -70,7 +70,7 @@ Esquire.define('bletchley/kdfs/PBKDF2', [ 'bletchley/kdfs/KDF',
           return pbkdf2(password, salt, options, hmacs, hmac);
         }
       });
-      KDF.call(this, "PBKDF2");
+      KDF.call(this);
     };
 
     /* PBKDF2 extends KDF */

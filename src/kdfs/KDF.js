@@ -5,7 +5,7 @@ Esquire.define('bletchley/kdfs/KDF', ['bletchley/utils/classes',
 
   function(classes, arrays) {
 
-    function KDF(name) {
+    function KDF() {
       /* Lock our functions */
       classes.lock(this);
     };
