@@ -1,81 +1,83 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/PBKDF2', ['bletchley/kdfs/KDF', 'bletchley/utils/arrays'], function(KDF, arrays) {
+Esquire.define('bletchley/kdfs/PBKDF2', [ 'bletchley/kdfs/KDF',
+                                          'bletchley/utils/arrays' ],
 
-  function pbkdf2(password, salt, options, hmacs, hmac) {
+  function(KDF, arrays) {
 
-    /* We *NEED* the number of iterations */
-    var iterations = options.iterations;
-    if (iterations < 1) throw new Error("Option 'iterations' must be >= 1");
+    function pbkdf2(password, salt, options, hmacs, hmac) {
 
-    /* We *NEED* a valid HMAC */
-    if (options.hash) hmac = hmacs.$helper(options.hash);
-    if (!hmac) throw new Error("Option 'hash' unspecified");
+      /* We *NEED* the number of iterations */
+      var iterations = options.iterations;
+      if (iterations < 1) throw new Error("Option 'iterations' must be >= 1");
 
-    /* Digest size and derived key length */
-    var derivedKeyLength = options.derivedKeyLength || hmac.digestSize;
-    var digestSize = hmac.digestSize;
+      /* We *NEED* a valid HMAC */
+      if (options.hash) hmac = hmacs.$helper(options.hash);
+      if (!hmac) throw new Error("Option 'hash' unspecified");
 
-    /* Calculate rounds, number of bytes for last copy */
-    var rounds = Math.ceil(derivedKeyLength / digestSize);
-    var remainder = derivedKeyLength - (rounds - 1) * digestSize;
+      /* Digest size and derived key length */
+      var derivedKeyLength = options.derivedKeyLength || hmac.digestSize;
+      var digestSize = hmac.digestSize;
 
-    /* Allocate space for our output */
-    var output = new Uint8Array(rounds * digestSize);
+      /* Calculate rounds, number of bytes for last copy */
+      var rounds = Math.ceil(derivedKeyLength / digestSize);
+      var remainder = derivedKeyLength - (rounds - 1) * digestSize;
 
-    /* At every iteration, we do an HMAC of concat(salt + round) */
-    var roundedSalt = new Uint8Array(salt.byteLength + 4);
-    var roundedSaltData = new DataView(roundedSalt.buffer, salt.byteLength);
-    roundedSalt.set(salt);
+      /* Allocate space for our output */
+      var output = new Uint8Array(rounds * digestSize);
 
-    /* The "update" buffer can be reused over and over */
-    var update = new Uint8Array(hmac.digestSize);
+      /* At every iteration, we do an HMAC of concat(salt + round) */
+      var roundedSalt = new Uint8Array(salt.byteLength + 4);
+      var roundedSaltData = new DataView(roundedSalt.buffer, salt.byteLength);
+      roundedSalt.set(salt);
 
-    /* Run our rounds synchronously */
-    for (var round = 1, offset = 0; round <= rounds; round ++, offset += digestSize) {
+      /* The "update" buffer can be reused over and over */
+      var update = new Uint8Array(hmac.digestSize);
 
-      /* Set our round calculating the base HMAC */
-      roundedSaltData.setUint32(0, round, false);
-      hmac.hmac(password, roundedSalt, update);
+      /* Run our rounds synchronously */
+      for (var round = 1, offset = 0; round <= rounds; round ++, offset += digestSize) {
 
-      /* Slap in the current update */
-      output.set(update, offset);
+        /* Set our round calculating the base HMAC */
+        roundedSaltData.setUint32(0, round, false);
+        hmac.hmac(password, roundedSalt, update);
 
-      /* Iterations: update and XOR it in */
-      for (var i = 1; i < iterations; i++) {
-        hmac.hmac(password, update, update);
-        for (var j = 0, k = offset; j < update.length; j ++, k ++) {
-          output[k] ^= update[j];
+        /* Slap in the current update */
+        output.set(update, offset);
+
+        /* Iterations: update and XOR it in */
+        for (var i = 1; i < iterations; i++) {
+          hmac.hmac(password, update, update);
+          for (var j = 0, k = offset; j < update.length; j ++, k ++) {
+            output[k] ^= update[j];
+          }
         }
       }
-    }
 
-    /* Truncate the output if needed */
-    if (output.length == derivedKeyLength) return output;
-    return new Uint8Array(output.buffer, 0, derivedKeyLength);
+      /* Truncate the output if needed */
+      if (output.length == derivedKeyLength) return output;
+      return new Uint8Array(output.buffer, 0, derivedKeyLength);
 
-  };
+    };
 
-  function PBKDF2(hmacs, hmac) {
-    if (!hmacs) throw new Error("HMACs instance required");
-    Object.defineProperty(this, "kdf", {
-      configurable: true,
-      enumerable: true,
-      value: function(password, salt, options) {
-        password = arrays.toUint8Array(password);
-        salt = arrays.toUint8Array(salt);
-        return pbkdf2(password, salt, options, hmacs, hmac);
-      }
-    });
-    KDF.call(this, "PBKDF2");
-  };
+    function PBKDF2(hmacs, hmac) {
+      if (!hmacs) throw new Error("HMACs instance required");
+      Object.defineProperty(this, "kdf", {
+        configurable: true,
+        enumerable: true,
+        value: function(password, salt, options) {
+          password = arrays.toUint8Array(password);
+          salt = arrays.toUint8Array(salt);
+          return pbkdf2(password, salt, options, hmacs, hmac);
+        }
+      });
+      KDF.call(this, "PBKDF2");
+    };
 
-  PBKDF2.prototype = Object.create(KDF.prototype);
-  PBKDF2.prototype.constructor = KDF;
+    /* PBKDF2 extends KDF */
+    return KDF.$super(PBKDF2);
 
-  return PBKDF2;
-
-});
+  }
+);
 
 /* ========================================================================== */
 

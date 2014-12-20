@@ -40,7 +40,7 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
 
         "hash":        { enumerable: true, configurable: true, value: function() { return hashes.hash.apply(hashes, arguments) } },
         "hmac":        { enumerable: true, configurable: true, value: function() { return hmacs.hmac.apply(hmacs, arguments) } },
-        "kdf":         { enumerable: true, configurable: true, value: kdfs.kdf          }
+        "kdf":         { enumerable: true, configurable: true, value: function() { return kdfs.kdf.apply(kdfs, arguments) } },
       });
 
       classes.bind(this);

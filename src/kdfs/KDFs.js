@@ -21,21 +21,18 @@ Esquire.define('bletchley/kdfs/KDFs', [ 'bletchley/utils/HelperFactory',
 
         /* KDF Algoritmh */
         switch (algorithm[1]) {
-          case 'PBKDF':  return new PBKDF2(hmacs, hmac);
           case 'PBKDF2': return new PBKDF2(hmacs, hmac);
           case 'SCRYPT': return new SCrypt(kdfs, algorithm[3]);
         }
       });
     }
 
-    KDFs.prototype = Object.create(HelperFactory.prototype);
-    KDFs.prototype.constructor = KDFs;
-
     KDFs.prototype.kdf = function(algorithm, password, salt, options) {
       return this.$helper(algorithm).kdf(password, salt, options);
     };
 
-    return KDFs;
+    /* KDFs extends HelperFactory */
+    return HelperFactory.$super(KDFs);
 
   }
 );

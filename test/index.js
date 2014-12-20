@@ -69,7 +69,7 @@ esquire([ 'test/BigInteger',
       testCodecs(syncCrypto, false);
       testHashes(syncCrypto, false);
       testHMACs(syncCrypto, false);
-      // testKDFs(syncCrypto, false);
+      testKDFs(syncCrypto, false);
       // testRSACipher(syncCrypto, false);
     });
 

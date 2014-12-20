@@ -1,18 +1,17 @@
 'use strict';
 
-Esquire.define('bletchley/kdfs/KDF', ['bletchley/utils/Helper',
+Esquire.define('bletchley/kdfs/KDF', ['bletchley/utils/classes',
                                       'bletchley/utils/arrays'],
-  function(Helper, arrays) {
+
+  function(classes, arrays) {
 
     function KDF(name) {
-      Helper.call(this, name);
+      /* Lock our functions */
+      classes.lock(this);
     };
 
-    KDF.prototype = Object.create(Helper.prototype);
-    KDF.prototype.constructor = KDF;
+    /* KDF extends Object */
+    return classes.extend(KDF);
 
-    KDF.prototype.kdf = function() { throw new Error("KDF not implemented") }
-
-    return KDF;
   }
 );
