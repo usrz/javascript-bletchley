@@ -15,6 +15,7 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
                                                 'bletchley/paddings/Paddings',
                                                 'bletchley/utils/BigInteger',
                                                 'bletchley/random/Random' ],
+
   function(Cipher, RSAKey, Accumulator, Chunker, Forwarder, Padding, Paddings, BigInteger, Random) {
 
     var paddings = new Paddings();
@@ -22,11 +23,6 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
     function RSACipher(padding, random) {
       if (!(padding instanceof Padding)) throw new Error("Invalid Padding");
       if (!(random instanceof Random)) throw new Error("Invalid Random");
-
-      //var algorithms = [];
-      //algorithms.push("RSA/"      + padding.$algorithm); // preferred
-      // algorithms.push("RSA/NONE/" + padding.$algorithm); // "NO" block mode
-      // algorithms.push("RSA/ECB/"  + padding.$algorithm); // be like Java
 
       /* RFC 3447, section 7.1.1 (OAEP) and section 7.2.1 (PKCS1) */
       this.encrypt = function(key, data, options) {
@@ -78,14 +74,12 @@ Esquire.define('bletchley/ciphers/RSACipher', [ 'bletchley/ciphers/Cipher',
         return result;
       }
 
-      Cipher.call(this, "RSA/" + padding.$algorithm);
+      Cipher.call(this);
     }
 
     /* ======================================================================= */
 
-    RSACipher.prototype = Object.create(Cipher.prototype);
-    RSACipher.prototype.constructor = RSACipher;
-
-    return RSACipher;
+    /* RSACipher extends Cipher */
+    return Cipher.$super(RSACipher);
   }
 );

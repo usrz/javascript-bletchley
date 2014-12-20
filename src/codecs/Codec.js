@@ -1,19 +1,19 @@
 'use strict';
 
-Esquire.define('bletchley/codecs/Codec', [ 'bletchley/utils/Helper' ],
-  function(Helper) {
+Esquire.define('bletchley/codecs/Codec', [ 'bletchley/utils/classes' ],
 
-    function Codec(name) {
-      Helper.call(this, name);
+  function(classes) {
+
+    function Codec() {
+      /* Lock all our functions */
+      classes.lock(this);
     };
-
-    Codec.prototype = Object.create(Helper.prototype);
-    Codec.prototype.constructor = Codec;
 
     Codec.prototype.encode = function() { throw new Error("Codec 'encode' not implemented") }
     Codec.prototype.decode = function() { throw new Error("Codec 'decode' not implemented") }
 
-    return Codec;
+    /* Codec extends Object */
+    return classes.extend(Codec);
 
   }
 );

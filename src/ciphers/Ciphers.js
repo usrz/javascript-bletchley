@@ -23,15 +23,12 @@ Esquire.define('bletchley/ciphers/Ciphers', [ 'bletchley/utils/HelperFactory',
         /* Get the padding function to associate with the Cipher */
         var padding = algorithm[3] ? paddings.$helper(algorithm[3]) : null;
 
-        /* KDF Algoritmh */
+        /* Cipher Algoritmh */
         switch (algorithm[1]) {
           case 'RSA':  return new RSACipher(padding, random);
         }
       });
     }
-
-    Ciphers.prototype = Object.create(HelperFactory.prototype);
-    Ciphers.prototype.constructor = Ciphers;
 
     Ciphers.prototype.encrypt = function(algorithm, key, data, options) {
       return this.$helper(algorithm).encrypt(key, data, options);
@@ -41,7 +38,8 @@ Esquire.define('bletchley/ciphers/Ciphers', [ 'bletchley/utils/HelperFactory',
       return this.$helper(algorithm).decrypt(key, data, options);
     };
 
-    return Ciphers;
+    /* Ciphers extends HelperFactory */
+    return HelperFactory.$super(Ciphers);
 
   }
 );

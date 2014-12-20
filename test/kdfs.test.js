@@ -85,6 +85,23 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
 
         });
 
+        promises("should work as SCRYPT/SHA-256", function() {
+          var options = { iterations: 16,
+                          blockSize: 1,
+                          parallelization: 1,
+                          derivedKeyLength: 64 };
+
+          return maybeAsync(crypto.kdf("SCRYPT/SHA-256", "", "", options))
+          .then(function(result) {
+            expect(result).to.be.instanceof(Uint8Array);
+            return encode('HEX', result);
+          }).then(function(result) {
+            expect(result).to.equal("77d6576238657b203b19ca42c18a0497f16b4844e3074ae8dfdffa3fede21442fcd0069ded0948f8326a753a0fc81f17e8d3e0fb2e0d3628cf35e20c38d18906");
+          }).done();
+
+        });
+
+
       });
 
       /* ==================================================================== */
@@ -327,6 +344,20 @@ Esquire.define('test/kdfs', ['test/async', 'bletchley/codecs'], function(async, 
           }).done();
 
         });
+
+        promises("should work as PBKDF2/SHA1", function() {
+          var options = { iterations: 1 };
+
+          return maybeAsync(crypto.kdf("PBKDF2/SHA1", "password", "salt", options))
+          .then(function(result) {
+            expect(result).to.be.instanceof(Uint8Array);
+            return encode('HEX', result);
+          }).then(function(result) {
+            expect(result).to.equal("0c60c80f961f0e71f3a9b524af6012062fe037a6");
+          }).done();
+
+        });
+
 
       })
     });

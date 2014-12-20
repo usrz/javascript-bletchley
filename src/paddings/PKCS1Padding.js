@@ -3,6 +3,7 @@
 Esquire.define('bletchley/paddings/PKCS1Padding', [ 'bletchley/paddings/Padding',
                                                     'bletchley/blocks/Forwarder',
                                                     'bletchley/random/Random' ],
+
   function(Padding, Forwarder, Random) {
 
     function PKCS1Padder(receiver, random, keySize) {
@@ -49,11 +50,12 @@ Esquire.define('bletchley/paddings/PKCS1Padding', [ 'bletchley/paddings/Padding'
         }}
       });
 
+      /* Call super constructor */
       Forwarder.call(this, receiver);
     }
 
-    PKCS1Padder.prototype = Object.create(Forwarder.prototype);
-    PKCS1Padder.prototype.constructor = PKCS1Padder;
+    /* PKCS1Padder extends Forwarder */
+    Forwarder.$super(PKCS1Padder);
 
     /* ====================================================================== */
 
@@ -75,11 +77,12 @@ Esquire.define('bletchley/paddings/PKCS1Padding', [ 'bletchley/paddings/Padding'
         }}
       });
 
+      /* Call super constructor */
       Forwarder.call(this, receiver);
     }
 
-    PKCS1Unpadder.prototype = Object.create(Forwarder.prototype);
-    PKCS1Unpadder.prototype.constructor = PKCS1Unpadder;
+    /* PKCS1Unpadder extends Forwarder */
+    Forwarder.$super(PKCS1Unpadder);
 
     /* ====================================================================== */
 

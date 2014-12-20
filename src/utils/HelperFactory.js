@@ -22,7 +22,7 @@ function(classes, Helper) {
     Object.defineProperties(this, {
       "$helper": {
         enumerable: false,
-        configurable: false,
+        configurable: true,
         value: function(algorithm) {
           /* See if we have something in cache */
           if (instances[algorithm]) return instances[algorithm];
@@ -43,11 +43,11 @@ function(classes, Helper) {
       }
     });
 
-    /* Bind and lock functions */
-    classes.bind(this);
+    /* Lock functions */
+    classes.lock(this);
   }
 
-  /* Return our class */
-  return HelperFactory;
+  /* HelperFactory extends Object */
+  return classes.extend(HelperFactory);
 
 });

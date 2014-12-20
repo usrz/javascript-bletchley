@@ -15,9 +15,6 @@ Esquire.define('bletchley/codecs/Codecs', [ 'bletchley/utils/HelperFactory',
       });
     }
 
-    Codecs.prototype = Object.create(HelperFactory.prototype);
-    Codecs.prototype.constructor = Codecs;
-
     Codecs.prototype.encode = function(algorithm, array) {
       return this.$helper(algorithm).encode(array);
     };
@@ -26,7 +23,8 @@ Esquire.define('bletchley/codecs/Codecs', [ 'bletchley/utils/HelperFactory',
       return this.$helper(algorithm).decode(string);
     };
 
-    return Codecs;
+    /* Codecs extends HelperFactory */
+    return HelperFactory.$super(Codecs);
 
   }
 );

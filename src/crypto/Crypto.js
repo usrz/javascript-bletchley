@@ -38,8 +38,8 @@ Esquire.define('bletchley/crypto/Crypto', [ 'bletchley/utils/arrays',
         "encrypt":     { enumerable: true, configurable: true, value: ciphers.encrypt   },
         "decrypt":     { enumerable: true, configurable: true, value: ciphers.decrypt   },
 
-        "hash":        { enumerable: true, configurable: true, value: hashes.hash       },
-        "hmac":        { enumerable: true, configurable: true, value: hmacs.hmac        },
+        "hash":        { enumerable: true, configurable: true, value: function() { return hashes.hash.apply(hashes, arguments) } },
+        "hmac":        { enumerable: true, configurable: true, value: function() { return hmacs.hmac.apply(hmacs, arguments) } },
         "kdf":         { enumerable: true, configurable: true, value: kdfs.kdf          }
       });
 

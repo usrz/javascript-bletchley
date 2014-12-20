@@ -5,6 +5,7 @@ Esquire.define('bletchley/codecs/Base64', [ "bletchley/codecs/Codec",
                                             "$global/Buffer",
                                             "$global/btoa",
                                             "$global/atob" ],
+
   function(Codec, arrays, Buffer, btoa, atob) {
 
     /* ====================================================================== */
@@ -162,11 +163,8 @@ Esquire.define('bletchley/codecs/Base64', [ "bletchley/codecs/Codec",
     /* ====================================================================== */
 
     function Base64() {
-      Codec.call(this, "BASE-64");
+      Codec.call(this);
     }
-
-    Base64.prototype = Object.create(Codec.prototype);
-    Base64.prototype.constructor = Base64;
 
     Base64.prototype.encode = function(array) {
       array = arrays.toUint8Array(array);
@@ -180,6 +178,7 @@ Esquire.define('bletchley/codecs/Base64', [ "bletchley/codecs/Codec",
       return decode(string.replace(/\s*/g, ''));
     }
 
-    return Base64;
+    /* Base64 extends Codec */
+    return Codec.$super(Base64);
   }
 );

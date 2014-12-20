@@ -1,11 +1,12 @@
 'use strict';
 
-Esquire.define('test/blocks', [ 'bletchley/random/SecureRandom',
+Esquire.define('test/blocks', [ 'bletchley/utils/classes',
+                                'bletchley/random/SecureRandom',
                                 'bletchley/blocks/Receiver',
                                 'bletchley/blocks/Accumulator',
                                 'bletchley/blocks/Chunker',
                                 'bletchley/codecs' ],
-  function(SecureRandom, Receiver, Accumulator, Chunker, codecs) {
+  function(classes, SecureRandom, Receiver, Accumulator, Chunker, codecs) {
 
     var random = new SecureRandom();
 
@@ -20,8 +21,7 @@ Esquire.define('test/blocks', [ 'bletchley/random/SecureRandom',
         }
       }
     };
-    Forwarder.prototype = Object.create(Receiver.prototype);
-    Forwarder.prototype.constructor = Forwarder;
+    classes.extend(Forwarder, Receiver);
 
     /* Send random data */
     function pushRandom(receiver, callback) {

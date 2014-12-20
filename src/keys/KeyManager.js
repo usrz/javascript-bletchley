@@ -1,29 +1,34 @@
 'use strict';
 
-Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/ciphers/Ciphers',
-                                              'bletchley/blocks/Receiver',
+Esquire.define('bletchley/keys/KeyManager', [ 'bletchley/utils/classes',
+                                              'bletchley/ciphers/Ciphers',
+                                              'bletchley/blocks/Forwarder',
                                               'bletchley/random/Random',
                                               'bletchley/keys/RSAKeyFactory',
                                               'bletchley/utils/HelperFactory' ],
-  function(Ciphers, Receiver, Random, RSAKeyFactory, HelperFactory) {
+  function(classes, Ciphers, Forwarder, Random, RSAKeyFactory, HelperFactory) {
 
     /* ====================================================================== */
 
     /* Wrapper for encipher/decipher */
     function CipherForwarder(receiver) {
-      if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver: " + receiver);
+      //if (!(receiver instanceof Receiver)) throw new Error("Invalid Receiver: " + receiver);
 
       Object.defineProperties(this, {
-        push: { enumerable: true, configurable: false, value: function(message, last) {
-          return receiver.push(message, last);
+        push: { enumerable: true, configurable: true, value: function(message, last) {
+          return this.$next(message, last);
         }}
       });
 
-      Receiver.call(this, receiver);
+      Forwarder.call(this, receiver);
     }
 
-    CipherForwarder.prototype = Object.create(Receiver.prototype);
-    CipherForwarder.prototype.constructor = CipherForwarder;
+    classes.extend(CipherForwarder, Forwarder);
+
+    //CipherForwarder.
+
+    // CipherForwarder.prototype = Object.create(Forwarder.prototype);
+    // CipherForwarder.prototype.constructor = CipherForwarder;
 
     /* ====================================================================== */
 

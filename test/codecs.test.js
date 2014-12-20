@@ -38,14 +38,14 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
 
       promises("should fail encoding with unknown algorithm", function() {
         return maybeAsync(function() {
-          return encode('FOO', '');
+          return encode('f oo', ''); // normalize name
         })
 
         .then(function(encoded) {
           throw new Error("Should fail");
         }, function(failure) {
           expect(failure).to.be.instanceof(Error);
-          expect(failure.message).to.match(/'FOO' not in /);
+          expect(failure.message).to.match(/Unknown algorithm 'FOO'/);
         })
 
         .done();
@@ -53,14 +53,14 @@ function(async, binary, Crypto, AsyncCrypto, arrays) {
 
       promises("should fail decoding with unknown algorithm", function() {
         return maybeAsync(function() {
-          return decode('FOO', '');
+          return decode('f-oo', ''); // normalize name
         })
 
         .then(function(encoded) {
             throw new Error("Should fail");
           }, function(failure) {
             expect(failure).to.be.instanceof(Error);
-            expect(failure.message).to.match(/'FOO' not in /);
+            expect(failure.message).to.match(/Unknown algorithm 'FOO'/);
           })
 
         .done();

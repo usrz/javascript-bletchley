@@ -1,8 +1,9 @@
 'use strict';
 
-Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/Helper',
+Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/classes',
                                          'bletchley/utils/arrays' ],
-  function(Helper, arrays) {
+
+  function(classes, arrays) {
 
     function HMAC(hash) {
 
@@ -59,12 +60,11 @@ Esquire.define('bletchley/hmacs/HMAC', [ 'bletchley/utils/Helper',
         return hash.reset().update(outerKeyPadding).update(innerHash).digest(output);
       };
 
-      Helper.call(this, "foo");
+      /* Lock our functions */
+      classes.lock(this);
     };
 
-    HMAC.prototype = Object.create(Helper.prototype);
-    HMAC.prototype.constuctor = HMAC;
-
-    return HMAC;
+    /* HMAC extends Object */
+    return classes.extend(HMAC);
   }
 );

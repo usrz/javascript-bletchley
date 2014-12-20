@@ -115,11 +115,12 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
         }}
       });
 
+      /* Call super constructor */
       Forwarder.call(this, receiver);
     }
 
-    OAEPPadder.prototype = Object.create(Forwarder.prototype);
-    OAEPPadder.prototype.constructor = OAEPPadder;
+    /* OAEPPadder extends Forwarder */
+    Forwarder.$super(OAEPPadder);
 
     /* ====================================================================== */
 
@@ -163,12 +164,12 @@ Esquire.define('bletchley/paddings/OAEPPadding', [ 'bletchley/paddings/Padding',
         }
       }});
 
+      /* Call super constructor */
       Forwarder.call(this, receiver);
     }
 
-    OAEPUnpadder.prototype = Object.create(Forwarder.prototype);
-    OAEPUnpadder.prototype.constructor = OAEPUnpadder;
-
+    /* OAEPUnpadder extends Forwarder */
+    Forwarder.$super(OAEPUnpadder);
 
     /* ====================================================================== */
 

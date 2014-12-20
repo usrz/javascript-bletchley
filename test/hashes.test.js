@@ -7,8 +7,10 @@ Esquire.define('test/hashes', ['test/async', 'test/binary', 'bletchley/codecs', 
 
     describe("Hashes", function() {
 
-      /* Functions must be bound */
+      /* Needed for block size */
       var hashes = new Hashes();
+
+      /* Functions must be bound */
       var hash   = crypto.hash;
 
       /* Need encode and decode when testing the hash helper */

@@ -1,11 +1,12 @@
 'use strict';
 
-Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/blocks/Receiver',
+Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/utils/classes',
+                                          'bletchley/blocks/Receiver',
                                           'bletchley/blocks/Forwarder',
                                           'bletchley/utils/ASN1',
                                           'bletchley/utils/BigInteger',
                                           'bletchley/utils/arrays' ],
-  function(Receiver, Forwarder, ASN1, BigInteger, arrays) {
+  function(classes, Receiver, Forwarder, ASN1, BigInteger, arrays) {
 
     /* ======================================================================== *
      * Some rough ASN.1 DER encoding utilities: really bare bones!              *
@@ -233,8 +234,9 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/blocks/Receiver',
       Forwarder.call(this, receiver);
     }
 
-    RSAEncipher.prototype = Object.create(Forwarder.prototype);
-    RSAEncipher.prototype.constructor = RSAEncipher;
+    //RSAEncipher.prototype = Object.create(Forwarder.prototype);
+    //RSAEncipher.prototype.constructor = RSAEncipher;
+    classes.extend(RSAEncipher, Forwarder);
 
     /* ======================================================================= */
 
@@ -258,8 +260,9 @@ Esquire.define('bletchley/keys/RSAKey', [ 'bletchley/blocks/Receiver',
       Forwarder.call(this, receiver);
     }
 
-    RSADecipher.prototype = Object.create(Forwarder.prototype);
-    RSADecipher.prototype.constructor = RSADecipher;
+    //RSADecipher.prototype = Object.create(Forwarder.prototype);
+    //RSADecipher.prototype.constructor = RSADecipher;
+    classes.extend(RSADecipher, Forwarder);
 
     /* ======================================================================== *
      | Internal RSA key structure, will be wrapped by the KeyManager            |

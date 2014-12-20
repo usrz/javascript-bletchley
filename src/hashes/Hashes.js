@@ -21,14 +21,12 @@ Esquire.define('bletchley/hashes/Hashes', [ 'bletchley/utils/HelperFactory',
       });
     }
 
-    Hashes.prototype = Object.create(HelperFactory.prototype);
-    Hashes.prototype.constructor = Hashes;
-
     Hashes.prototype.hash = function(algorithm, message, output) {
       return this.$helper(algorithm).hash(message, output);
     };
 
-    return Hashes;
+    /* Hashes extends HelperFactory */
+    return HelperFactory.$super(Hashes);
 
   }
 );
